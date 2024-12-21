@@ -19,9 +19,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Header />
         <div className="flex h-[calc(100vh-4rem)]">
           {isSettingsPage ? (
-            <main className="flex-1 overflow-y-auto">
-              <SettingsLayout>{children}</SettingsLayout>
-            </main>
+            <SettingsLayout>{children}</SettingsLayout>
           ) : (
             <>
               <Sidebar />

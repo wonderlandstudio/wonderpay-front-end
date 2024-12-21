@@ -7,12 +7,12 @@ interface SettingsLayoutProps {
 
 const SettingsLayout = ({ children }: SettingsLayoutProps) => {
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
+    <>
       <SettingsSidebar />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto px-6 backdrop-blur-md bg-white/50">
         {children}
       </main>
-    </div>
+    </>
   );
 };
 
