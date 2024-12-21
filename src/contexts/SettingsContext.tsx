@@ -1,11 +1,21 @@
 import React, { createContext, useContext, useState } from 'react';
 
+interface Address {
+  street: string;
+  unit?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
 interface Settings {
   businessName: string;
   displayName: string;
   website: string;
   description: string;
   brandColor: string;
+  address?: Address;
 }
 
 interface SettingsContextType {
@@ -19,7 +29,15 @@ const defaultSettings: Settings = {
   displayName: 'Wonderland Studio',
   website: 'http://www.thewonderlandstudio.co',
   description: '',
-  brandColor: '#9b87f5'
+  brandColor: '#9b87f5',
+  address: {
+    street: '',
+    unit: '',
+    city: '',
+    state: 'CA',
+    zipCode: '',
+    country: 'US'
+  }
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -33,7 +51,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
   const saveSettings = async () => {
     // Here you would typically make an API call to save the settings
-    // For now, we'll just simulate a delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log('Settings saved:', settings);
   };
