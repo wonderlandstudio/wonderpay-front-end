@@ -18,8 +18,9 @@ const Header = () => {
         <div className="flex-1">
           <Link 
             to="/dashboard/organization-settings" 
-            className="ml-6 text-sm text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+            className="ml-6 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
           >
+            <div className="h-4 w-4 bg-blue-500 rounded" />
             Wonderland Studio
           </Link>
         </div>
