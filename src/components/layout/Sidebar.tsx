@@ -14,8 +14,8 @@ import {
 
 const navigation = [
   { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Bill Pay', href: '/bill-pay', icon: ArrowDownRight },
-  { name: 'Receivables', href: '/receivables', icon: ArrowUpRight },
+  { name: 'Bill Pay', href: '/bill-pay', icon: ArrowUpRight },
+  { name: 'Receivables', href: '/receivables', icon: ArrowDownRight },
   { name: 'Create Invoice', href: '/create-invoice', icon: FilePlus },
   { name: 'WonderPay Capital', href: '/capital', icon: Sparkles },
   { name: 'Clients & Vendors', href: '/clients', icon: Users },
