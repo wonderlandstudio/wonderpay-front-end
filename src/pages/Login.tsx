@@ -62,7 +62,7 @@ const Login = () => {
             className="bg-gray-50 hover:bg-gray-100 border-gray-200 py-6 text-lg"
           >
             <img 
-              src="/apple-logo.png" 
+              src="/lovable-uploads/4593dc6b-b207-4fde-b637-b2b03940288a.png" 
               alt="Apple" 
               className="w-5 h-5 mr-2"
             />
@@ -73,7 +73,7 @@ const Login = () => {
             className="bg-gray-50 hover:bg-gray-100 border-gray-200 py-6 text-lg"
           >
             <img 
-              src="/google-logo.png" 
+              src="/lovable-uploads/eda143a6-7f5d-4691-88f3-17b5af09550d.png" 
               alt="Google" 
               className="w-5 h-5 mr-2"
             />
@@ -83,7 +83,7 @@ const Login = () => {
 
         <div className="flex items-center justify-center space-x-2 mt-16">
           <img 
-            src="/wonderland-logo.png" 
+            src="/lovable-uploads/e108ac5d-fbce-40df-8ece-a6c14c2ee5b6.png" 
             alt="Wonderland Studio" 
             className="w-6 h-6"
           />
