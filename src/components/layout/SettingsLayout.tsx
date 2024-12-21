@@ -1,5 +1,4 @@
 import React from 'react';
-import SettingsSidebar from './SettingsSidebar';
 
 interface SettingsLayoutProps {
   children: React.ReactNode;
@@ -7,12 +6,9 @@ interface SettingsLayoutProps {
 
 const SettingsLayout = ({ children }: SettingsLayoutProps) => {
   return (
-    <>
-      <SettingsSidebar />
-      <main className="flex-1 overflow-y-auto px-6 backdrop-blur-md bg-white/50">
-        {children}
-      </main>
-    </>
+    <main className="flex-1 overflow-y-auto px-6 backdrop-blur-md bg-white/50">
+      {children}
+    </main>
   );
 };
 

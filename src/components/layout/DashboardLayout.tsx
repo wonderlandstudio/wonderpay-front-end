@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import SettingsLayout from './SettingsLayout';
+import SettingsSidebar from './SettingsSidebar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -19,7 +19,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Header />
         <div className="flex h-[calc(100vh-4rem)]">
           {isSettingsPage ? (
-            <SettingsLayout>{children}</SettingsLayout>
+            <>
+              <SettingsSidebar />
+              <main className="flex-1 overflow-y-auto px-6 backdrop-blur-md bg-white/50">
+                {children}
+              </main>
+            </>
           ) : (
             <>
               <Sidebar />
