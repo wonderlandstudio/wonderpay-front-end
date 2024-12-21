@@ -18,14 +18,18 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="backdrop-blur-sm bg-white/30">
         <Header />
         <div className="flex h-[calc(100vh-4rem)]">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto px-6 backdrop-blur-md bg-white/50">
-            {isSettingsPage ? (
+          {isSettingsPage ? (
+            <main className="flex-1 overflow-y-auto">
               <SettingsLayout>{children}</SettingsLayout>
-            ) : (
-              children
-            )}
-          </main>
+            </main>
+          ) : (
+            <>
+              <Sidebar />
+              <main className="flex-1 overflow-y-auto px-6 backdrop-blur-md bg-white/50">
+                {children}
+              </main>
+            </>
+          )}
         </div>
       </div>
     </div>
