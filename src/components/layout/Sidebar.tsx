@@ -18,7 +18,7 @@ const navigation = [
   { name: 'Create Invoice', href: '/create-invoice', icon: FilePlus },
   { name: 'WonderPay Capital', href: '/capital', icon: Sparkles },
   { name: 'Clients & Vendors', href: '/clients', icon: Users },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Settings', href: '/dashboard/organization-settings', icon: Settings },
 ];
 
 const Sidebar = () => {
