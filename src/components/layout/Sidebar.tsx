@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard,
@@ -23,11 +23,19 @@ const navigation = [
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleOrgClick = () => {
+    navigate('/dashboard/organization-settings');
+  };
 
   return (
     <div className="flex h-full w-64 flex-col backdrop-blur-md bg-white/50">
       <div className="p-4">
-        <div className="flex items-center gap-2 px-2 mb-8">
+        <div 
+          onClick={handleOrgClick}
+          className="flex items-center gap-2 px-2 mb-8 cursor-pointer hover:bg-black/5 rounded-lg transition-colors py-2"
+        >
           <div className="w-3 h-3 bg-blue-500 rounded-sm" />
           <span className="font-medium text-gray-900 font-inter">Wonderland Studio</span>
         </div>
