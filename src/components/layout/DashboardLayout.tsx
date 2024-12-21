@@ -12,7 +12,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <Header />
       <div className="flex h-[calc(100vh-4rem)]">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto px-6">
           {children}
         </main>
       </div>
