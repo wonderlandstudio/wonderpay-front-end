@@ -6,22 +6,18 @@ import {
   User,
   Home,
   Building2,
-  Layers,
   Users,
   Building,
   CreditCard,
-  Share2
 } from "lucide-react";
 
 const navigation = [
   { name: 'Your profile', href: '/dashboard/settings/profile', icon: User },
   { name: 'General', href: '/dashboard/organization-settings', icon: Settings },
   { name: 'Address', href: '/dashboard/settings/address', icon: Home },
-  { name: 'Limits', href: '/dashboard/settings/limits', icon: Layers },
   { name: 'Members', href: '/dashboard/settings/members', icon: Users },
   { name: 'Bank accounts', href: '/dashboard/settings/bank-accounts', icon: Building },
   { name: 'Cards', href: '/dashboard/settings/cards', icon: CreditCard },
-  { name: 'Refer a company', href: '/dashboard/settings/refer', icon: Share2 },
 ];
 
 const SettingsSidebar = () => {
