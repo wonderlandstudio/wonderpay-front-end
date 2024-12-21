@@ -7,13 +7,15 @@ import {
   ArrowUpRight,
   Sparkles,
   Users, 
-  Settings
+  Settings,
+  FilePlus
 } from "lucide-react";
 
 const navigation = [
   { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Bill Pay', href: '/bill-pay', icon: Receipt },
   { name: 'Receivables', href: '/receivables', icon: ArrowUpRight },
+  { name: 'Create Invoice', href: '/create-invoice', icon: FilePlus },
   { name: 'WonderPay Capital', href: '/capital', icon: Sparkles },
   { name: 'Clients & Vendors', href: '/clients', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
