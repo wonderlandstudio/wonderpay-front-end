@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Bell } from "lucide-react";
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   return (
@@ -14,13 +15,17 @@ const Header = () => {
           />
           <h2 className="text-2xl font-bold text-gray-900">WonderPay</h2>
         </div>
-        <div className="flex-1" />
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="text-gray-500">
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Button variant="outline">Profile</Button>
+        <div className="flex-1">
+          <Link 
+            to="/dashboard/organization-settings" 
+            className="ml-6 text-sm text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+          >
+            Wonderland Studio
+          </Link>
         </div>
+        <Button variant="ghost" size="icon" className="text-gray-500">
+          <Bell className="h-5 w-5" />
+        </Button>
       </div>
     </header>
   );
