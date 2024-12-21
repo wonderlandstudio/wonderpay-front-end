@@ -22,7 +22,7 @@ const Home = () => {
           BY WONDERLAND STUDIO
         </p>
         
-        <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed font-light mb-8">
+        <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed font-light mb-12">
           WonderPay by Wonderland Studio is a private bill pay and payments automation platform to streamline AP & AR and offer working capital solutions for our clients, partners and colleagues in music, entertainment and luxury hospitality.
         </p>
         
