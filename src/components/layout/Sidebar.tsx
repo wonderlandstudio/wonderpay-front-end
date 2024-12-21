@@ -11,6 +11,7 @@ import {
   FilePlus,
   ArrowDownRight
 } from "lucide-react";
+import { useSettings } from '@/contexts/SettingsContext';
 
 const navigation = [
   { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
@@ -25,6 +26,7 @@ const navigation = [
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { settings } = useSettings();
 
   const handleOrgClick = () => {
     navigate('/dashboard/organization-settings');
@@ -37,8 +39,11 @@ const Sidebar = () => {
           onClick={handleOrgClick}
           className="flex items-center gap-2 px-2 mb-8 cursor-pointer hover:bg-black/5 rounded-lg transition-colors py-2"
         >
-          <div className="w-3 h-3 bg-blue-500 rounded-sm" />
-          <span className="font-medium text-gray-900 font-inter">Wonderland Studio</span>
+          <div 
+            className="w-3 h-3 rounded-sm" 
+            style={{ backgroundColor: settings.brandColor }}
+          />
+          <span className="font-medium text-gray-900 font-inter">{settings.displayName}</span>
         </div>
         <nav className="flex flex-col gap-1">
           {navigation.map((item) => {
