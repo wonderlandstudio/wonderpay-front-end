@@ -112,7 +112,7 @@ const InvoiceGenerator = () => {
                 document={<InvoicePDFDocument data={invoiceData} />}
                 fileName={`invoice-${invoiceData.invoiceNumber}.pdf`}
               >
-                {({ loading }: { loading: boolean }) => (
+                {({ loading }) => (
                   <Button
                     className="w-full"
                     type="button"
