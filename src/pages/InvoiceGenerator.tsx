@@ -170,7 +170,7 @@ const InvoiceGenerator = () => {
           fileName={`invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`}
         >
           {({ loading }) => (
-            <Button disabled={loading}>
+            <Button disabled={loading} type="button">
               {loading ? 'Generating...' : 'Download Invoice'}
             </Button>
           )}
