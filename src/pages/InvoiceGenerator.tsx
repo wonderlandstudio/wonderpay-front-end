@@ -170,15 +170,7 @@ const InvoiceGenerator = () => {
           fileName={`invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`}
         >
           {({ loading }) => (
-            <Button 
-              disabled={loading}
-              onClick={() => {
-                toast({
-                  title: "Invoice Generated",
-                  description: "Your invoice has been generated successfully.",
-                });
-              }}
-            >
+            <Button disabled={loading}>
               {loading ? 'Generating...' : 'Download Invoice'}
             </Button>
           )}
