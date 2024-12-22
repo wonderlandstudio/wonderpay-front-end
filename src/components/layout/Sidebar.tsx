@@ -29,7 +29,7 @@ const Sidebar = () => {
   const { settings } = useSettings();
 
   const handleOrgClick = () => {
-    navigate('/');
+    navigate('/dashboard/organization-settings');
   };
 
   return (
