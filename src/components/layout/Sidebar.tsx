@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import { 
-  LayoutDashboard,
+  Home,
   Receipt, 
   ArrowUpRight,
   Sparkles,
@@ -14,7 +14,7 @@ import {
 import { useSettings } from '@/contexts/SettingsContext';
 
 const navigation = [
-  { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Home', href: '/dashboard', icon: Home },
   { name: 'Bill Pay', href: '/bill-pay', icon: ArrowUpRight },
   { name: 'Receivables', href: '/receivables', icon: ArrowDownRight },
   { name: 'Create Invoice', href: '/create-invoice', icon: FilePlus },
