@@ -16,7 +16,6 @@ function App() {
         <Routes>
           <Route path="/" element={<DashboardLayout><Outlet /></DashboardLayout>}>
             <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
             <Route path="dashboard/settings">
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="address" element={<AddressSettings />} />
