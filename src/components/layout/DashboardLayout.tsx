@@ -12,6 +12,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const isSettingsPage = location.pathname.includes('/dashboard/organization-settings') || 
                         location.pathname.includes('/dashboard/settings');
+  const isInvoiceGenerator = location.pathname === '/bill-pay/generate';
+
+  // If we're on the invoice generator page, render without sidebars
+  if (isInvoiceGenerator) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
