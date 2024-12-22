@@ -1,5 +1,6 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { InvoiceData } from '@/types/invoice';
 
 // Define styles for PDF
 const styles = StyleSheet.create({
@@ -68,24 +69,6 @@ const styles = StyleSheet.create({
     color: '#666',
   },
 });
-
-interface InvoiceItem {
-  description: string;
-  quantity: number;
-  price: number;
-}
-
-interface InvoiceData {
-  invoiceNumber: string;
-  date: string;
-  dueDate: string;
-  companyName: string;
-  clientName: string;
-  clientEmail: string;
-  clientAddress: string;
-  items: InvoiceItem[];
-  notes: string;
-}
 
 interface Props {
   data: InvoiceData;

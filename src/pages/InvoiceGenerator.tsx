@@ -8,50 +8,7 @@ import InvoiceTermsForm from '@/components/invoice/InvoiceTermsForm';
 import InvoicePDFDocument from '@/components/invoice/InvoicePDFDocument';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Button } from '@/components/ui/button';
-
-interface InvoiceData {
-  // Company Details
-  email: string;
-  companyName: string;
-  logo?: File;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-  taxId: string;
-
-  // Invoice Details
-  currency: string;
-  items: Array<{
-    name: string;
-    quantity: number;
-    price: number;
-  }>;
-  note: string;
-  discount: number;
-  tax: number;
-
-  // Payment Details
-  bankName: string;
-  accountNumber: string;
-  accountName: string;
-  ifscCode: string;
-  routingNumber: string;
-  swiftCode: string;
-
-  // Invoice Terms
-  invoiceNumber: string;
-  issueDate: string;
-  dueDate: string;
-
-  // Required by PDFDocument
-  clientName: string;
-  clientEmail: string;
-  clientAddress: string;
-  notes: string;
-  date: string;
-}
+import { InvoiceData } from '@/types/invoice';
 
 const InvoiceGenerator = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -78,7 +35,7 @@ const InvoiceGenerator = () => {
     invoiceNumber: 'INVOICE-01',
     issueDate: '',
     dueDate: '',
-    // Adding the missing required fields
+    // Required by PDFDocument
     clientName: '',
     clientEmail: '',
     clientAddress: '',

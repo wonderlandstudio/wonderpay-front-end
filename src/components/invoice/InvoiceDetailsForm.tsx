@@ -10,12 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface InvoiceItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
+import { InvoiceItem } from '@/types/invoice';
 
 interface InvoiceDetailsFormProps {
   data: {
@@ -30,7 +25,7 @@ interface InvoiceDetailsFormProps {
 
 const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange }) => {
   const handleAddItem = () => {
-    onChange('items', [...data.items, { name: '', quantity: 1, price: 0 }]);
+    onChange('items', [...data.items, { description: '', quantity: 1, price: 0 }]);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -83,9 +78,9 @@ const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange 
           <div key={index} className="flex gap-4 items-start">
             <div className="flex-grow">
               <Input
-                placeholder="Item name"
-                value={item.name}
-                onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                placeholder="Item description"
+                value={item.description}
+                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
               />
             </div>
             <div className="w-24">
