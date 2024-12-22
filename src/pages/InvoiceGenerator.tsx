@@ -106,7 +106,7 @@ const InvoiceGenerator = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="p-6">
+          <Card className="p-6 h-[calc(100vh-12rem)] overflow-auto">
             <InvoiceSteps
               currentStep={currentStep}
               onNext={() => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))}
@@ -115,7 +115,7 @@ const InvoiceGenerator = () => {
             />
           </Card>
           
-          <Card className="p-6">
+          <Card className="p-6 h-[calc(100vh-12rem)] overflow-auto">
             <h2 className="text-lg font-semibold mb-4">Preview</h2>
             <div className="aspect-[1/1.4] bg-white rounded-lg border shadow-sm p-6">
               <InvoicePDFDocument data={invoiceData} />
