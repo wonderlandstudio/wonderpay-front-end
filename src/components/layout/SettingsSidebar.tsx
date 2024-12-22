@@ -5,7 +5,7 @@ import {
   Settings,
   User,
   Home,
-  Building2,
+  ArrowLeftCircle,
   Users,
   Building,
   CreditCard,
@@ -35,8 +35,7 @@ const SettingsSidebar = () => {
           onClick={handleBackToDashboard}
           className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mb-6"
         >
-          <Building2 className="h-5 w-5" />
-          <span className="font-medium">Back to Dashboard</span>
+          <ArrowLeftCircle className="h-6 w-6" />
         </button>
 
         <nav className="space-y-1">
