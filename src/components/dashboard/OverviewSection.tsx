@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { ArrowDown, ArrowUp, Wallet } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, Wallet } from "lucide-react";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const data = [
   { date: '23', value: 500 },
@@ -20,12 +26,35 @@ const data = [
 ];
 
 const OverviewSection = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState('30');
+
+  const handlePeriodChange = (period: string) => {
+    setSelectedPeriod(period);
+    // This will be connected to backend data fetching later
+  };
+
   return (
     <div className="space-y-8 pt-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">Overview</h1>
         <div className="flex items-center gap-4">
-          <div className="bg-gray-100 rounded-full px-4 py-2 text-sm">Last 30 days</div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="bg-gray-100 rounded-full px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-200 transition-colors">
+              Last {selectedPeriod} days
+              <ChevronDown className="h-4 w-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[160px]">
+              <DropdownMenuItem onClick={() => handlePeriodChange('30')}>
+                Last 30 days
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handlePeriodChange('60')}>
+                Last 60 days
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handlePeriodChange('90')}>
+                Last 90 days
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <div className="bg-gray-100 rounded-full px-4 py-2 text-sm flex items-center gap-2">
             <Wallet className="h-4 w-4" />
             Rho Business Bank... ****6092
