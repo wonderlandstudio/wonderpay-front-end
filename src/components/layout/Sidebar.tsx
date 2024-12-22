@@ -14,7 +14,7 @@ import {
 import { useSettings } from '@/contexts/SettingsContext';
 
 const navigation = [
-  { name: 'Home', href: '/dashboard', icon: Home },
+  { name: 'Home', href: '/', icon: Home },
   { name: 'Bill Pay', href: '/bill-pay', icon: ArrowUpRight },
   { name: 'Receivables', href: '/receivables', icon: ArrowDownRight },
   { name: 'Create Invoice', href: '/create-invoice', icon: FilePlus },
@@ -29,7 +29,7 @@ const Sidebar = () => {
   const { settings } = useSettings();
 
   const handleOrgClick = () => {
-    navigate('/dashboard/organization-settings');
+    navigate('/');
   };
 
   return (
