@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { ArrowDown, ArrowUp, Wallet } from "lucide-react";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, XAxis, YAxis } from "recharts";
 
 const data = [
   { date: '23', value: 500 },
@@ -22,10 +22,10 @@ const data = [
 
 const OverviewSection = () => {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">Overview</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <div className="bg-gray-100 rounded-full px-4 py-2 text-sm">Last 30 days</div>
           <div className="bg-gray-100 rounded-full px-4 py-2 text-sm flex items-center gap-2">
             <Wallet className="h-4 w-4" />
@@ -34,7 +34,7 @@ const OverviewSection = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6 bg-white">
           <div className="flex items-center gap-4">
             <Wallet className="h-6 w-6 text-gray-500" />
@@ -66,7 +66,7 @@ const OverviewSection = () => {
         </Card>
       </div>
 
-      <Card className="p-6 bg-white">
+      <Card className="p-6 bg-white mt-8">
         <ChartContainer className="h-[300px]" config={{}}>
           <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <defs>
