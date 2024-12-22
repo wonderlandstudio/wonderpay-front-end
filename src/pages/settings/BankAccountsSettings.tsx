@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { VerifyBankAccountDialog } from "@/components/bank-accounts/VerifyBankAccountDialog";
 
 const BankAccountsSettings = () => {
   const { toast } = useToast();
@@ -36,10 +37,7 @@ const BankAccountsSettings = () => {
           <p className="text-gray-500 mt-2">Manage your connected bank accounts.</p>
         </div>
         <div className="flex gap-4">
-          <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4" />
-            Add account
-          </Button>
+          <VerifyBankAccountDialog />
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
               <>
