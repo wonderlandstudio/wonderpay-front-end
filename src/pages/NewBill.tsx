@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Upload } from "lucide-react";
+import { AddContactDialog } from '@/components/contacts/AddContactDialog';
 
 const NewBill = () => {
   const navigate = useNavigate();
@@ -44,9 +45,10 @@ const NewBill = () => {
               <label className="text-sm text-gray-500">Contact</label>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="No contact selected" />
+                  <SelectValue placeholder="Select a contact" />
                 </SelectTrigger>
                 <SelectContent>
+                  <AddContactDialog />
                   <SelectItem value="none">No contact selected</SelectItem>
                 </SelectContent>
               </Select>
