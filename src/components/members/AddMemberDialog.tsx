@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
@@ -87,14 +86,7 @@ export function AddMemberDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-normal">Add user</DialogTitle>
-            <DialogTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
-                <X className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-          </div>
+          <DialogTitle className="text-2xl font-normal">Add user</DialogTitle>
           <p className="text-gray-500 mt-2">
             The user will receive an email with instructions on how to create their account.
           </p>
