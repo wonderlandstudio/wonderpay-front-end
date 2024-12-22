@@ -17,12 +17,11 @@ const data = [
   { date: '02', value: 5000 },
   { date: '03', value: 500 },
   { date: '04', value: 500 },
-  // ... more dates
 ];
 
 const OverviewSection = () => {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">Overview</h1>
         <div className="flex items-center gap-4">
