@@ -66,14 +66,14 @@ const OrganizationSettings = () => {
         
         <Card className="max-w-3xl p-6 space-y-8 border-gray-200/50 backdrop-blur-lg bg-white/50">
           <div className="space-y-4">
-            <h2 className="text-lg text-gray-600">Company logo</h2>
+            <h2 className="text-lg text-gray-600 text-left">Company logo</h2>
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
               <span className="text-2xl font-medium text-gray-500">W</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-lg text-gray-600">Business name</h2>
+            <h2 className="text-lg text-gray-600 text-left">Business name</h2>
             <Input 
               name="businessName"
               value={settings.businessName}
@@ -83,7 +83,7 @@ const OrganizationSettings = () => {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-lg text-gray-600">Display name</h2>
+            <h2 className="text-lg text-gray-600 text-left">Display name</h2>
             <Input 
               name="displayName"
               value={settings.displayName}
@@ -94,7 +94,7 @@ const OrganizationSettings = () => {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-lg text-gray-600">Website</h2>
+            <h2 className="text-lg text-gray-600 text-left">Website</h2>
             <Input 
               name="website"
               value={settings.website}
@@ -105,7 +105,7 @@ const OrganizationSettings = () => {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-lg text-gray-600">Description</h2>
+            <h2 className="text-lg text-gray-600 text-left">Description</h2>
             <Textarea 
               name="description"
               value={settings.description}
@@ -116,7 +116,7 @@ const OrganizationSettings = () => {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-lg text-gray-600">Brand color</h2>
+            <h2 className="text-lg text-gray-600 text-left">Brand color</h2>
             <RadioGroup
               value={settings.brandColor}
               onValueChange={handleColorChange}
