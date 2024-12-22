@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import OrganizationSettings from './pages/OrganizationSettings';
@@ -19,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<DashboardLayout><Outlet /></DashboardLayout>}>
             <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="bill-pay">
               <Route index element={<BillPay />} />
               <Route path="new" element={<NewBill />} />
@@ -33,6 +34,8 @@ function App() {
             </Route>
             <Route path="dashboard/organization-settings" element={<OrganizationSettings />} />
           </Route>
+          {/* Catch any other routes and redirect to dashboard */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </SettingsProvider>
