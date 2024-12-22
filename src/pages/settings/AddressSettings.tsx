@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useSettings } from '@/contexts/SettingsContext';
 
 const AddressSettings = () => {
@@ -28,9 +28,12 @@ const AddressSettings = () => {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold text-gray-900">Address</h1>
-        <p className="text-gray-500 mt-2">The address on this page is included on invoices sent by your company.</p>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-900">Address</h1>
+          <p className="text-gray-500 mt-2">The address on this page is included on invoices sent by your company.</p>
+        </div>
+        <Button onClick={handleSave}>Save changes</Button>
       </div>
       
       <Card className="max-w-3xl p-6 space-y-8 bg-white/50">
@@ -108,10 +111,6 @@ const AddressSettings = () => {
               </Select>
             </div>
           </div>
-        </div>
-
-        <div className="flex justify-end">
-          <Button onClick={handleSave}>Save changes</Button>
         </div>
       </Card>
     </div>
