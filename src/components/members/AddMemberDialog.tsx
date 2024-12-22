@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { TeamMember } from '@/types/members';
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -39,13 +40,17 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface AddMemberDialogProps {
+  onMemberInvited: (member: TeamMember) => void;
+}
+
 const roleDescriptions = {
   administrator: "Administrators can edit settings and edit or pay all bills.",
   bookkeeper: "Bookkeepers can view all bills but cannot create, edit or pay them.",
   user: "Users can only view, edit or pay bills they created.",
 };
 
-export function AddMemberDialog() {
+export function AddMemberDialog({ onMemberInvited }: AddMemberDialogProps) {
   const { toast } = useToast();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -59,8 +64,19 @@ export function AddMemberDialog() {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      // Create a new team member object
+      const newMember: TeamMember = {
+        id: crypto.randomUUID(),
+        ...data,
+        status: 'pending',
+        invitedAt: new Date(),
+      };
+      
       // Here you would typically make an API call to send the invitation
-      console.log("Sending invitation:", data);
+      console.log("Sending invitation:", newMember);
+      
+      // Call the callback with the new member
+      onMemberInvited(newMember);
       
       toast({
         title: "Invitation sent",
