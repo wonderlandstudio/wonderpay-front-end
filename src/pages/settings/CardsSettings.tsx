@@ -1,27 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useSettings } from '@/contexts/SettingsContext';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from "lucide-react";
 
 const CardsSettings = () => {
-  const { settings, saveSettings } = useSettings();
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
-      await saveSettings();
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
-        title: "Cards saved",
-        description: "Card changes have been successfully saved.",
+        title: "Success",
+        description: "Card settings have been successfully saved.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save card changes. Please try again.",
+        description: "Failed to save card settings. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -37,7 +40,16 @@ const CardsSettings = () => {
             <Plus className="mr-2 h-4 w-4" />
             Add card
           </Button>
-          <Button onClick={handleSave}>Save changes</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save changes'
+            )}
+          </Button>
         </div>
       </div>
       

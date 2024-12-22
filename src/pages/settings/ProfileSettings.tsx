@@ -18,6 +18,7 @@ interface ProfileData {
 
 const ProfileSettings = () => {
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState<ProfileData>({
     firstName: 'Mitch',
     lastName: 'Eisner',
@@ -36,11 +37,12 @@ const ProfileSettings = () => {
   };
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
-      // Here you would typically make an API call to save the profile
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
-        title: "Profile updated",
+        title: "Success",
         description: "Your profile has been successfully updated.",
       });
     } catch (error) {
@@ -49,6 +51,8 @@ const ProfileSettings = () => {
         description: "Failed to update profile. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 

@@ -1,20 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from '@/contexts/SettingsContext';
+import { Loader2 } from "lucide-react";
 
 const AddressSettings = () => {
   const { settings, updateSettings, saveSettings } = useSettings();
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
       await saveSettings();
       toast({
-        title: "Address saved",
+        title: "Success",
         description: "Your address has been successfully updated.",
       });
     } catch (error) {
@@ -23,6 +26,8 @@ const AddressSettings = () => {
         description: "Failed to save address. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -33,7 +38,16 @@ const AddressSettings = () => {
           <h1 className="text-3xl font-semibold text-gray-900">Address</h1>
           <p className="text-gray-500 mt-2">The address on this page is included on invoices sent by your company.</p>
         </div>
-        <Button onClick={handleSave}>Save changes</Button>
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            'Save changes'
+          )}
+        </Button>
       </div>
       
       <Card className="max-w-3xl p-6 space-y-8 bg-white/50">

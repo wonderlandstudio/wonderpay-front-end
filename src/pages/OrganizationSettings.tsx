@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import SettingsLayout from '@/components/layout/SettingsLayout';
 import { useSettings } from '@/contexts/SettingsContext';
+import { Loader2 } from "lucide-react";
 
 const brandColors = [
   { name: 'Neutral Gray', value: '#8E9196' },
@@ -31,6 +32,7 @@ const OrganizationSettings = () => {
   const { settings, updateSettings, saveSettings } = useSettings();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -68,11 +70,12 @@ const OrganizationSettings = () => {
   };
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
       await saveSettings();
       toast({
-        title: "Settings saved",
-        description: "Your changes have been successfully saved.",
+        title: "Success",
+        description: "Organization settings have been successfully saved.",
       });
     } catch (error) {
       toast({
@@ -80,6 +83,8 @@ const OrganizationSettings = () => {
         description: "Failed to save settings. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -88,7 +93,16 @@ const OrganizationSettings = () => {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-900">General</h1>
-          <Button onClick={handleSave}>Save changes</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save changes'
+            )}
+          </Button>
         </div>
         
         <Card className="max-w-3xl p-6 space-y-8 border-gray-200/50 backdrop-blur-lg bg-white/50">
