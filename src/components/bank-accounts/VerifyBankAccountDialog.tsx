@@ -30,40 +30,38 @@ export function VerifyBankAccountDialog() {
         </DialogHeader>
 
         <div className="space-y-4 mt-6">
-          <Button
-            variant="outline"
-            className="w-full justify-between h-auto py-6 px-4 hover:bg-primary/5"
+          <button
+            className="w-full text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 transition-colors relative group"
             onClick={() => console.log("Instant connect selected")}
           >
             <div className="flex items-start gap-4">
               <Zap className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
-              <div className="text-left">
+              <div>
                 <div className="font-semibold text-lg">Instant connect</div>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1 pr-24">
                   Securely connect to your bank account and get access to everything instantly, including faster payments.
                 </p>
               </div>
             </div>
-            <div className="bg-primary/10 text-primary text-sm px-3 py-1 rounded-full flex-shrink-0">
+            <div className="absolute right-4 top-4 bg-primary/10 text-primary text-sm px-3 py-1 rounded-full">
               Recommended
             </div>
-          </Button>
+          </button>
 
-          <Button
-            variant="outline"
-            className="w-full justify-between h-auto py-6 px-4 hover:bg-primary/5"
+          <button
+            className="w-full text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 transition-colors"
             onClick={() => console.log("Manual verification selected")}
           >
             <div className="flex items-start gap-4">
               <Clock className="h-6 w-6 text-gray-500 mt-1 flex-shrink-0" />
-              <div className="text-left">
+              <div>
                 <div className="font-semibold text-lg">Verify with manual deposit</div>
                 <p className="text-gray-500 text-sm mt-1">
                   Manually verify your bank account to pay bills and collect invoices. The manual deposit takes up to 2 business days.
                 </p>
               </div>
             </div>
-          </Button>
+          </button>
         </div>
       </DialogContent>
     </Dialog>
