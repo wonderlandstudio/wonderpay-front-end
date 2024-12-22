@@ -9,6 +9,7 @@ import {
   Users,
   Building,
   CreditCard,
+  Calculator,
 } from "lucide-react";
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: 'Members', href: '/dashboard/settings/members', icon: Users },
   { name: 'Bank accounts', href: '/dashboard/settings/bank-accounts', icon: Building },
   { name: 'Cards', href: '/dashboard/settings/cards', icon: CreditCard },
+  { name: 'Accounting', href: '/dashboard/settings/accounting', icon: Calculator },
 ];
 
 const SettingsSidebar = () => {
