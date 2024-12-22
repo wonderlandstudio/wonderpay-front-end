@@ -35,6 +35,10 @@ function App() {
               <Route path="bank-accounts" element={<BankAccountsSettings />} />
             </Route>
             <Route path="dashboard/organization-settings" element={<OrganizationSettings />} />
+            {/* Add routes for other sections */}
+            <Route path="receivables" element={<Navigate to="/bill-pay" replace />} />
+            <Route path="capital" element={<Navigate to="/bill-pay" replace />} />
+            <Route path="clients" element={<Navigate to="/bill-pay" replace />} />
           </Route>
           {/* Catch any other routes and redirect to dashboard */}
           <Route path="*" element={<Navigate to="/" replace />} />

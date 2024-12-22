@@ -17,7 +17,7 @@ const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Bill Pay', href: '/bill-pay', icon: ArrowUpRight },
   { name: 'Receivables', href: '/receivables', icon: ArrowDownRight },
-  { name: 'Create Invoice', href: '/create-invoice', icon: FilePlus },
+  { name: 'Create Invoice', href: '/bill-pay/generate', icon: FilePlus },
   { name: 'WonderPay Capital', href: '/capital', icon: Sparkles },
   { name: 'Clients & Vendors', href: '/clients', icon: Users },
   { name: 'Settings', href: '/dashboard/organization-settings', icon: Settings },
