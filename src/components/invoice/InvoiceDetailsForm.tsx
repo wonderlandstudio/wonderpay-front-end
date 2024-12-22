@@ -10,22 +10,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { InvoiceItem } from '@/types/invoice';
+import { InvoiceData } from '@/types/invoice';
 
 interface InvoiceDetailsFormProps {
-  data: {
-    currency: string;
-    items: InvoiceItem[];
-    note: string;
-    discount: number;
-    tax: number;
-  };
-  onChange: (field: string, value: any) => void;
+  data: InvoiceData;
+  onChange: (field: keyof InvoiceData, value: any) => void;
 }
 
 const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange }) => {
   const handleAddItem = () => {
-    onChange('items', [...data.items, { description: '', quantity: 1, price: 0 }]);
+    const newItems = [...data.items, { description: '', quantity: 1, price: 0 }];
+    onChange('items', newItems);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -33,7 +28,7 @@ const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange 
     onChange('items', newItems);
   };
 
-  const handleItemChange = (index: number, field: keyof InvoiceItem, value: string | number) => {
+  const handleItemChange = (index: number, field: string, value: string | number) => {
     const newItems = [...data.items];
     newItems[index] = {
       ...newItems[index],
@@ -44,30 +39,19 @@ const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange 
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Invoice Details</h2>
-      
       <div>
-        <Label>Select an invoice currency</Label>
+        <Label>Currency</Label>
         <Select
           value={data.currency}
           onValueChange={(value) => onChange('currency', value)}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger>
             <SelectValue placeholder="Select currency" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="USD">
-              🇺🇸 USD
-            </SelectItem>
-            <SelectItem value="EUR">
-              🇪🇺 EUR
-            </SelectItem>
-            <SelectItem value="GBP">
-              🇬🇧 GBP
-            </SelectItem>
-            <SelectItem value="INR">
-              🇮🇳 INR
-            </SelectItem>
+            <SelectItem value="USD">USD - US Dollar</SelectItem>
+            <SelectItem value="EUR">EUR - Euro</SelectItem>
+            <SelectItem value="GBP">GBP - British Pound</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -86,6 +70,7 @@ const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange 
             <div className="w-24">
               <Input
                 type="number"
+                min="1"
                 placeholder="Qty"
                 value={item.quantity}
                 onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value))}
@@ -94,6 +79,8 @@ const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange 
             <div className="w-32">
               <Input
                 type="number"
+                min="0"
+                step="0.01"
                 placeholder="Price"
                 value={item.price}
                 onChange={(e) => handleItemChange(index, 'price', parseFloat(e.target.value))}
@@ -128,28 +115,30 @@ const InvoiceDetailsForm: React.FC<InvoiceDetailsFormProps> = ({ data, onChange 
         />
       </div>
 
-      <div className="pt-4 space-y-4">
-        <h3 className="text-lg font-semibold">More options</h3>
-        
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="discount">Discount</Label>
           <Input
             id="discount"
             type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
             value={data.discount}
             onChange={(e) => onChange('discount', parseFloat(e.target.value))}
-            placeholder="$0.00"
           />
         </div>
-
         <div>
-          <Label htmlFor="tax">Tax</Label>
+          <Label htmlFor="tax">Tax (%)</Label>
           <Input
             id="tax"
             type="number"
+            min="0"
+            max="100"
+            step="0.1"
+            placeholder="0"
             value={data.tax}
             onChange={(e) => onChange('tax', parseFloat(e.target.value))}
-            placeholder="0%"
           />
         </div>
       </div>

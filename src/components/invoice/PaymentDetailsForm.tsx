@@ -1,78 +1,74 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { InvoiceData } from '@/types/invoice';
 
 interface PaymentDetailsFormProps {
-  data: {
-    bankName: string;
-    accountNumber: string;
-    accountName: string;
-    ifscCode: string;
-    routingNumber: string;
-    swiftCode: string;
-  };
-  onChange: (field: string, value: string) => void;
+  data: InvoiceData;
+  onChange: (field: keyof InvoiceData, value: any) => void;
 }
 
 const PaymentDetailsForm: React.FC<PaymentDetailsFormProps> = ({ data, onChange }) => {
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Payment Details</h2>
-      
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="bankName">Bank name</Label>
-          <Input
-            id="bankName"
-            value={data.bankName}
-            onChange={(e) => onChange('bankName', e.target.value)}
-          />
-        </div>
+      <div>
+        <Label htmlFor="bankName">Bank Name</Label>
+        <Input
+          id="bankName"
+          placeholder="Enter bank name"
+          value={data.bankName}
+          onChange={(e) => onChange('bankName', e.target.value)}
+        />
+      </div>
 
-        <div>
-          <Label htmlFor="accountNumber">Account number</Label>
-          <Input
-            id="accountNumber"
-            value={data.accountNumber}
-            onChange={(e) => onChange('accountNumber', e.target.value)}
-          />
-        </div>
+      <div>
+        <Label htmlFor="accountName">Account Name</Label>
+        <Input
+          id="accountName"
+          placeholder="Enter account name"
+          value={data.accountName}
+          onChange={(e) => onChange('accountName', e.target.value)}
+        />
+      </div>
 
-        <div>
-          <Label htmlFor="accountName">Account Name</Label>
-          <Input
-            id="accountName"
-            value={data.accountName}
-            onChange={(e) => onChange('accountName', e.target.value)}
-          />
-        </div>
+      <div>
+        <Label htmlFor="accountNumber">Account Number</Label>
+        <Input
+          id="accountNumber"
+          placeholder="Enter account number"
+          value={data.accountNumber}
+          onChange={(e) => onChange('accountNumber', e.target.value)}
+        />
+      </div>
 
-        <div>
-          <Label htmlFor="ifscCode">IFSC code</Label>
-          <Input
-            id="ifscCode"
-            value={data.ifscCode}
-            onChange={(e) => onChange('ifscCode', e.target.value)}
-          />
-        </div>
+      <div>
+        <Label htmlFor="routingNumber">Routing Number</Label>
+        <Input
+          id="routingNumber"
+          placeholder="Enter routing number"
+          value={data.routingNumber}
+          onChange={(e) => onChange('routingNumber', e.target.value)}
+        />
+      </div>
 
-        <div>
-          <Label htmlFor="routingNumber">Routing number</Label>
-          <Input
-            id="routingNumber"
-            value={data.routingNumber}
-            onChange={(e) => onChange('routingNumber', e.target.value)}
-          />
-        </div>
+      <div>
+        <Label htmlFor="swiftCode">SWIFT Code</Label>
+        <Input
+          id="swiftCode"
+          placeholder="Enter SWIFT code"
+          value={data.swiftCode}
+          onChange={(e) => onChange('swiftCode', e.target.value)}
+        />
+      </div>
 
-        <div>
-          <Label htmlFor="swiftCode">Swift code</Label>
-          <Input
-            id="swiftCode"
-            value={data.swiftCode}
-            onChange={(e) => onChange('swiftCode', e.target.value)}
-          />
-        </div>
+      <div>
+        <Label htmlFor="ifscCode">IFSC Code</Label>
+        <Input
+          id="ifscCode"
+          placeholder="Enter IFSC code"
+          value={data.ifscCode}
+          onChange={(e) => onChange('ifscCode', e.target.value)}
+        />
       </div>
     </div>
   );
