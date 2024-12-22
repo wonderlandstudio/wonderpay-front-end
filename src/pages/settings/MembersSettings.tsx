@@ -1,29 +1,10 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useSettings } from '@/contexts/SettingsContext';
-import { Plus } from 'lucide-react';
+import { AddMemberDialog } from '@/components/members/AddMemberDialog';
 
 const MembersSettings = () => {
-  const { settings, saveSettings } = useSettings();
-  const { toast } = useToast();
-
-  const handleSave = async () => {
-    try {
-      await saveSettings();
-      toast({
-        title: "Members saved",
-        description: "Team member changes have been successfully saved.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save member changes. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  const { settings } = useSettings();
 
   return (
     <div className="p-6">
@@ -33,11 +14,7 @@ const MembersSettings = () => {
           <p className="text-gray-500 mt-2">Manage your team members and their roles.</p>
         </div>
         <div className="flex gap-4">
-          <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4" />
-            Add member
-          </Button>
-          <Button onClick={handleSave}>Save changes</Button>
+          <AddMemberDialog />
         </div>
       </div>
       
