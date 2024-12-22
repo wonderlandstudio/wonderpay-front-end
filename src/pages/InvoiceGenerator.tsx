@@ -58,7 +58,7 @@ const InvoiceGenerator = () => {
       component: (
         <CompanyDetailsForm
           data={invoiceData}
-          onChange={handleDataChange}
+          onChange={(field, value) => handleDataChange(field as keyof InvoiceData, value)}
         />
       )
     },
@@ -67,7 +67,7 @@ const InvoiceGenerator = () => {
       component: (
         <InvoiceDetailsForm
           data={invoiceData}
-          onChange={handleDataChange}
+          onChange={(field, value) => handleDataChange(field as keyof InvoiceData, value)}
         />
       )
     },
@@ -76,7 +76,7 @@ const InvoiceGenerator = () => {
       component: (
         <PaymentDetailsForm
           data={invoiceData}
-          onChange={handleDataChange}
+          onChange={(field, value) => handleDataChange(field as keyof InvoiceData, value)}
         />
       )
     },
@@ -85,7 +85,7 @@ const InvoiceGenerator = () => {
       component: (
         <InvoiceTermsForm
           data={invoiceData}
-          onChange={handleDataChange}
+          onChange={(field, value) => handleDataChange(field as keyof InvoiceData, value)}
         />
       )
     }
