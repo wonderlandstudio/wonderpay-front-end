@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import { StatusCard } from '@/components/bill-pay/StatusCard';
+import { TransactionItem } from '@/components/bill-pay/TransactionItem';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,9 +66,7 @@ const BillPay = () => {
   const filteredAndSortedTransactions = useMemo(() => {
     return recentTransactions
       .filter(transaction => 
-        // Filter by status
         selectedFilters.includes(transaction.status) &&
-        // Filter by search query
         (transaction.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
          transaction.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()))
       )
@@ -78,18 +77,12 @@ const BillPay = () => {
       });
   }, [recentTransactions, selectedFilters, searchQuery, sortOrder]);
 
-  // Calculate totals for each status
   const totals = useMemo(() => {
     return recentTransactions.reduce((acc, transaction) => {
       acc[transaction.status] = (acc[transaction.status] || 0) + transaction.amount;
       return acc;
     }, {} as Record<string, number>);
   }, [recentTransactions]);
-
-  const handleTransactionClick = (transactionId: string) => {
-    // Will navigate to individual transaction view when implemented
-    console.log(`Viewing transaction ${transactionId}`);
-  };
 
   const toggleFilter = (filter: string) => {
     setSelectedFilters(prev => 
@@ -114,38 +107,9 @@ const BillPay = () => {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <Card className="bg-white/50 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium">Draft</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <span className="text-2xl font-bold">
-              ${(totals.draft || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </span>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/50 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium">Scheduled</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <span className="text-2xl font-bold">
-              ${(totals.scheduled || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </span>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/50 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium">Paid</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <span className="text-2xl font-bold">
-              ${(totals.paid || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </span>
-          </CardContent>
-        </Card>
+        <StatusCard title="Draft" amount={totals.draft || 0} />
+        <StatusCard title="Scheduled" amount={totals.scheduled || 0} />
+        <StatusCard title="Paid" amount={totals.paid || 0} />
       </div>
 
       <div className="flex gap-4 items-center">
@@ -206,39 +170,7 @@ const BillPay = () => {
         <h2 className="text-sm font-medium text-gray-500">Recent transactions</h2>
         <div className="space-y-2">
           {filteredAndSortedTransactions.map((transaction) => (
-            <div
-              key={transaction.id}
-              onClick={() => handleTransactionClick(transaction.id)}
-              className="p-4 rounded-lg bg-white/50 backdrop-blur-sm flex items-center justify-between cursor-pointer hover:bg-black/5 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <input 
-                  type="checkbox" 
-                  className="rounded border-gray-300"
-                  onClick={(e) => e.stopPropagation()} 
-                />
-                <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-                  <span className="text-orange-600 text-sm">
-                    {transaction.vendorName.charAt(0)}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-medium">{transaction.vendorName}</p>
-                  <p className="text-sm text-gray-500">{transaction.invoiceNumber}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-8">
-                <span className="text-orange-600 text-sm font-medium">
-                  {transaction.status}
-                </span>
-                <span className="text-sm text-gray-500">
-                  {new Date(transaction.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </span>
-                <span className="font-medium">
-                  ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </span>
-              </div>
-            </div>
+            <TransactionItem key={transaction.id} {...transaction} />
           ))}
         </div>
       </div>

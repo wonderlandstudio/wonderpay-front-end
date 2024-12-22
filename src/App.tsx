@@ -9,6 +9,7 @@ import CardsSettings from './pages/settings/CardsSettings';
 import BankAccountsSettings from './pages/settings/BankAccountsSettings';
 import BillPay from './pages/BillPay';
 import NewBill from './pages/NewBill';
+import InvoiceDetail from './pages/InvoiceDetail';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="bill-pay">
               <Route index element={<BillPay />} />
               <Route path="new" element={<NewBill />} />
+              <Route path=":invoiceId" element={<InvoiceDetail />} />
             </Route>
             <Route path="dashboard/settings">
               <Route path="profile" element={<ProfileSettings />} />
