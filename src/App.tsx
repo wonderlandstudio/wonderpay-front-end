@@ -7,6 +7,8 @@ import AddressSettings from './pages/settings/AddressSettings';
 import MembersSettings from './pages/settings/MembersSettings';
 import CardsSettings from './pages/settings/CardsSettings';
 import BankAccountsSettings from './pages/settings/BankAccountsSettings';
+import BillPay from './pages/BillPay';
+import NewBill from './pages/NewBill';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
@@ -16,6 +18,10 @@ function App() {
         <Routes>
           <Route path="/" element={<DashboardLayout><Outlet /></DashboardLayout>}>
             <Route index element={<Dashboard />} />
+            <Route path="bill-pay">
+              <Route index element={<BillPay />} />
+              <Route path="new" element={<NewBill />} />
+            </Route>
             <Route path="dashboard/settings">
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="address" element={<AddressSettings />} />
