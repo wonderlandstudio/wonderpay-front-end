@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -20,20 +21,22 @@ export function VerifyBankAccountDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-normal">Verify your bank account</DialogTitle>
-          <p className="text-gray-500 mt-2">
+          <DialogTitle className="text-2xl font-normal">
+            Verify your bank account
+          </DialogTitle>
+          <DialogDescription className="text-gray-500">
             Verify your bank account to pay bills and collect invoices. Opt for Instant connect to unlock the full experience.
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-6">
           <Button
             variant="outline"
-            className="w-full justify-between h-auto py-6 px-4"
+            className="w-full justify-between h-auto py-6 px-4 hover:bg-primary/5"
             onClick={() => console.log("Instant connect selected")}
           >
             <div className="flex items-start gap-4">
-              <Zap className="h-6 w-6 text-primary mt-1" />
+              <Zap className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
               <div className="text-left">
                 <div className="font-semibold text-lg">Instant connect</div>
                 <p className="text-gray-500 text-sm mt-1">
@@ -41,18 +44,18 @@ export function VerifyBankAccountDialog() {
                 </p>
               </div>
             </div>
-            <div className="bg-primary/10 text-primary text-sm px-3 py-1 rounded-full">
+            <div className="bg-primary/10 text-primary text-sm px-3 py-1 rounded-full flex-shrink-0">
               Recommended
             </div>
           </Button>
 
           <Button
             variant="outline"
-            className="w-full justify-between h-auto py-6 px-4"
+            className="w-full justify-between h-auto py-6 px-4 hover:bg-primary/5"
             onClick={() => console.log("Manual verification selected")}
           >
             <div className="flex items-start gap-4">
-              <Clock className="h-6 w-6 text-gray-500 mt-1" />
+              <Clock className="h-6 w-6 text-gray-500 mt-1 flex-shrink-0" />
               <div className="text-left">
                 <div className="font-semibold text-lg">Verify with manual deposit</div>
                 <p className="text-gray-500 text-sm mt-1">
