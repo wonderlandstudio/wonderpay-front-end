@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import SettingsLayout from '@/components/layout/SettingsLayout';
 import { useSettings } from '@/contexts/SettingsContext';
 
@@ -30,6 +30,7 @@ const brandColors = [
 const OrganizationSettings = () => {
   const { settings, updateSettings, saveSettings } = useSettings();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -38,6 +39,32 @@ const OrganizationSettings = () => {
 
   const handleColorChange = (value: string) => {
     updateSettings({ brandColor: value });
+  };
+
+  const handleLogoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Create a URL for the uploaded image
+      const logoUrl = URL.createObjectURL(file);
+      updateSettings({ logo: logoUrl });
+      
+      toast({
+        title: "Logo updated",
+        description: "Your company logo has been successfully updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update logo. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -67,9 +94,28 @@ const OrganizationSettings = () => {
         <Card className="max-w-3xl p-6 space-y-8 border-gray-200/50 backdrop-blur-lg bg-white/50">
           <div className="space-y-4">
             <h2 className="text-lg text-gray-600 text-left">Company logo</h2>
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-              <span className="text-2xl font-medium text-gray-500">W</span>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleLogoUpload}
+            />
+            <div 
+              onClick={handleLogoClick}
+              className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors"
+            >
+              {settings.logo ? (
+                <img 
+                  src={settings.logo} 
+                  alt="Company logo" 
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl font-medium text-gray-500">W</span>
+              )}
             </div>
+            <p className="text-sm text-gray-500">Click to upload your company logo</p>
           </div>
 
           <div className="space-y-2">

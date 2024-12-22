@@ -15,6 +15,7 @@ interface Settings {
   website: string;
   description: string;
   brandColor: string;
+  logo?: string;
   address?: Address;
 }
 
