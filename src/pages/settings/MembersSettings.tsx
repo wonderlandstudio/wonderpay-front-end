@@ -13,6 +13,10 @@ const MembersSettings = () => {
     setMembers(prev => [...prev, newMember]);
   };
 
+  const handleDeleteMember = (memberId: string) => {
+    setMembers(prev => prev.filter(member => member.id !== memberId));
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -27,7 +31,10 @@ const MembersSettings = () => {
       
       <Card className="p-6 space-y-8 bg-white/50">
         {members.length > 0 ? (
-          <TeamMembersList members={members} />
+          <TeamMembersList 
+            members={members} 
+            onDeleteMember={handleDeleteMember}
+          />
         ) : (
           <div className="text-sm text-gray-500">No team members added yet.</div>
         )}

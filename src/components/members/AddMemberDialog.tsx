@@ -64,10 +64,13 @@ export function AddMemberDialog({ onMemberInvited }: AddMemberDialogProps) {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // Create a new team member object
+      // Create a new team member object with all required fields
       const newMember: TeamMember = {
         id: crypto.randomUUID(),
-        ...data,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        role: data.role,
         status: 'pending',
         invitedAt: new Date(),
       };
