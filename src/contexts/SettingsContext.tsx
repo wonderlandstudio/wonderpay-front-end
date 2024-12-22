@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
 
 interface Address {
   street: string;
@@ -41,19 +42,49 @@ const defaultSettings: Settings = {
   }
 };
 
+const SETTINGS_STORAGE_KEY = 'app_settings';
+
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const { toast } = useToast();
+  const [settings, setSettings] = useState<Settings>(() => {
+    // Load settings from localStorage on initial render
+    const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    return savedSettings ? JSON.parse(savedSettings) : defaultSettings;
+  });
+
+  // Update localStorage whenever settings change
+  useEffect(() => {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  }, [settings]);
 
   const updateSettings = (newSettings: Partial<Settings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      return updated;
+    });
   };
 
   const saveSettings = async () => {
-    // Here you would typically make an API call to save the settings
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Settings saved:', settings);
+    try {
+      // Here you would typically make an API call to save the settings
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+      console.log('Settings saved:', settings);
+      
+      toast({
+        title: "Settings saved",
+        description: "Your settings have been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
