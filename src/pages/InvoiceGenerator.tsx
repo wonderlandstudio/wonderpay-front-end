@@ -7,6 +7,7 @@ import PaymentDetailsForm from '@/components/invoice/PaymentDetailsForm';
 import InvoiceTermsForm from '@/components/invoice/InvoiceTermsForm';
 import InvoicePDFDocument from '@/components/invoice/InvoicePDFDocument';
 import { PDFDownloadLink } from '@react-pdf/renderer';
+import { Button } from '@/components/ui/button';
 
 interface InvoiceData {
   // Company Details
@@ -43,6 +44,13 @@ interface InvoiceData {
   invoiceNumber: string;
   issueDate: string;
   dueDate: string;
+
+  // Required by PDFDocument
+  clientName: string;
+  clientEmail: string;
+  clientAddress: string;
+  notes: string;
+  date: string;
 }
 
 const InvoiceGenerator = () => {
@@ -70,6 +78,12 @@ const InvoiceGenerator = () => {
     invoiceNumber: 'INVOICE-01',
     issueDate: '',
     dueDate: '',
+    // Adding the missing required fields
+    clientName: '',
+    clientEmail: '',
+    clientAddress: '',
+    notes: '',
+    date: new Date().toISOString(),
   });
 
   const handleDataChange = (section: keyof InvoiceData, value: any) => {
@@ -141,13 +155,14 @@ const InvoiceGenerator = () => {
                 document={<InvoicePDFDocument data={invoiceData} />}
                 fileName={`invoice-${invoiceData.invoiceNumber}.pdf`}
               >
-                {({ loading }) => (
-                  <button
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md"
+                {({ loading }: { loading: boolean }) => (
+                  <Button
+                    className="w-full"
+                    type="button"
                     disabled={loading}
                   >
                     {loading ? "Preparing Download..." : "Download Invoice"}
-                  </button>
+                  </Button>
                 )}
               </PDFDownloadLink>
             </div>
