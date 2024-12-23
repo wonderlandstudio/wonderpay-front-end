@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
 import { 
@@ -37,14 +36,22 @@ const Sidebar = () => {
   };
 
   const handleSignOut = () => {
+    // Clear local storage
+    localStorage.clear();
+    
+    // Clear session storage
+    sessionStorage.clear();
+    
     // Show toast notification
     toast({
       title: "Signed out successfully",
       description: "You have been logged out of your account.",
     });
     
-    // Redirect to login page
-    navigate('/login');
+    // Redirect to login page after a short delay to ensure the toast is visible
+    setTimeout(() => {
+      navigate('/login', { replace: true });
+    }, 500);
   };
 
   return (
