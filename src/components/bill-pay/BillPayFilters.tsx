@@ -26,11 +26,15 @@ export function BillPayFilters({
   setSortOrder
 }: BillPayFiltersProps) {
   const toggleFilter = (filter: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filter)
-        ? prev.filter(f => f !== filter)
-        : [...prev, filter]
-    );
+    const newFilters = selectedFilters.includes(filter)
+      ? selectedFilters.filter(f => f !== filter)
+      : [...selectedFilters, filter];
+    setSelectedFilters(newFilters);
+  };
+
+  const toggleSortOrder = () => {
+    const newOrder: 'asc' | 'desc' = sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortOrder(newOrder);
   };
 
   return (
@@ -81,7 +85,7 @@ export function BillPayFilters({
       <Button 
         variant="outline" 
         className="gap-2"
-        onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+        onClick={toggleSortOrder}
       >
         <ArrowUpDown className="h-4 w-4" />
         Due {sortOrder === 'asc' ? 'soonest' : 'latest'}
