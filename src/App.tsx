@@ -46,8 +46,6 @@ function App() {
             </Route>
             <Route path="organization-settings" element={<OrganizationSettings />} />
           </Route>
-          <Route path="capital" element={<Navigate to="/dashboard/bill-pay" replace />} />
-          <Route path="clients" element={<Navigate to="/dashboard/bill-pay" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

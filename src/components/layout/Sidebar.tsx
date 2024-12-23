@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Bill Pay', href: '/dashboard/bill-pay', icon: ArrowUpRight },
-  { name: 'Receivables', href: '/receivables', icon: ArrowDownRight },
+  { name: 'Receivables', href: '/dashboard/receivables', icon: ArrowDownRight },
   { name: 'Create Invoice', href: '/dashboard/bill-pay/generate', icon: FilePlus },
   { name: 'WonderPay Capital', href: '/capital', icon: Sparkles },
   { name: 'Clients & Vendors', href: '/clients', icon: Users },
