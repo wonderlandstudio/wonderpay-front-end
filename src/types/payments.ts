@@ -31,3 +31,12 @@ export interface PaymentRequest {
   payerId: string;
   payeeId: string;
 }
+
+export interface Transaction {
+  id: string;
+  vendorName: string;
+  invoiceNumber: string;
+  status: 'draft' | 'scheduled' | 'paid' | 'overdue';
+  dueDate: string;
+  amount: number;
+}
