@@ -10,7 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const data = [
+// Mock data - will be replaced with Supabase data
+const mockData = [
   { date: '23', value: 500 },
   { date: '24', value: 600 },
   { date: '25', value: 550 },
@@ -25,13 +26,43 @@ const data = [
   { date: '04', value: 500 },
 ];
 
+interface BankTransaction {
+  id: string;
+  amount: number;
+  type: 'income' | 'expense';
+  date: string;
+}
+
+interface BankAccount {
+  id: string;
+  name: string;
+  accountNumber: string;
+  balance: number;
+  transactions?: BankTransaction[];
+}
+
 const OverviewSection = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30');
+  const [selectedAccount, setSelectedAccount] = useState<BankAccount>({
+    id: '1',
+    name: 'Rho Business Bank',
+    accountNumber: '****6092',
+    balance: 268.60,
+  });
 
+  // These will be replaced with actual Supabase queries
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
-    // This will be connected to backend data fetching later
+    console.log('Will fetch data from Supabase for period:', period);
   };
+
+  const handleAccountChange = (accountId: string) => {
+    console.log('Will fetch account data from Supabase for account:', accountId);
+  };
+
+  // Calculate totals - will be replaced with Supabase aggregations
+  const income = 0; // Placeholder for Supabase query
+  const expenses = 5631.00; // Placeholder for Supabase query
 
   return (
     <div className="space-y-8 pt-8">
@@ -57,7 +88,7 @@ const OverviewSection = () => {
           </DropdownMenu>
           <div className="bg-gray-100 rounded-full px-4 py-2 text-sm flex items-center gap-2">
             <Wallet className="h-4 w-4" />
-            Rho Business Bank... ****6092
+            {selectedAccount.name} {selectedAccount.accountNumber}
           </div>
         </div>
       </div>
@@ -68,7 +99,7 @@ const OverviewSection = () => {
             <Wallet className="h-6 w-6 text-gray-500" />
             <div>
               <div className="text-sm text-gray-500">Balance</div>
-              <div className="text-2xl font-semibold">${(268.60).toLocaleString()}</div>
+              <div className="text-2xl font-semibold">${selectedAccount.balance.toLocaleString()}</div>
             </div>
           </div>
         </Card>
@@ -78,7 +109,9 @@ const OverviewSection = () => {
             <ArrowDown className="h-6 w-6 text-gray-500" />
             <div>
               <div className="text-sm text-gray-500">Income</div>
-              <div className="text-2xl font-semibold">—</div>
+              <div className="text-2xl font-semibold">
+                {income ? `$${income.toLocaleString()}` : '—'}
+              </div>
             </div>
           </div>
         </Card>
@@ -88,7 +121,7 @@ const OverviewSection = () => {
             <ArrowUp className="h-6 w-6 text-gray-500" />
             <div>
               <div className="text-sm text-gray-500">Expenses</div>
-              <div className="text-2xl font-semibold">${(5631.00).toLocaleString()}</div>
+              <div className="text-2xl font-semibold">${expenses.toLocaleString()}</div>
             </div>
           </div>
         </Card>
@@ -96,7 +129,7 @@ const OverviewSection = () => {
 
       <Card className="p-6 bg-white mt-8">
         <ChartContainer className="h-[300px]" config={{}}>
-          <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <AreaChart data={mockData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#8884d8" stopOpacity={0.1}/>
