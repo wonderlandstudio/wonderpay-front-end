@@ -12,9 +12,9 @@ interface BillPayFiltersProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   selectedFilters: string[];
-  setSelectedFilters: (filters: string[]) => void;
+  setSelectedFilters: React.Dispatch<React.SetStateAction<string[]>>;
   sortOrder: 'asc' | 'desc';
-  setSortOrder: (order: 'asc' | 'desc') => void;
+  setSortOrder: React.Dispatch<React.SetStateAction<'asc' | 'desc'>>;
 }
 
 export function BillPayFilters({
@@ -26,15 +26,15 @@ export function BillPayFilters({
   setSortOrder
 }: BillPayFiltersProps) {
   const toggleFilter = (filter: string) => {
-    const newFilters = selectedFilters.includes(filter)
-      ? selectedFilters.filter(f => f !== filter)
-      : [...selectedFilters, filter];
-    setSelectedFilters(newFilters);
+    setSelectedFilters(prevFilters => 
+      prevFilters.includes(filter)
+        ? prevFilters.filter(f => f !== filter)
+        : [...prevFilters, filter]
+    );
   };
 
   const toggleSortOrder = () => {
-    const newOrder: 'asc' | 'desc' = sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortOrder(newOrder);
+    setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
   };
 
   return (
