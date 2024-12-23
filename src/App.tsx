@@ -12,6 +12,7 @@ import BillPay from './pages/BillPay';
 import NewBill from './pages/NewBill';
 import InvoiceDetail from './pages/InvoiceDetail';
 import InvoiceGenerator from './pages/InvoiceGenerator';
+import Login from './pages/Login';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
     <SettingsProvider>
       <Router>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<DashboardLayout><Outlet /></DashboardLayout>}>
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
