@@ -48,9 +48,9 @@ const Sidebar = () => {
       description: "You have been logged out of your account.",
     });
     
-    // Redirect to login page after a short delay to ensure the toast is visible
+    // Redirect to landing page after a short delay to ensure the toast is visible
     setTimeout(() => {
-      navigate('/login', { replace: true });
+      navigate('/', { replace: true });
     }, 500);
   };
 
