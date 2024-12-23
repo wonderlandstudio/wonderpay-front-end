@@ -14,11 +14,11 @@ const Home = () => {
             WonderPay
           </h1>
           
-          <div className="w-28 h-28 mx-auto transform hover:scale-105 transition-transform duration-300">
+          <div className="w-28 h-28 mx-auto transform hover:scale-105 transition-transform duration-300 bg-[#FFFFFF]">
             <img 
               src="/lovable-uploads/2cfe764c-e03d-4bd4-9aec-40a3f9d1a7ae.png" 
               alt="WonderPay Logo" 
-              className="w-full h-full object-contain drop-shadow-lg"
+              className="w-full h-full object-contain"
             />
           </div>
 
