@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { useState } from 'react';
-import { PaymentMethod, PaymentTerm } from '@/types/payments';
+import { PaymentDialog } from '@/components/payments/PaymentDialog';
+import { toast } from '@/hooks/use-toast';
 
 interface TransactionItemProps {
   id: string;
@@ -22,23 +22,16 @@ export const TransactionItem = ({
   amount
 }: TransactionItemProps) => {
   const navigate = useNavigate();
-  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>();
-  const [selectedTerm, setSelectedTerm] = useState<PaymentTerm>();
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
   const handleClick = () => {
     navigate(`/dashboard/bill-pay/${id}`);
   };
 
-  // This will be implemented when Monite integration is ready
-  const handlePayment = async () => {
-    if (!selectedMethod) return;
-    
-    console.log('Processing payment:', {
-      method: selectedMethod,
-      term: selectedTerm,
-      amount,
-      billId: id
+  const handlePaymentComplete = () => {
+    toast({
+      title: "Payment Initiated",
+      description: "Your payment is being processed.",
     });
   };
 
@@ -79,7 +72,7 @@ export const TransactionItem = ({
               variant="outline"
               onClick={(e) => {
                 e.stopPropagation();
-                setShowPaymentMethods(!showPaymentMethods);
+                setShowPaymentDialog(true);
               }}
             >
               Pay Now
@@ -88,38 +81,12 @@ export const TransactionItem = ({
         </div>
       </div>
 
-      {showPaymentMethods && (
-        <div className="ml-16">
-          <PaymentMethodSelector
-            amount={amount}
-            onMethodSelect={setSelectedMethod}
-            onTermSelect={setSelectedTerm}
-            selectedMethod={selectedMethod}
-            selectedTerm={selectedTerm}
-            wonderPayCapital={{
-              status: 'approved',
-              availableTerms: ['30', '60', '90'],
-              interestRates: {
-                '30': 0.01,
-                '60': 0.02,
-                '90': 0.03
-              },
-              creditLimit: 100000
-            }}
-          />
-          <div className="mt-4 flex justify-end">
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePayment();
-              }}
-              disabled={!selectedMethod}
-            >
-              Proceed to Payment
-            </Button>
-          </div>
-        </div>
-      )}
+      <PaymentDialog
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        amount={amount}
+        onPaymentComplete={handlePaymentComplete}
+      />
     </div>
   );
 };
