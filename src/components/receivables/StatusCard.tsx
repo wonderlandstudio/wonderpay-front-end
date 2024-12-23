@@ -8,6 +8,14 @@ interface StatusCardProps {
 }
 
 export const StatusCard = ({ title, amount, status }: StatusCardProps) => {
+  const getStatusColor = () => {
+    switch (status) {
+      case 'draft': return 'text-gray-500';
+      case 'sent': return 'text-blue-500';
+      case 'paid': return 'text-green-500';
+    }
+  };
+
   const getStatusIcon = () => {
     switch (status) {
       case 'draft':
@@ -22,7 +30,7 @@ export const StatusCard = ({ title, amount, status }: StatusCardProps) => {
   return (
     <Card className="bg-white/50 backdrop-blur-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-medium flex items-center gap-2">
+        <CardTitle className={`text-base font-medium flex items-center gap-2 ${getStatusColor()}`}>
           {getStatusIcon()}
           {title}
         </CardTitle>
