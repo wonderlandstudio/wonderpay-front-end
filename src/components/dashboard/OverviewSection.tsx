@@ -61,8 +61,8 @@ const OverviewSection = () => {
   };
 
   // Calculate totals - will be replaced with Supabase aggregations
-  const income = 0; // Placeholder for Supabase query
-  const expenses = 5631.00; // Placeholder for Supabase query
+  const income: number | null = null; // Changed to explicitly type as number | null
+  const expenses: number = 5631.00;
 
   return (
     <div className="space-y-8 pt-8">
@@ -110,7 +110,7 @@ const OverviewSection = () => {
             <div>
               <div className="text-sm text-gray-500">Income</div>
               <div className="text-2xl font-semibold">
-                {income ? `$${income.toLocaleString()}` : '—'}
+                {income !== null ? `$${income.toLocaleString()}` : '—'}
               </div>
             </div>
           </div>
