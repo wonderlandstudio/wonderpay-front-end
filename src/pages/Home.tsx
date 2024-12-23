@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 
 const Home = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 py-16">
-      <div className="max-w-4xl mx-auto text-center space-y-12">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FFFFFF] px-4 py-16">
+      <div className="max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-6">
           <h1 
             className="text-5xl md:text-[72px] font-bold text-[#1A1F2C] leading-tight"
@@ -22,7 +22,7 @@ const Home = () => {
             />
           </div>
 
-          <p className="text-sm uppercase tracking-[0.2em] text-[#8E9196] font-semibold mt-8">
+          <p className="text-sm uppercase tracking-[0.2em] text-[#8E9196] font-semibold">
             BY WONDERLAND STUDIO
           </p>
         </div>
@@ -31,7 +31,7 @@ const Home = () => {
           WonderPay by Wonderland Studio is a private bill pay and payments automation platform to streamline AP & AR and offer working capital solutions for our clients, partners and colleagues in music, entertainment and luxury hospitality.
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 pt-8">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
           <Link to="/login">
             <Button 
               variant="default"
