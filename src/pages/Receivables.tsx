@@ -11,8 +11,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Mock data for receivables
-const mockReceivables = {
+type InvoiceStatus = 'draft' | 'sent' | 'paid';
+
+// Mock data for receivables with correct status types
+const mockReceivables: Record<string, Array<{
+  id: string;
+  clientName: string;
+  invoiceNumber: string;
+  status: InvoiceStatus;
+  dueDate: string;
+  amount: number;
+  details: {
+    items: Array<{
+      description: string;
+      quantity: number;
+      rate: number;
+      amount: number;
+    }>;
+    subtotal: number;
+    tax: number;
+    total: number;
+  };
+}>> = {
   'November 2024': [
     {
       id: 'INV-001',
@@ -71,7 +91,7 @@ const mockReceivables = {
 
 const Receivables = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(['draft', 'sent', 'paid']);
+  const [selectedFilters, setSelectedFilters] = useState<InvoiceStatus[]>(['draft', 'sent', 'paid']);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const totals = {
@@ -80,7 +100,7 @@ const Receivables = () => {
     paid: 25000.00
   };
 
-  const toggleFilter = (filter: string) => {
+  const toggleFilter = (filter: InvoiceStatus) => {
     setSelectedFilters(prev => 
       prev.includes(filter)
         ? prev.filter(f => f !== filter)
