@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import CompanyDetailsForm from '@/components/invoice/CompanyDetailsForm';
-import InvoicePDFDocument from '@/components/invoice/InvoicePDFDocument';
-import { InvoiceData } from '@/types/invoice';
+import { InvoicePDFDocument } from '@/components/invoice/InvoicePDFDocument';
+import { InvoiceSteps } from '@/components/invoice/InvoiceSteps';
+import { CompanyDetailsForm } from '@/components/invoice/CompanyDetailsForm';
+import { InvoiceDetailsForm } from '@/components/invoice/InvoiceDetailsForm';
+import { PaymentDetailsForm } from '@/components/invoice/PaymentDetailsForm';
+import { InvoiceTermsForm } from '@/components/invoice/InvoiceTermsForm';
+import type { InvoiceData } from '@/types/invoice';
 
 const InvoiceGenerator = () => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [invoiceData, setInvoiceData] = useState<InvoiceData>({
     email: '',
     companyName: '',
@@ -34,42 +38,47 @@ const InvoiceGenerator = () => {
     clientEmail: '',
     clientAddress: '',
     notes: '',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString(),
   });
 
-  const handleFieldChange = (field: keyof InvoiceData, value: any) => {
-    setInvoiceData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleStepComplete = (stepData: Partial<InvoiceData>) => {
+    setInvoiceData(prev => ({ ...prev, ...stepData }));
+    setCurrentStep(prev => Math.min(prev + 1, 4));
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return <CompanyDetailsForm onComplete={handleStepComplete} initialData={invoiceData} />;
+      case 2:
+        return <InvoiceDetailsForm onComplete={handleStepComplete} initialData={invoiceData} />;
+      case 3:
+        return <PaymentDetailsForm onComplete={handleStepComplete} initialData={invoiceData} />;
+      case 4:
+        return <InvoiceTermsForm onComplete={handleStepComplete} initialData={invoiceData} />;
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Generate Invoice</h1>
-      
-      <div className="grid gap-6">
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Company Details</h2>
-          <CompanyDetailsForm 
-            data={invoiceData} 
-            onChange={handleFieldChange}
-          />
-        </Card>
-
-        <div className="flex justify-end mt-6">
+    <div className="container mx-auto p-6 max-w-4xl">
+      <InvoiceSteps currentStep={currentStep} onStepClick={setCurrentStep} />
+      {renderStep()}
+      {currentStep === 4 && (
+        <div className="mt-6">
           <PDFDownloadLink
             document={<InvoicePDFDocument data={invoiceData} />}
-            fileName={`invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`}
+            fileName={`invoice-${invoiceData.invoiceNumber}.pdf`}
           >
             {({ loading }) => (
               <Button disabled={loading}>
-                {loading ? 'Generating PDF...' : 'Download PDF'}
+                {loading ? 'Generating PDF...' : 'Download Invoice'}
               </Button>
             )}
           </PDFDownloadLink>
         </div>
-      </div>
+      )}
     </div>
   );
 };

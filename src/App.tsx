@@ -13,6 +13,7 @@ import BillPay from './pages/BillPay';
 import NewBill from './pages/NewBill';
 import InvoiceDetail from './pages/InvoiceDetail';
 import InvoiceGenerator from './pages/InvoiceGenerator';
+import Receivables from './pages/Receivables';
 import Login from './pages/Login';
 import { SettingsProvider } from './contexts/SettingsContext';
 
@@ -31,6 +32,10 @@ function App() {
               <Route path=":invoiceId" element={<InvoiceDetail />} />
               <Route path="generate" element={<InvoiceGenerator />} />
             </Route>
+            <Route path="receivables">
+              <Route index element={<Receivables />} />
+              <Route path=":invoiceId" element={<InvoiceDetail />} />
+            </Route>
             <Route path="settings">
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="address" element={<AddressSettings />} />
@@ -41,7 +46,6 @@ function App() {
             </Route>
             <Route path="organization-settings" element={<OrganizationSettings />} />
           </Route>
-          <Route path="receivables" element={<Navigate to="/dashboard/bill-pay" replace />} />
           <Route path="capital" element={<Navigate to="/dashboard/bill-pay" replace />} />
           <Route path="clients" element={<Navigate to="/dashboard/bill-pay" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
