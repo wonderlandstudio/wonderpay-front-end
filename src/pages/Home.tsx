@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const Home = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-[#F1F0FB] px-4 py-16">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4 py-16">
       <div className="max-w-4xl mx-auto text-center space-y-12">
         <div className="space-y-6">
           <h1 
@@ -35,7 +35,7 @@ const Home = () => {
           <Link to="/login">
             <Button 
               variant="default"
-              className="w-full sm:w-auto bg-[#1A1F2C] hover:bg-[#403E43] text-white rounded-full px-12 py-6 text-base font-normal h-auto transition-all duration-300 hover:shadow-lg"
+              className="w-full sm:w-auto bg-[#1A1F2C] hover:bg-[#403E43] text-white rounded-full px-8 py-3 text-base font-normal h-auto transition-all duration-300 hover:shadow-lg"
             >
               Log In
             </Button>
@@ -43,7 +43,7 @@ const Home = () => {
           <Link to="/login">
             <Button 
               variant="outline"
-              className="w-full sm:w-auto bg-[#9b87f5] hover:bg-[#8B5CF6] text-white border-none rounded-full px-12 py-6 text-base font-normal h-auto transition-all duration-300 hover:shadow-lg"
+              className="w-full sm:w-auto bg-[#9b87f5] hover:bg-[#8B5CF6] text-white border-none rounded-full px-8 py-3 text-base font-normal h-auto transition-all duration-300 hover:shadow-lg"
             >
               Inquire
             </Button>
