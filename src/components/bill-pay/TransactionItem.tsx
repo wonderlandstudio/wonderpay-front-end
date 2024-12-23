@@ -26,6 +26,10 @@ export const TransactionItem = ({
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>();
   const [selectedTerm, setSelectedTerm] = useState<PaymentTerm>();
 
+  const handleClick = () => {
+    navigate(`/dashboard/bill-pay/${id}`);
+  };
+
   // This will be implemented when Monite integration is ready
   const handlePayment = async () => {
     if (!selectedMethod) return;
@@ -41,7 +45,7 @@ export const TransactionItem = ({
   return (
     <div className="space-y-4">
       <div
-        onClick={() => navigate(`/bill-pay/${id}`)}
+        onClick={handleClick}
         className="p-4 rounded-lg bg-white/50 backdrop-blur-sm flex items-center justify-between cursor-pointer hover:bg-black/5 transition-all"
       >
         <div className="flex items-center gap-4">
