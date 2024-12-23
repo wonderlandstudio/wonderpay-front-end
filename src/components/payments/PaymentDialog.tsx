@@ -1,6 +1,6 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Building2, CreditCard, HelpCircle, Mail } from "lucide-react";
+import { Building2, CreditCard, Mail } from "lucide-react";
 import { useState } from "react";
 import { PaymentMethod, PaymentTerm } from "@/types/payments";
 
@@ -29,9 +29,9 @@ export function PaymentDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white/80 backdrop-blur-lg border-none shadow-lg sm:max-w-[425px]">
-        <div className="space-y-6 p-2">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="h-[85vh]">
+        <div className="space-y-6 p-6 bg-white/80 backdrop-blur-lg">
           <h2 className="text-3xl font-normal">Pay</h2>
           
           <div className="flex gap-4">
@@ -143,7 +143,7 @@ export function PaymentDialog({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 }
