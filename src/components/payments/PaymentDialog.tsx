@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Building2, CreditCard, Mail } from "lucide-react";
 import { useState } from "react";
@@ -22,10 +22,17 @@ export function PaymentDialog({
   const [selectedTerm, setSelectedTerm] = useState<PaymentTerm>();
 
   const handlePayment = async () => {
+    console.log('Processing payment:', { amount, method: selectedMethod, term: selectedTerm });
     // Mock payment processing
-    console.log("Processing payment:", { amount, method: selectedMethod, term: selectedTerm });
-    onPaymentComplete();
-    onOpenChange(false);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      onPaymentComplete();
+      onOpenChange(false);
+      console.log('Payment processed successfully');
+    } catch (error) {
+      console.error('Payment processing error:', error);
+    }
   };
 
   return (
@@ -41,6 +48,7 @@ export function PaymentDialog({
               onClick={() => {
                 setShowCapital(false);
                 setSelectedMethod('ach');
+                console.log('Selected payment method: ACH');
               }}
             >
               <div className="text-left">
@@ -54,7 +62,10 @@ export function PaymentDialog({
             <Button
               variant="ghost"
               className={`flex-1 h-20 bg-orange-100/50 hover:bg-orange-100 ${showCapital ? 'ring-2 ring-orange-500' : ''}`}
-              onClick={() => setShowCapital(true)}
+              onClick={() => {
+                setShowCapital(true);
+                console.log('Showing WonderPay Capital options');
+              }}
             >
               <div className="text-left">
                 <div className="w-8 h-8 bg-orange-200 rounded-full flex items-center justify-center mb-1">
@@ -134,8 +145,7 @@ export function PaymentDialog({
                 variant="outline"
                 className="w-full"
                 onClick={() => {
-                  // This would typically open a form or start the WonderPay Capital application process
-                  console.log("Starting WonderPay Capital application");
+                  console.log('Starting WonderPay Capital application');
                 }}
               >
                 Apply for WonderPay Capital

@@ -18,6 +18,8 @@ import Login from './pages/Login';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
+  console.log('App rendering - checking routes configuration');
+  
   return (
     <SettingsProvider>
       <Router>
@@ -46,7 +48,7 @@ function App() {
             </Route>
             <Route path="organization-settings" element={<OrganizationSettings />} />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
     </SettingsProvider>

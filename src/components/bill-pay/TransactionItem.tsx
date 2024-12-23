@@ -25,14 +25,17 @@ export const TransactionItem = ({
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
   const handleClick = () => {
+    console.log('Navigating to invoice detail:', id);
     navigate(`/dashboard/bill-pay/${id}`);
   };
 
   const handlePaymentComplete = () => {
+    console.log('Payment completed for invoice:', id);
     toast({
       title: "Payment Initiated",
       description: "Your payment is being processed.",
     });
+    setShowPaymentDialog(false);
   };
 
   return (
@@ -72,6 +75,7 @@ export const TransactionItem = ({
               variant="outline"
               onClick={(e) => {
                 e.stopPropagation();
+                console.log('Opening payment dialog for invoice:', id);
                 setShowPaymentDialog(true);
               }}
             >
