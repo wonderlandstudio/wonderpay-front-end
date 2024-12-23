@@ -9,9 +9,12 @@ import {
   Users, 
   Settings,
   FilePlus,
-  ArrowDownRight
+  ArrowDownRight,
+  LogOut
 } from "lucide-react";
 import { useSettings } from '@/contexts/SettingsContext';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -27,14 +30,26 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { settings } = useSettings();
+  const { toast } = useToast();
 
   const handleOrgClick = () => {
     navigate('/dashboard/organization-settings');
   };
 
+  const handleSignOut = () => {
+    // Show toast notification
+    toast({
+      title: "Signed out successfully",
+      description: "You have been logged out of your account.",
+    });
+    
+    // Redirect to login page
+    navigate('/login');
+  };
+
   return (
     <div className="flex h-full w-64 flex-col backdrop-blur-md bg-white/50">
-      <div className="p-4">
+      <div className="flex flex-col flex-1 p-4">
         <div 
           onClick={handleOrgClick}
           className="flex items-center gap-2 px-2 mb-8 cursor-pointer hover:bg-black/5 rounded-lg transition-colors py-2"
@@ -65,6 +80,18 @@ const Sidebar = () => {
             );
           })}
         </nav>
+      </div>
+      
+      {/* Sign Out Button */}
+      <div className="p-4 mt-auto border-t border-gray-100">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-gray-500 hover:text-gray-900 hover:bg-black/5"
+          onClick={handleSignOut}
+        >
+          <LogOut className="mr-2 h-[18px] w-[18px] stroke-[1.5px]" />
+          Sign Out
+        </Button>
       </div>
     </div>
   );
