@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Building2, Mail } from "lucide-react";
+import { PaymentSummary } from "./PaymentSummary";
 
 interface StandardPaymentFormProps {
   amount: number;
@@ -7,34 +7,22 @@ interface StandardPaymentFormProps {
 }
 
 export function StandardPaymentForm({ amount, onPayment }: StandardPaymentFormProps) {
+  console.log('Rendering StandardPaymentForm with amount:', amount);
+  
   return (
     <div className="space-y-4">
-      <div className="bg-gray-50/80 p-4 rounded-lg space-y-4">
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600">From</span>
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
-            <span>Checking •••• 3862</span>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600">To</span>
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4" />
-            <span>Pay by Email</span>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600">Total</span>
-          <span className="text-xl font-medium">${amount.toLocaleString()}</span>
-        </div>
-      </div>
+      <PaymentSummary 
+        fromAccount="Checking •••• 3862"
+        toMethod="Pay by Email"
+        amount={amount}
+      />
 
       <Button 
         className="w-full"
-        onClick={onPayment}
+        onClick={() => {
+          console.log('Payment button clicked, amount:', amount);
+          onPayment();
+        }}
       >
         Pay ${amount.toLocaleString()}
       </Button>

@@ -4,6 +4,7 @@ import { PaymentMethod, PaymentTerm } from "@/types/payments";
 import { PaymentOptions } from "./PaymentOptions";
 import { StandardPaymentForm } from "./StandardPaymentForm";
 import { WonderPayCapitalForm } from "./WonderPayCapitalForm";
+import { PaymentHeader } from "./PaymentHeader";
 
 interface PaymentDialogProps {
   open: boolean;
@@ -22,6 +23,8 @@ export function PaymentDialog({
   const [showCapital, setShowCapital] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState<PaymentTerm>();
 
+  console.log('PaymentDialog render:', { amount, selectedMethod, showCapital });
+
   const handlePayment = async () => {
     console.log('Processing payment:', { amount, method: selectedMethod, term: selectedTerm });
     try {
@@ -38,7 +41,7 @@ export function PaymentDialog({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="h-[85vh]">
         <div className="space-y-6 p-6 bg-white/80 backdrop-blur-lg">
-          <h2 className="text-3xl font-normal">Pay</h2>
+          <PaymentHeader title="Pay" />
           
           <PaymentOptions 
             showCapital={showCapital}
