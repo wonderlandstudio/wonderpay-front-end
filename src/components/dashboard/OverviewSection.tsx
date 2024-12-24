@@ -12,6 +12,16 @@ import {
 import { useMoniteDashboard } from '@/hooks/use-monite-dashboard';
 import { toast } from '@/hooks/use-toast';
 
+const chartConfig = {
+  transactions: {
+    label: "Transactions",
+    theme: {
+      light: "#8884d8",
+      dark: "#8884d8"
+    }
+  }
+};
+
 const OverviewSection = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('30');
   const { data, isLoading, error } = useMoniteDashboard();
@@ -95,7 +105,7 @@ const OverviewSection = () => {
           </div>
 
           <Card className="p-6 bg-white mt-8">
-            <ChartContainer className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[300px]">
               <AreaChart 
                 data={data?.transactions ?? []} 
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
