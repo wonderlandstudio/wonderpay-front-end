@@ -34,7 +34,7 @@ serve(async (req) => {
       );
     }
 
-    // Create token request body
+    // Create token request body with explicit grant_type
     const tokenRequestBody = {
       grant_type: 'client_credentials',
       client_id: clientId,
@@ -43,7 +43,7 @@ serve(async (req) => {
 
     console.log('Making token request to Monite API');
 
-    // Get access token
+    // Get access token using x-www-form-urlencoded format
     const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
