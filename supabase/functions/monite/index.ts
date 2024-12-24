@@ -41,15 +41,15 @@ serve(async (req) => {
       client_secret: clientSecret,
     };
 
-    console.log('Making token request to Monite API with body:', tokenRequestBody);
+    console.log('Making token request to Monite API');
 
     // Get access token
     const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify(tokenRequestBody)
+      body: new URLSearchParams(tokenRequestBody).toString()
     });
 
     if (!tokenResponse.ok) {
@@ -78,8 +78,11 @@ serve(async (req) => {
     const { path, method = 'GET', body } = await req.json();
     console.log('Making API request:', { path, method });
 
+    // Ensure path starts with a forward slash
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
     // Make the actual API request
-    const apiResponse = await fetch(`${apiUrl}${path}`, {
+    const apiResponse = await fetch(`${apiUrl}${normalizedPath}`, {
       method,
       headers: {
         'Authorization': `Bearer ${tokenData.access_token}`,
@@ -93,7 +96,7 @@ serve(async (req) => {
 
     if (!apiResponse.ok) {
       console.error('API request failed:', {
-        path,
+        path: normalizedPath,
         status: apiResponse.status,
         statusText: apiResponse.statusText,
         response: responseData
