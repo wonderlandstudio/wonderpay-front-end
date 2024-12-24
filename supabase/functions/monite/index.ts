@@ -8,14 +8,12 @@ const corsHeaders = {
 async function getMoniteToken() {
   const clientId = Deno.env.get('MONITE_CLIENT_ID');
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
-  const entityId = Deno.env.get('MONITE_ENTITY_ID');
 
   // Validate required environment variables
-  if (!clientId || !clientSecret || !entityId) {
+  if (!clientId || !clientSecret) {
     console.error('Missing required environment variables:', {
       hasClientId: !!clientId,
       hasClientSecret: !!clientSecret,
-      hasEntityId: !!entityId,
     });
     throw new Error('Missing required Monite configuration');
   }
@@ -30,8 +28,7 @@ async function getMoniteToken() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        grant_type: 'entity_user',
-        entity_user_id: entityId,
+        grant_type: 'client_credentials',
         client_id: clientId,
         client_secret: clientSecret
       })
@@ -73,6 +70,11 @@ async function handleMoniteRequest(req: Request) {
     console.log(`Processing Monite request for path: ${path}, method: ${method}`);
 
     const token = await getMoniteToken();
+    const entityId = Deno.env.get('MONITE_ENTITY_ID');
+
+    if (!entityId) {
+      throw new Error('Missing MONITE_ENTITY_ID configuration');
+    }
 
     // Special handling for dashboard overview endpoint
     if (path === '/dashboard/overview') {
@@ -81,6 +83,7 @@ async function handleMoniteRequest(req: Request) {
         const balanceResponse = await fetch(`https://api.sandbox.monite.com/v1/balance`, {
           headers: {
             'Authorization': `Bearer ${token}`,
+            'X-Monite-Entity-Id': entityId,
             'X-Monite-Version': '2024-05-25',
           },
         });
@@ -100,6 +103,7 @@ async function handleMoniteRequest(req: Request) {
         const transactionsResponse = await fetch(`https://api.sandbox.monite.com/v1/transactions?limit=30`, {
           headers: {
             'Authorization': `Bearer ${token}`,
+            'X-Monite-Entity-Id': entityId,
             'X-Monite-Version': '2024-05-25',
           },
         });
@@ -149,6 +153,7 @@ async function handleMoniteRequest(req: Request) {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'X-Monite-Entity-Id': entityId,
         'X-Monite-Version': '2024-05-25',
       },
       ...(body && { body: JSON.stringify(body) }),
