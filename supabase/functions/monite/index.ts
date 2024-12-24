@@ -18,6 +18,13 @@ async function getMoniteToken() {
     throw new Error('Missing required Monite configuration');
   }
 
+  // Validate UUID format for client_id
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(clientId)) {
+    console.error('Invalid client_id format. Must be a valid UUID.');
+    throw new Error('Invalid Monite client_id format');
+  }
+
   try {
     console.log('Requesting Monite token with credentials...');
     const response = await fetch(`${apiUrl}/auth/token`, {
