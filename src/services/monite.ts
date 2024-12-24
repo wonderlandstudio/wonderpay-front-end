@@ -27,39 +27,37 @@ export class MoniteService {
     }
   }
 
-  static async getPayables(params?: Record<string, any>) {
-    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+  static async getEntities() {
     return this.makeRequest({
-      path: `/payables${queryString}`,
+      path: '/entities',
     });
   }
 
-  static async getReceivables(params?: Record<string, any>) {
-    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+  static async createEntity(data: any) {
     return this.makeRequest({
-      path: `/receivables${queryString}`,
+      path: '/entities',
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  static async getEntity(id: string) {
+    return this.makeRequest({
+      path: `/entities/${id}`,
+    });
+  }
+
+  static async updateEntity(id: string, data: any) {
+    return this.makeRequest({
+      path: `/entities/${id}`,
+      method: 'PUT',
+      body: data,
     });
   }
 
   static async getDashboardData() {
     return this.makeRequest({
       path: '/dashboard/overview',
-    });
-  }
-
-  static async createPayable(data: any) {
-    return this.makeRequest({
-      path: '/payables',
-      method: 'POST',
-      body: data,
-    });
-  }
-
-  static async createReceivable(data: any) {
-    return this.makeRequest({
-      path: '/receivables',
-      method: 'POST',
-      body: data,
     });
   }
 }
