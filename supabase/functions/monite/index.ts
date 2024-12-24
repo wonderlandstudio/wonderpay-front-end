@@ -8,14 +8,12 @@ const corsHeaders = {
 async function getMoniteToken() {
   const clientId = Deno.env.get('MONITE_CLIENT_ID');
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
-  const apiUrl = Deno.env.get('MONITE_API_URL');
 
   // Validate required environment variables
-  if (!clientId || !clientSecret || !apiUrl) {
+  if (!clientId || !clientSecret) {
     console.error('Missing required environment variables:', {
       hasClientId: !!clientId,
       hasClientSecret: !!clientSecret,
-      hasApiUrl: !!apiUrl
     });
     throw new Error('Missing required Monite configuration');
   }
@@ -23,26 +21,27 @@ async function getMoniteToken() {
   console.log('Getting Monite token with client ID:', clientId);
 
   try {
-    const response = await fetch(`${apiUrl}/auth/token`, {
+    const response = await fetch('https://api.sandbox.monite.com/v1/auth/token', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'X-Monite-Version': '2024-05-25',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         grant_type: 'client_credentials',
         client_id: clientId,
-        client_secret: clientSecret,
-      }),
+        client_secret: clientSecret
+      })
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorData = await response.json();
       console.error('Token request failed:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorText
+        error: errorData
       });
-      throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
+      throw new Error(`Token request failed: ${errorData.message}`);
     }
 
     const data = await response.json();
@@ -60,10 +59,9 @@ async function handleMoniteRequest(req: Request) {
     console.log(`Processing Monite request for path: ${path}, method: ${method}`);
 
     const token = await getMoniteToken();
-    const apiUrl = Deno.env.get('MONITE_API_URL');
     const entityId = Deno.env.get('MONITE_ENTITY_ID');
 
-    if (!apiUrl || !entityId) {
+    if (!entityId) {
       throw new Error('Missing required Monite configuration');
     }
 
@@ -71,11 +69,11 @@ async function handleMoniteRequest(req: Request) {
     if (path === '/dashboard/overview') {
       try {
         console.log('Fetching balance data');
-        const balanceResponse = await fetch(`${apiUrl}/balance`, {
+        const balanceResponse = await fetch(`https://api.sandbox.monite.com/v1/balance`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'x-monite-entity-id': entityId,
-            'x-monite-version': Deno.env.get('MONITE_VERSION') || '2023-06-04',
+            'X-Monite-Version': '2024-05-25',
           },
         });
 
@@ -91,11 +89,11 @@ async function handleMoniteRequest(req: Request) {
         console.log('Successfully fetched balance data');
 
         console.log('Fetching transactions data');
-        const transactionsResponse = await fetch(`${apiUrl}/transactions?limit=30`, {
+        const transactionsResponse = await fetch(`https://api.sandbox.monite.com/v1/transactions?limit=30`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'x-monite-entity-id': entityId,
-            'x-monite-version': Deno.env.get('MONITE_VERSION') || '2023-06-04',
+            'X-Monite-Version': '2024-05-25',
           },
         });
 
@@ -139,13 +137,13 @@ async function handleMoniteRequest(req: Request) {
     }
 
     // Handle other endpoints
-    const response = await fetch(`${apiUrl}${path}`, {
+    const response = await fetch(`https://api.sandbox.monite.com/v1${path}`, {
       method: method || 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'x-monite-entity-id': entityId,
-        'x-monite-version': Deno.env.get('MONITE_VERSION') || '2023-06-04',
+        'X-Monite-Version': '2024-05-25',
       },
       ...(body && { body: JSON.stringify(body) }),
     });
