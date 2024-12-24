@@ -6,6 +6,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -14,22 +15,29 @@ serve(async (req) => {
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
   const apiUrl = Deno.env.get('MONITE_API_URL');
 
+  // Validate environment variables
   if (!clientId || !clientSecret || !apiUrl) {
-    console.error('Missing required environment variables');
+    console.error('Missing required environment variables:', {
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      hasApiUrl: !!apiUrl
+    });
     return new Response(
-      JSON.stringify({ error: 'Server configuration error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: 'Server configuration error',
+        details: 'Missing required environment variables'
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 
   try {
-    // Log request details (safely)
-    console.log('Starting Monite request with:', {
-      apiUrl,
-      clientIdPrefix: clientId.substring(0, 4) + '...',
-    });
+    console.log('Starting Monite authentication request');
 
-    // Get access token
+    // Get access token with detailed logging
     const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
@@ -42,9 +50,10 @@ serve(async (req) => {
       })
     });
 
-    // Safely get response text first
-    const tokenResponseText = await tokenResponse.text();
     console.log('Token response status:', tokenResponse.status);
+    
+    const tokenResponseText = await tokenResponse.text();
+    console.log('Token response body:', tokenResponseText);
 
     if (!tokenResponse.ok) {
       console.error('Token request failed:', {
@@ -53,8 +62,14 @@ serve(async (req) => {
         response: tokenResponseText
       });
       return new Response(
-        JSON.stringify({ error: 'Failed to authenticate with Monite API' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Failed to authenticate with Monite API',
+          details: `Status: ${tokenResponse.status}, Response: ${tokenResponseText}`
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
@@ -65,21 +80,34 @@ serve(async (req) => {
     } catch (error) {
       console.error('Failed to parse token response:', error);
       return new Response(
-        JSON.stringify({ error: 'Invalid authentication response' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Invalid authentication response',
+          details: error.message
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
     if (!tokenData.access_token) {
       console.error('No access token in response:', tokenData);
       return new Response(
-        JSON.stringify({ error: 'Invalid token response' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Invalid token response',
+          details: 'No access token received'
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
     // Parse request body
     const { path, method = 'GET', body } = await req.json();
+    console.log('Making API request:', { path, method });
 
     // Make the actual API request
     const apiResponse = await fetch(`${apiUrl}${path}`, {
@@ -91,9 +119,9 @@ serve(async (req) => {
       ...(body && { body: JSON.stringify(body) })
     });
 
-    // Get API response text first
     const apiResponseText = await apiResponse.text();
     console.log('API response status:', apiResponse.status);
+    console.log('API response body:', apiResponseText);
 
     if (!apiResponse.ok) {
       console.error('API request failed:', {
@@ -103,8 +131,14 @@ serve(async (req) => {
         response: apiResponseText
       });
       return new Response(
-        JSON.stringify({ error: `API request failed: ${apiResponse.statusText}` }),
-        { status: apiResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: `API request failed: ${apiResponse.statusText}`,
+          details: apiResponseText
+        }),
+        { 
+          status: apiResponse.status, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
@@ -115,8 +149,14 @@ serve(async (req) => {
     } catch (error) {
       console.error('Failed to parse API response:', error);
       return new Response(
-        JSON.stringify({ error: 'Invalid API response' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Invalid API response',
+          details: error.message
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
@@ -129,8 +169,14 @@ serve(async (req) => {
   } catch (error) {
     console.error('Edge function error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: 'Internal server error',
+        details: error.message
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });
