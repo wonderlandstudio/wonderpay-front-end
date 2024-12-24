@@ -21,7 +21,7 @@ async function getMoniteToken() {
   console.log('Getting Monite token with client ID:', clientId);
 
   try {
-    const response = await fetch('https://api.sandbox.monite.com/v1/auth/token', {
+    const tokenResponse = await fetch('https://api.sandbox.monite.com/v1/auth/token', {
       method: 'POST',
       headers: {
         'X-Monite-Version': '2024-05-25',
@@ -34,17 +34,28 @@ async function getMoniteToken() {
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
+    const responseText = await tokenResponse.text();
+    console.log('Token response:', responseText);
+
+    if (!tokenResponse.ok) {
       console.error('Token request failed:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorData
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        body: responseText
       });
-      throw new Error(`Token request failed: ${errorData.message}`);
+      
+      let errorMessage;
+      try {
+        const errorData = JSON.parse(responseText);
+        errorMessage = errorData.message || errorData.error || 'Unknown error';
+      } catch {
+        errorMessage = responseText || tokenResponse.statusText;
+      }
+      
+      throw new Error(`Token request failed: ${errorMessage}`);
     }
 
-    const data = await response.json();
+    const data = JSON.parse(responseText);
     console.log('Successfully obtained Monite token');
     return data.access_token;
   } catch (error) {
