@@ -8,7 +8,7 @@ const corsHeaders = {
 async function getMoniteToken() {
   const clientId = Deno.env.get('MONITE_CLIENT_ID');
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
-  const apiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1';
+  const apiUrl = 'https://api.sandbox.monite.com/v1';
 
   if (!clientId || !clientSecret) {
     console.error('Missing required environment variables:', {
@@ -19,12 +19,12 @@ async function getMoniteToken() {
   }
 
   try {
-    console.log('Requesting Monite token...');
+    console.log('Requesting Monite token with credentials...');
     const response = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
-        'X-Monite-Version': '2024-05-25',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Monite-Version': '2024-05-25'
       },
       body: JSON.stringify({
         grant_type: 'client_credentials',
@@ -33,26 +33,31 @@ async function getMoniteToken() {
       })
     });
 
+    const responseText = await response.text();
+    console.log('Raw token response:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
       console.error('Token request failed:', {
         status: response.status,
         statusText: response.statusText,
-        body: errorText
+        body: responseText
       });
-      
-      let errorMessage;
-      try {
-        const errorData = JSON.parse(errorText);
-        errorMessage = errorData.message || errorData.error || 'Unknown error';
-      } catch {
-        errorMessage = errorText || response.statusText;
-      }
-      
-      throw new Error(`Token request failed: ${errorMessage}`);
+      throw new Error(`Token request failed: ${responseText}`);
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (error) {
+      console.error('Failed to parse token response:', error);
+      throw new Error('Invalid token response format');
+    }
+
+    if (!data.access_token) {
+      console.error('No access token in response:', data);
+      throw new Error('No access token received');
+    }
+
     console.log('Successfully obtained Monite token');
     return data.access_token;
   } catch (error) {
@@ -86,15 +91,17 @@ async function handleMoniteRequest(req: Request) {
         });
 
         if (!balanceResponse.ok) {
+          const errorText = await balanceResponse.text();
           console.error('Balance request failed:', {
             status: balanceResponse.status,
-            statusText: balanceResponse.statusText
+            statusText: balanceResponse.statusText,
+            body: errorText
           });
-          throw new Error(`Balance request failed: ${balanceResponse.statusText}`);
+          throw new Error(`Balance request failed: ${errorText}`);
         }
 
         const balanceData = await balanceResponse.json();
-        console.log('Successfully fetched balance data');
+        console.log('Successfully fetched balance data:', balanceData);
 
         console.log('Fetching transactions data');
         const transactionsResponse = await fetch(`https://api.sandbox.monite.com/v1/transactions?limit=30`, {
@@ -106,11 +113,13 @@ async function handleMoniteRequest(req: Request) {
         });
 
         if (!transactionsResponse.ok) {
+          const errorText = await transactionsResponse.text();
           console.error('Transactions request failed:', {
             status: transactionsResponse.status,
-            statusText: transactionsResponse.statusText
+            statusText: transactionsResponse.statusText,
+            body: errorText
           });
-          throw new Error(`Transactions request failed: ${transactionsResponse.statusText}`);
+          throw new Error(`Transactions request failed: ${errorText}`);
         }
 
         const transactionsData = await transactionsResponse.json();
