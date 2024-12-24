@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from './components/layout/DashboardLayout';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -18,7 +21,31 @@ import Login from './pages/Login';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
-  console.log('App rendering - checking routes configuration');
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Protected Route wrapper
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    if (!session) {
+      return <Navigate to="/login" replace />;
+    }
+    return <>{children}</>;
+  };
   
   return (
     <SettingsProvider>
@@ -26,7 +53,16 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<DashboardLayout><Outlet /></DashboardLayout>}>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Outlet />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Dashboard />} />
             <Route path="bill-pay">
               <Route index element={<BillPay />} />
