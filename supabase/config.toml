@@ -1,1 +1,8 @@
 project_id = "zwtxebgyiknysfmpeejy"
+
+[api]
+enabled = true
+url = "https://zwtxebgyiknysfmpeejy.supabase.co"
+
+[functions.monite]
+verify_jwt = true
