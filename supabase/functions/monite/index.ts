@@ -19,7 +19,10 @@ async function getMoniteToken() {
   }
 
   try {
-    console.log('Requesting Monite token...');
+    console.log('Requesting Monite token with credentials:', {
+      clientId: clientId.substring(0, 8) + '...',  // Log only first 8 chars for security
+    });
+
     const response = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
@@ -33,17 +36,26 @@ async function getMoniteToken() {
       })
     });
 
+    const responseText = await response.text();
+    console.log('Raw token response:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
       console.error('Token request failed:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorText
+        body: responseText
       });
-      throw new Error(`Token request failed: ${errorText}`);
+      throw new Error(`Token request failed: ${responseText}`);
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (error) {
+      console.error('Failed to parse token response:', error);
+      throw new Error('Invalid token response format');
+    }
+
     if (!data.access_token) {
       console.error('No access token in response:', data);
       throw new Error('No access token received');
@@ -86,7 +98,7 @@ async function handleMoniteRequest(req: Request) {
           console.error('Balance request failed:', {
             status: balanceResponse.status,
             statusText: balanceResponse.statusText,
-            error: errorText
+            body: errorText
           });
           throw new Error(`Balance request failed: ${errorText}`);
         }
@@ -108,7 +120,7 @@ async function handleMoniteRequest(req: Request) {
           console.error('Transactions request failed:', {
             status: transactionsResponse.status,
             statusText: transactionsResponse.statusText,
-            error: errorText
+            body: errorText
           });
           throw new Error(`Transactions request failed: ${errorText}`);
         }
