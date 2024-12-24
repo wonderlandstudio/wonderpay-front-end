@@ -34,57 +34,62 @@ serve(async (req) => {
       );
     }
 
-    // Create form data for token request
-    const formData = new URLSearchParams();
-    formData.append('grant_type', 'client_credentials');
-    formData.append('client_id', clientId);
-    formData.append('client_secret', clientSecret);
+    // Parse request body
+    const { path, method = 'GET', body } = await req.json();
+    console.log('Received request:', { path, method });
 
-    console.log('Making token request to Monite API with form data');
+    // If this is a token request, handle it differently
+    if (path === '/auth/token') {
+      // Create form data for token request
+      const formData = new URLSearchParams();
+      formData.append('grant_type', 'client_credentials');
+      formData.append('client_id', clientId);
+      formData.append('client_secret', clientSecret);
 
-    // Get access token using x-www-form-urlencoded format
-    const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData.toString()
-    });
+      console.log('Making token request to Monite API');
 
-    if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.json();
-      console.error('Token request failed:', {
-        status: tokenResponse.status,
-        statusText: tokenResponse.statusText,
-        error: errorData
+      const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
       });
+
+      if (!tokenResponse.ok) {
+        const errorData = await tokenResponse.json();
+        console.error('Token request failed:', {
+          status: tokenResponse.status,
+          error: errorData
+        });
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to authenticate with Monite API',
+            details: errorData
+          }),
+          { 
+            status: tokenResponse.status, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      const tokenData = await tokenResponse.json();
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to authenticate with Monite API',
-          details: errorData
-        }),
-        { 
-          status: tokenResponse.status, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        JSON.stringify(tokenData),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const tokenData = await tokenResponse.json();
-    console.log('Successfully obtained Monite access token');
-
-    // Parse request body
-    const { path, method = 'GET', body } = await req.json();
-    console.log('Making API request:', { path, method });
-
-    // Ensure path starts with a forward slash
+    // For all other requests, ensure path starts with a forward slash
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    console.log('Making API request to:', normalizedPath);
 
     // Make the actual API request
     const apiResponse = await fetch(`${apiUrl}${normalizedPath}`, {
       method,
       headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
+        'Authorization': `Bearer ${body?.token}`,
         'Content-Type': 'application/json',
       },
       ...(body && { body: JSON.stringify(body) })
@@ -97,7 +102,6 @@ serve(async (req) => {
       console.error('API request failed:', {
         path: normalizedPath,
         status: apiResponse.status,
-        statusText: apiResponse.statusText,
         response: responseData
       });
       return new Response(
