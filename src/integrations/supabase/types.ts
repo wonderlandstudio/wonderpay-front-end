@@ -39,6 +39,36 @@ export type Database = {
         }
         Relationships: []
       }
+      monite_settings: {
+        Row: {
+          api_key: string
+          created_at: string
+          entity_id: string
+          environment: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          entity_id: string
+          environment?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          entity_id?: string
+          environment?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
