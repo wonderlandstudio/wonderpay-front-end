@@ -34,14 +34,13 @@ serve(async (req) => {
       );
     }
 
-    // Create token request body with explicit grant_type
-    const tokenRequestBody = {
-      grant_type: 'client_credentials',
-      client_id: clientId,
-      client_secret: clientSecret,
-    };
+    // Create form data for token request
+    const formData = new URLSearchParams();
+    formData.append('grant_type', 'client_credentials');
+    formData.append('client_id', clientId);
+    formData.append('client_secret', clientSecret);
 
-    console.log('Making token request to Monite API');
+    console.log('Making token request to Monite API with form data');
 
     // Get access token using x-www-form-urlencoded format
     const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
@@ -49,7 +48,7 @@ serve(async (req) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams(tokenRequestBody).toString()
+      body: formData.toString()
     });
 
     if (!tokenResponse.ok) {
