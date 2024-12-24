@@ -41,6 +41,12 @@ export class MoniteService {
     });
   }
 
+  static async getDashboardData() {
+    return this.makeRequest({
+      path: '/dashboard/overview',
+    });
+  }
+
   static async createPayable(data: any) {
     return this.makeRequest({
       path: '/payables',

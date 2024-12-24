@@ -47,6 +47,55 @@ async function handleMoniteRequest(req: Request) {
 
     console.log(`Making Monite API request to ${path}`);
 
+    // Special handling for dashboard overview endpoint
+    if (path === '/dashboard/overview') {
+      // Fetch balance
+      const balanceResponse = await fetch(`${apiUrl}/balance`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'x-monite-entity-id': entityId!,
+          'x-monite-version': Deno.env.get('MONITE_VERSION')!,
+        },
+      });
+      const balanceData = await balanceResponse.json();
+
+      // Fetch transactions for the chart
+      const transactionsResponse = await fetch(`${apiUrl}/transactions?limit=30`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'x-monite-entity-id': entityId!,
+          'x-monite-version': Deno.env.get('MONITE_VERSION')!,
+        },
+      });
+      const transactionsData = await transactionsResponse.json();
+
+      // Calculate income and expenses
+      const income = transactionsData.data
+        .filter((t: any) => t.type === 'income')
+        .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+      const expenses = transactionsData.data
+        .filter((t: any) => t.type === 'expense')
+        .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+      // Format transactions for the chart
+      const chartData = transactionsData.data.map((t: any) => ({
+        date: new Date(t.created_at).toLocaleDateString(),
+        value: t.amount
+      }));
+
+      return new Response(
+        JSON.stringify({
+          balance: balanceData.available,
+          income,
+          expenses,
+          transactions: chartData
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Handle other endpoints
     const response = await fetch(`${apiUrl}${path}`, {
       method: method || 'GET',
       headers: {
