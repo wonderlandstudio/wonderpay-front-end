@@ -1,196 +1,136 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-async function getMoniteToken() {
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   const clientId = Deno.env.get('MONITE_CLIENT_ID');
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
-  const apiUrl = 'https://api.sandbox.monite.com/v1';
+  const apiUrl = Deno.env.get('MONITE_API_URL');
 
-  if (!clientId || !clientSecret) {
-    console.error('Missing required environment variables:', {
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-    });
-    throw new Error('Missing required Monite configuration');
+  if (!clientId || !clientSecret || !apiUrl) {
+    console.error('Missing required environment variables');
+    return new Response(
+      JSON.stringify({ error: 'Server configuration error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
   try {
-    console.log('Requesting Monite token with credentials:', {
-      clientId: clientId.substring(0, 8) + '...',  // Log only first 8 chars for security
+    // Log request details (safely)
+    console.log('Starting Monite request with:', {
+      apiUrl,
+      clientIdPrefix: clientId.substring(0, 4) + '...',
     });
 
-    const response = await fetch(`${apiUrl}/auth/token`, {
+    // Get access token
+    const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'X-Monite-Version': '2024-05-25'
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({
+      body: new URLSearchParams({
         grant_type: 'client_credentials',
         client_id: clientId,
-        client_secret: clientSecret
+        client_secret: clientSecret,
       })
     });
 
-    const responseText = await response.text();
-    console.log('Raw token response:', responseText);
+    // Safely get response text first
+    const tokenResponseText = await tokenResponse.text();
+    console.log('Token response status:', tokenResponse.status);
 
-    if (!response.ok) {
+    if (!tokenResponse.ok) {
       console.error('Token request failed:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: responseText
+        status: tokenResponse.status,
+        statusText: tokenResponse.statusText,
+        response: tokenResponseText
       });
-      throw new Error(`Token request failed: ${responseText}`);
+      return new Response(
+        JSON.stringify({ error: 'Failed to authenticate with Monite API' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    let data;
+    // Parse token response
+    let tokenData;
     try {
-      data = JSON.parse(responseText);
+      tokenData = JSON.parse(tokenResponseText);
     } catch (error) {
       console.error('Failed to parse token response:', error);
-      throw new Error('Invalid token response format');
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication response' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    if (!data.access_token) {
-      console.error('No access token in response:', data);
-      throw new Error('No access token received');
+    if (!tokenData.access_token) {
+      console.error('No access token in response:', tokenData);
+      return new Response(
+        JSON.stringify({ error: 'Invalid token response' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log('Successfully obtained Monite token');
-    return data.access_token;
-  } catch (error) {
-    console.error('Error getting Monite token:', error);
-    throw error;
-  }
-}
+    // Parse request body
+    const { path, method = 'GET', body } = await req.json();
 
-async function handleMoniteRequest(req: Request) {
-  try {
-    const { path, method, body } = await req.json();
-    console.log(`Processing Monite request for path: ${path}, method: ${method}`);
-
-    const token = await getMoniteToken();
-    const entityId = Deno.env.get('MONITE_ENTITY_ID');
-
-    if (!entityId) {
-      throw new Error('Missing MONITE_ENTITY_ID configuration');
-    }
-
-    // Special handling for dashboard overview endpoint
-    if (path === '/dashboard/overview') {
-      try {
-        console.log('Fetching balance data');
-        const balanceResponse = await fetch(`https://api.sandbox.monite.com/v1/balance`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'X-Monite-Entity-Id': entityId,
-            'X-Monite-Version': '2024-05-25',
-          },
-        });
-
-        if (!balanceResponse.ok) {
-          const errorText = await balanceResponse.text();
-          console.error('Balance request failed:', {
-            status: balanceResponse.status,
-            statusText: balanceResponse.statusText,
-            body: errorText
-          });
-          throw new Error(`Balance request failed: ${errorText}`);
-        }
-
-        const balanceData = await balanceResponse.json();
-        console.log('Successfully fetched balance data:', balanceData);
-
-        console.log('Fetching transactions data');
-        const transactionsResponse = await fetch(`https://api.sandbox.monite.com/v1/transactions?limit=30`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'X-Monite-Entity-Id': entityId,
-            'X-Monite-Version': '2024-05-25',
-          },
-        });
-
-        if (!transactionsResponse.ok) {
-          const errorText = await transactionsResponse.text();
-          console.error('Transactions request failed:', {
-            status: transactionsResponse.status,
-            statusText: transactionsResponse.statusText,
-            body: errorText
-          });
-          throw new Error(`Transactions request failed: ${errorText}`);
-        }
-
-        const transactionsData = await transactionsResponse.json();
-        console.log('Successfully fetched transactions data');
-
-        const income = transactionsData.data
-          .filter((t: any) => t.type === 'income')
-          .reduce((sum: number, t: any) => sum + t.amount, 0);
-
-        const expenses = transactionsData.data
-          .filter((t: any) => t.type === 'expense')
-          .reduce((sum: number, t: any) => sum + t.amount, 0);
-
-        const chartData = transactionsData.data.map((t: any) => ({
-          date: new Date(t.created_at).toLocaleDateString(),
-          value: t.amount
-        }));
-
-        return new Response(
-          JSON.stringify({
-            balance: balanceData.available || 0,
-            income,
-            expenses,
-            transactions: chartData
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      } catch (error) {
-        console.error('Error processing dashboard overview:', error);
-        throw error;
-      }
-    }
-
-    // Handle other endpoints
-    const response = await fetch(`https://api.sandbox.monite.com/v1${path}`, {
-      method: method || 'GET',
+    // Make the actual API request
+    const apiResponse = await fetch(`${apiUrl}${path}`, {
+      method,
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${tokenData.access_token}`,
         'Content-Type': 'application/json',
-        'X-Monite-Entity-Id': entityId,
-        'X-Monite-Version': '2024-05-25',
       },
-      ...(body && { body: JSON.stringify(body) }),
+      ...(body && { body: JSON.stringify(body) })
     });
 
-    const data = await response.json();
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('Error in Monite request:', error);
+    // Get API response text first
+    const apiResponseText = await apiResponse.text();
+    console.log('API response status:', apiResponse.status);
+
+    if (!apiResponse.ok) {
+      console.error('API request failed:', {
+        path,
+        status: apiResponse.status,
+        statusText: apiResponse.statusText,
+        response: apiResponseText
+      });
+      return new Response(
+        JSON.stringify({ error: `API request failed: ${apiResponse.statusText}` }),
+        { status: apiResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Parse API response
+    let responseData;
+    try {
+      responseData = JSON.parse(apiResponseText);
+    } catch (error) {
+      console.error('Failed to parse API response:', error);
+      return new Response(
+        JSON.stringify({ error: 'Invalid API response' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Return successful response
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        details: error.stack 
-      }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      JSON.stringify(responseData),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error) {
+    console.error('Edge function error:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
-}
-
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  return handleMoniteRequest(req);
 });
