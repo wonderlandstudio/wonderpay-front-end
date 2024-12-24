@@ -5,48 +5,42 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface MoniteToken {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-}
-
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  const clientId = Deno.env.get('MONITE_CLIENT_ID');
-  const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
-  const apiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1';
-
-  // Validate environment variables
-  if (!clientId || !clientSecret) {
-    console.error('Missing required environment variables:', {
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-    });
-    return new Response(
-      JSON.stringify({ 
-        error: 'Server configuration error',
-        details: 'Missing required Monite credentials'
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
-  }
-
   try {
-    console.log('Starting Monite authentication request');
+    const clientId = Deno.env.get('MONITE_CLIENT_ID');
+    const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
+    const apiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1';
+
+    // Validate environment variables
+    if (!clientId || !clientSecret) {
+      console.error('Missing required environment variables:', {
+        hasClientId: !!clientId,
+        hasClientSecret: !!clientSecret,
+      });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Server configuration error',
+          details: 'Missing required Monite credentials'
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
 
     // Create form data for token request
     const formData = new URLSearchParams();
     formData.append('grant_type', 'client_credentials');
     formData.append('client_id', clientId);
     formData.append('client_secret', clientSecret);
+
+    console.log('Making token request to Monite API');
 
     // Get access token
     const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
@@ -57,28 +51,27 @@ serve(async (req) => {
       body: formData.toString()
     });
 
-    console.log('Token response status:', tokenResponse.status);
-    
-    const tokenData = await tokenResponse.json();
-    console.log('Token response:', JSON.stringify(tokenData, null, 2));
-
-    if (!tokenResponse.ok || !tokenData.access_token) {
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.json();
       console.error('Token request failed:', {
         status: tokenResponse.status,
         statusText: tokenResponse.statusText,
-        response: JSON.stringify(tokenData)
+        error: errorData
       });
       return new Response(
         JSON.stringify({ 
           error: 'Failed to authenticate with Monite API',
-          details: tokenData.detail || 'Invalid token response'
+          details: errorData
         }),
         { 
-          status: 500, 
+          status: tokenResponse.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
     }
+
+    const tokenData = await tokenResponse.json();
+    console.log('Successfully obtained Monite access token');
 
     // Parse request body
     const { path, method = 'GET', body } = await req.json();
@@ -96,14 +89,13 @@ serve(async (req) => {
 
     const responseData = await apiResponse.json();
     console.log('API response status:', apiResponse.status);
-    console.log('API response:', JSON.stringify(responseData, null, 2));
 
     if (!apiResponse.ok) {
       console.error('API request failed:', {
         path,
         status: apiResponse.status,
         statusText: apiResponse.statusText,
-        response: JSON.stringify(responseData)
+        response: responseData
       });
       return new Response(
         JSON.stringify({ 
