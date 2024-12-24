@@ -10,11 +10,17 @@ async function getMoniteToken() {
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
   const apiUrl = Deno.env.get('MONITE_API_URL');
 
+  // Validate required environment variables
   if (!clientId || !clientSecret || !apiUrl) {
+    console.error('Missing required environment variables:', {
+      hasClientId: !!clientId,
+      hasClientSecret: !!clientSecret,
+      hasApiUrl: !!apiUrl
+    });
     throw new Error('Missing required Monite configuration');
   }
 
-  console.log('Getting Monite token...');
+  console.log('Getting Monite token with client ID:', clientId);
 
   try {
     const response = await fetch(`${apiUrl}/auth/token`, {
@@ -30,9 +36,13 @@ async function getMoniteToken() {
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Token response error:', errorData);
-      throw new Error(`Failed to get token: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Token request failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -47,6 +57,8 @@ async function getMoniteToken() {
 async function handleMoniteRequest(req: Request) {
   try {
     const { path, method, body } = await req.json();
+    console.log(`Processing Monite request for path: ${path}, method: ${method}`);
+
     const token = await getMoniteToken();
     const apiUrl = Deno.env.get('MONITE_API_URL');
     const entityId = Deno.env.get('MONITE_ENTITY_ID');
@@ -55,12 +67,10 @@ async function handleMoniteRequest(req: Request) {
       throw new Error('Missing required Monite configuration');
     }
 
-    console.log(`Making Monite API request to ${path}`);
-
     // Special handling for dashboard overview endpoint
     if (path === '/dashboard/overview') {
       try {
-        // Fetch balance
+        console.log('Fetching balance data');
         const balanceResponse = await fetch(`${apiUrl}/balance`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -70,12 +80,17 @@ async function handleMoniteRequest(req: Request) {
         });
 
         if (!balanceResponse.ok) {
+          console.error('Balance request failed:', {
+            status: balanceResponse.status,
+            statusText: balanceResponse.statusText
+          });
           throw new Error(`Balance request failed: ${balanceResponse.statusText}`);
         }
 
         const balanceData = await balanceResponse.json();
+        console.log('Successfully fetched balance data');
 
-        // Fetch transactions
+        console.log('Fetching transactions data');
         const transactionsResponse = await fetch(`${apiUrl}/transactions?limit=30`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -85,12 +100,16 @@ async function handleMoniteRequest(req: Request) {
         });
 
         if (!transactionsResponse.ok) {
+          console.error('Transactions request failed:', {
+            status: transactionsResponse.status,
+            statusText: transactionsResponse.statusText
+          });
           throw new Error(`Transactions request failed: ${transactionsResponse.statusText}`);
         }
 
         const transactionsData = await transactionsResponse.json();
+        console.log('Successfully fetched transactions data');
 
-        // Calculate income and expenses
         const income = transactionsData.data
           .filter((t: any) => t.type === 'income')
           .reduce((sum: number, t: any) => sum + t.amount, 0);
@@ -99,7 +118,6 @@ async function handleMoniteRequest(req: Request) {
           .filter((t: any) => t.type === 'expense')
           .reduce((sum: number, t: any) => sum + t.amount, 0);
 
-        // Format transactions for the chart
         const chartData = transactionsData.data.map((t: any) => ({
           date: new Date(t.created_at).toLocaleDateString(),
           value: t.amount
@@ -139,7 +157,10 @@ async function handleMoniteRequest(req: Request) {
   } catch (error) {
     console.error('Error in Monite request:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
