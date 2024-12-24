@@ -37,17 +37,19 @@ serve(async (req) => {
   try {
     console.log('Starting Monite authentication request');
 
+    // Create form data for token request
+    const formData = new URLSearchParams();
+    formData.append('grant_type', 'client_credentials');
+    formData.append('client_id', clientId);
+    formData.append('client_secret', clientSecret);
+
     // Get access token with detailed logging
     const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret,
-      })
+      body: formData.toString()
     });
 
     console.log('Token response status:', tokenResponse.status);
