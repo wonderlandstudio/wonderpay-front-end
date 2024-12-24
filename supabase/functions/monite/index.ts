@@ -19,7 +19,7 @@ async function getMoniteToken() {
   }
 
   try {
-    console.log('Requesting Monite token with credentials...');
+    console.log('Requesting Monite token...');
     const response = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
@@ -33,26 +33,17 @@ async function getMoniteToken() {
       })
     });
 
-    const responseText = await response.text();
-    console.log('Raw token response:', responseText);
-
     if (!response.ok) {
+      const errorText = await response.text();
       console.error('Token request failed:', {
         status: response.status,
         statusText: response.statusText,
-        body: responseText
+        error: errorText
       });
-      throw new Error(`Token request failed: ${responseText}`);
+      throw new Error(`Token request failed: ${errorText}`);
     }
 
-    let data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (error) {
-      console.error('Failed to parse token response:', error);
-      throw new Error('Invalid token response format');
-    }
-
+    const data = await response.json();
     if (!data.access_token) {
       console.error('No access token in response:', data);
       throw new Error('No access token received');
@@ -95,7 +86,7 @@ async function handleMoniteRequest(req: Request) {
           console.error('Balance request failed:', {
             status: balanceResponse.status,
             statusText: balanceResponse.statusText,
-            body: errorText
+            error: errorText
           });
           throw new Error(`Balance request failed: ${errorText}`);
         }
@@ -117,7 +108,7 @@ async function handleMoniteRequest(req: Request) {
           console.error('Transactions request failed:', {
             status: transactionsResponse.status,
             statusText: transactionsResponse.statusText,
-            body: errorText
+            error: errorText
           });
           throw new Error(`Transactions request failed: ${errorText}`);
         }
