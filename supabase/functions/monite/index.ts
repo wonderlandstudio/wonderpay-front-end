@@ -8,8 +8,8 @@ const corsHeaders = {
 async function getMoniteToken() {
   const clientId = Deno.env.get('MONITE_CLIENT_ID');
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
+  const apiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1';
 
-  // Validate required environment variables
   if (!clientId || !clientSecret) {
     console.error('Missing required environment variables:', {
       hasClientId: !!clientId,
@@ -18,10 +18,9 @@ async function getMoniteToken() {
     throw new Error('Missing required Monite configuration');
   }
 
-  console.log('Getting Monite token with client ID:', clientId);
-
   try {
-    const tokenResponse = await fetch('https://api.sandbox.monite.com/v1/auth/token', {
+    console.log('Requesting Monite token...');
+    const response = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
       headers: {
         'X-Monite-Version': '2024-05-25',
@@ -34,28 +33,26 @@ async function getMoniteToken() {
       })
     });
 
-    const responseText = await tokenResponse.text();
-    console.log('Token response:', responseText);
-
-    if (!tokenResponse.ok) {
+    if (!response.ok) {
+      const errorText = await response.text();
       console.error('Token request failed:', {
-        status: tokenResponse.status,
-        statusText: tokenResponse.statusText,
-        body: responseText
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
       });
       
       let errorMessage;
       try {
-        const errorData = JSON.parse(responseText);
+        const errorData = JSON.parse(errorText);
         errorMessage = errorData.message || errorData.error || 'Unknown error';
       } catch {
-        errorMessage = responseText || tokenResponse.statusText;
+        errorMessage = errorText || response.statusText;
       }
       
       throw new Error(`Token request failed: ${errorMessage}`);
     }
 
-    const data = JSON.parse(responseText);
+    const data = await response.json();
     console.log('Successfully obtained Monite token');
     return data.access_token;
   } catch (error) {
