@@ -10,6 +10,10 @@ async function getMoniteToken() {
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
   const apiUrl = Deno.env.get('MONITE_API_URL');
 
+  if (!clientId || !clientSecret || !apiUrl) {
+    throw new Error('Missing required Monite configuration');
+  }
+
   console.log('Getting Monite token...');
 
   try {
@@ -26,6 +30,8 @@ async function getMoniteToken() {
     });
 
     if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Token response error:', errorData);
       throw new Error(`Failed to get token: ${response.statusText}`);
     }
 
@@ -45,54 +51,73 @@ async function handleMoniteRequest(req: Request) {
     const apiUrl = Deno.env.get('MONITE_API_URL');
     const entityId = Deno.env.get('MONITE_ENTITY_ID');
 
+    if (!apiUrl || !entityId) {
+      throw new Error('Missing required Monite configuration');
+    }
+
     console.log(`Making Monite API request to ${path}`);
 
     // Special handling for dashboard overview endpoint
     if (path === '/dashboard/overview') {
-      // Fetch balance
-      const balanceResponse = await fetch(`${apiUrl}/balance`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'x-monite-entity-id': entityId!,
-          'x-monite-version': Deno.env.get('MONITE_VERSION')!,
-        },
-      });
-      const balanceData = await balanceResponse.json();
+      try {
+        // Fetch balance
+        const balanceResponse = await fetch(`${apiUrl}/balance`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'x-monite-entity-id': entityId,
+            'x-monite-version': Deno.env.get('MONITE_VERSION') || '2023-06-04',
+          },
+        });
 
-      // Fetch transactions for the chart
-      const transactionsResponse = await fetch(`${apiUrl}/transactions?limit=30`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'x-monite-entity-id': entityId!,
-          'x-monite-version': Deno.env.get('MONITE_VERSION')!,
-        },
-      });
-      const transactionsData = await transactionsResponse.json();
+        if (!balanceResponse.ok) {
+          throw new Error(`Balance request failed: ${balanceResponse.statusText}`);
+        }
 
-      // Calculate income and expenses
-      const income = transactionsData.data
-        .filter((t: any) => t.type === 'income')
-        .reduce((sum: number, t: any) => sum + t.amount, 0);
+        const balanceData = await balanceResponse.json();
 
-      const expenses = transactionsData.data
-        .filter((t: any) => t.type === 'expense')
-        .reduce((sum: number, t: any) => sum + t.amount, 0);
+        // Fetch transactions
+        const transactionsResponse = await fetch(`${apiUrl}/transactions?limit=30`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'x-monite-entity-id': entityId,
+            'x-monite-version': Deno.env.get('MONITE_VERSION') || '2023-06-04',
+          },
+        });
 
-      // Format transactions for the chart
-      const chartData = transactionsData.data.map((t: any) => ({
-        date: new Date(t.created_at).toLocaleDateString(),
-        value: t.amount
-      }));
+        if (!transactionsResponse.ok) {
+          throw new Error(`Transactions request failed: ${transactionsResponse.statusText}`);
+        }
 
-      return new Response(
-        JSON.stringify({
-          balance: balanceData.available,
-          income,
-          expenses,
-          transactions: chartData
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+        const transactionsData = await transactionsResponse.json();
+
+        // Calculate income and expenses
+        const income = transactionsData.data
+          .filter((t: any) => t.type === 'income')
+          .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+        const expenses = transactionsData.data
+          .filter((t: any) => t.type === 'expense')
+          .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+        // Format transactions for the chart
+        const chartData = transactionsData.data.map((t: any) => ({
+          date: new Date(t.created_at).toLocaleDateString(),
+          value: t.amount
+        }));
+
+        return new Response(
+          JSON.stringify({
+            balance: balanceData.available || 0,
+            income,
+            expenses,
+            transactions: chartData
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error('Error processing dashboard overview:', error);
+        throw error;
+      }
     }
 
     // Handle other endpoints
@@ -101,8 +126,8 @@ async function handleMoniteRequest(req: Request) {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'x-monite-entity-id': entityId!,
-        'x-monite-version': Deno.env.get('MONITE_VERSION')!,
+        'x-monite-entity-id': entityId,
+        'x-monite-version': Deno.env.get('MONITE_VERSION') || '2023-06-04',
       },
       ...(body && { body: JSON.stringify(body) }),
     });
@@ -113,10 +138,13 @@ async function handleMoniteRequest(req: Request) {
     });
   } catch (error) {
     console.error('Error in Monite request:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 }
 

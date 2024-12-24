@@ -35,6 +35,14 @@ const OverviewSection = () => {
     });
   }
 
+  // Default values for when data is not available
+  const dashboardData = {
+    balance: data?.balance ?? 0,
+    income: data?.income ?? 0,
+    expenses: data?.expenses ?? 0,
+    transactions: data?.transactions ?? []
+  };
+
   return (
     <div className="space-y-8 pt-8">
       <div className="flex items-center justify-between mb-6">
@@ -73,7 +81,7 @@ const OverviewSection = () => {
                 <div>
                   <div className="text-sm text-gray-500">Balance</div>
                   <div className="text-2xl font-semibold">
-                    ${data?.balance.toLocaleString() ?? '0.00'}
+                    ${dashboardData.balance.toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -85,7 +93,7 @@ const OverviewSection = () => {
                 <div>
                   <div className="text-sm text-gray-500">Income</div>
                   <div className="text-2xl font-semibold">
-                    {data?.income !== null ? `$${data.income.toLocaleString()}` : '—'}
+                    ${dashboardData.income.toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -97,7 +105,7 @@ const OverviewSection = () => {
                 <div>
                   <div className="text-sm text-gray-500">Expenses</div>
                   <div className="text-2xl font-semibold">
-                    ${data?.expenses.toLocaleString() ?? '0.00'}
+                    ${dashboardData.expenses.toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -107,7 +115,7 @@ const OverviewSection = () => {
           <Card className="p-6 bg-white mt-8">
             <ChartContainer config={chartConfig} className="h-[300px]">
               <AreaChart 
-                data={data?.transactions ?? []} 
+                data={dashboardData.transactions} 
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <defs>
