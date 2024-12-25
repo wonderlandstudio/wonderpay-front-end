@@ -5,6 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function isValidUUID(uuid: string) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -36,11 +41,26 @@ serve(async (req) => {
       );
     }
 
+    // Validate entity user ID format
+    if (!isValidUUID(entityUserId)) {
+      console.error('Invalid entity user ID format:', entityUserId);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Configuration error',
+          details: 'Invalid entity user ID format - must be a valid UUID'
+        }),
+        { 
+          status: 422, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     // Parse request body
     const { path, method = 'GET', body } = await req.json();
     console.log('Received request:', { path, method });
 
-    // Get access token first
+    // Get access token
     console.log('Making token request to Monite API');
     
     const tokenBody = {
