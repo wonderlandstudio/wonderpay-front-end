@@ -1,7 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'npm:@supabase/supabase-js'
-import { corsHeaders } from '../_shared/cors.ts'
 import { MoniteSDK } from 'npm:@monite/sdk-api'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,21 +15,36 @@ serve(async (req) => {
   try {
     console.log('Starting create-monite-entity function');
     
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      throw new Error('No authorization header provided')
+    }
+
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        auth: {
+          persistSession: false,
+        }
+      }
     )
 
-    const authHeader = req.headers.get('Authorization')!
-    const { user, error: getUserError } = await supabaseClient.auth.getUser(
+    // Get the user from the JWT
+    const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser(
       authHeader.replace('Bearer ', '')
     )
 
     if (getUserError || !user) {
-      console.error('Unauthorized:', getUserError);
+      console.error('Failed to get user:', getUserError);
       throw new Error('Unauthorized')
     }
 
+    console.log('Got authenticated user:', user.id);
+
+    // Get the entity for this user
     const { data: entity, error: getEntityError } = await supabaseClient
       .from('entities')
       .select('*')
@@ -42,8 +61,9 @@ serve(async (req) => {
       throw new Error('Entity not found')
     }
 
-    console.log('Initializing Monite SDK');
+    console.log('Found entity:', entity);
 
+    // Initialize Monite SDK
     const moniteApiUrl = Deno.env.get('MONITE_API_URL');
     const moniteClientId = Deno.env.get('MONITE_CLIENT_ID');
     const moniteClientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
@@ -84,7 +104,7 @@ serve(async (req) => {
     console.log('Creating Monite entity');
 
     try {
-      const response = await sdk.entities.create({
+      const response = await sdk.api.entities.create({
         type: 'organization',
         organization: {
           legal_name: entity.name,
