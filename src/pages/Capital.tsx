@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ApplicationForm } from '@/components/capital/ApplicationForm';
 import { ApplicationsList } from '@/components/capital/ApplicationsList';
 import { CapitalProductCard } from '@/components/capital/CapitalProductCard';
-import { CapitalProduct, ApplicationFormData } from '@/types/capital';
+import { CapitalProduct, ApplicationFormData, CapitalApplication } from '@/types/capital';
 
 const Capital = () => {
   const { toast } = useToast();
@@ -22,7 +22,7 @@ const Capital = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as CapitalApplication[];
     },
   });
 
@@ -66,10 +66,10 @@ const Capital = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto px-6 py-8 max-w-7xl">
       <h1 className="text-3xl font-bold mb-8">WonderPay Capital</h1>
       
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-8 mb-12">
         <CapitalProductCard
           title="WonderFlex"
           description="Extend your payment terms with vendors up to 90 days"
@@ -98,15 +98,17 @@ const Capital = () => {
       </div>
 
       {selectedProduct && (
-        <ApplicationForm
-          product={selectedProduct}
-          onSubmit={handleApply}
-          onCancel={() => setSelectedProduct(null)}
-          isSubmitting={applyMutation.isPending}
-        />
+        <div className="mb-12">
+          <ApplicationForm
+            product={selectedProduct}
+            onSubmit={handleApply}
+            onCancel={() => setSelectedProduct(null)}
+            isSubmitting={applyMutation.isPending}
+          />
+        </div>
       )}
 
-      <Card className="mt-8">
+      <Card>
         <CardHeader>
           <CardTitle>Your Applications</CardTitle>
         </CardHeader>
