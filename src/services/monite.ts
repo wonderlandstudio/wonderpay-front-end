@@ -63,8 +63,8 @@ export class MoniteService {
       
       if (path === '/dashboard/overview') {
         const [payablesResponse, receivablesResponse] = await Promise.all([
-          sdk.api.payable.getAll(), // Updated method name
-          sdk.api.receivable.getAll() // Updated method name
+          sdk.api.payable.getAllPayables(), // Using correct method name
+          sdk.api.receivable.getAllReceivables() // Using correct method name
         ]);
         
         const payables = payablesResponse.data || [];
