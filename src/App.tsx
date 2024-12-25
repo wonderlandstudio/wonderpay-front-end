@@ -1,28 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState, Suspense } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
-import { MoniteAuthGuard } from '@/components/auth/MoniteAuthGuard';
-import DashboardLayout from './components/layout/DashboardLayout';
-import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
-import OrganizationSettings from './pages/OrganizationSettings';
-import ProfileSettings from './pages/settings/ProfileSettings';
-import AddressSettings from './pages/settings/AddressSettings';
-import MembersSettings from './pages/settings/MembersSettings';
-import CardsSettings from './pages/settings/CardsSettings';
-import BankAccountsSettings from './pages/settings/BankAccountsSettings';
-import AccountingSettings from './pages/settings/AccountingSettings';
-import BillPay from './pages/BillPay';
-import NewBill from './pages/NewBill';
-import InvoiceDetail from './pages/InvoiceDetail';
-import InvoiceGenerator from './pages/InvoiceGenerator';
-import Receivables from './pages/Receivables';
-import Login from './pages/Login';
-import Capital from './pages/Capital';
-import Clients from './pages/Clients';
-import QuickPay from './pages/QuickPay';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { ProtectedRoutes } from './components/auth/ProtectedRoutes';
+import { publicRoutes, protectedRoutes } from './config/routes';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -41,63 +23,63 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    if (!session) {
-      return <Navigate to="/login" replace />;
-    }
-    return <>{children}</>;
-  };
-
-  const MoniteProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    return (
-      <ProtectedRoute>
-        <MoniteAuthGuard>{children}</MoniteAuthGuard>
-      </ProtectedRoute>
-    );
-  };
-  
   return (
     <SettingsProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout>
-                  <Outlet />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="bill-pay">
-              <Route index element={<MoniteProtectedRoute><BillPay /></MoniteProtectedRoute>} />
-              <Route path="new" element={<MoniteProtectedRoute><NewBill /></MoniteProtectedRoute>} />
-              <Route path=":invoiceId" element={<MoniteProtectedRoute><InvoiceDetail /></MoniteProtectedRoute>} />
-              <Route path="generate" element={<MoniteProtectedRoute><InvoiceGenerator /></MoniteProtectedRoute>} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            {/* Public routes */}
+            {publicRoutes.map((route) => (
+              <Route key={route.path} path={route.path} element={route.element} />
+            ))}
+
+            {/* Protected dashboard routes */}
+            <Route element={<ProtectedRoutes session={session} />}>
+              {protectedRoutes.map((route) => {
+                if (route.children) {
+                  return (
+                    <Route key={route.path} path={route.path}>
+                      {route.children.map((child) => (
+                        <Route
+                          key={child.path || 'index'}
+                          index={child.index}
+                          path={child.path}
+                          element={
+                            child.requiresMonite ? (
+                              <ProtectedRoutes session={session} requiresMonite>
+                                {child.element}
+                              </ProtectedRoutes>
+                            ) : (
+                              child.element
+                            )
+                          }
+                        />
+                      ))}
+                    </Route>
+                  );
+                }
+                return (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={
+                      route.requiresMonite ? (
+                        <ProtectedRoutes session={session} requiresMonite>
+                          {route.element}
+                        </ProtectedRoutes>
+                      ) : (
+                        route.element
+                      )
+                    }
+                  />
+                );
+              })}
             </Route>
-            <Route path="receivables">
-              <Route index element={<MoniteProtectedRoute><Receivables /></MoniteProtectedRoute>} />
-              <Route path=":invoiceId" element={<MoniteProtectedRoute><InvoiceDetail /></MoniteProtectedRoute>} />
-            </Route>
-            <Route path="capital" element={<MoniteProtectedRoute><Capital /></MoniteProtectedRoute>} />
-            <Route path="quick-pay" element={<MoniteProtectedRoute><QuickPay /></MoniteProtectedRoute>} />
-            <Route path="clients" element={<MoniteProtectedRoute><Clients /></MoniteProtectedRoute>} />
-            <Route path="settings">
-              <Route path="profile" element={<ProfileSettings />} />
-              <Route path="address" element={<AddressSettings />} />
-              <Route path="members" element={<MembersSettings />} />
-              <Route path="cards" element={<CardsSettings />} />
-              <Route path="bank-accounts" element={<BankAccountsSettings />} />
-              <Route path="accounting" element={<AccountingSettings />} />
-            </Route>
-            <Route path="organization-settings" element={<OrganizationSettings />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
       </Router>
     </SettingsProvider>
   );
