@@ -64,6 +64,11 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
+            <Route path="payments">
+              <Route index element={<Dashboard />} />
+              <Route path="wonderpay" element={<WonderPayCapital />} />
+              <Route path="transactions" element={<TransactionHistory />} />
+            </Route>
             <Route path="bill-pay">
               <Route index element={<BillPay />} />
               <Route path="new" element={<NewBill />} />
