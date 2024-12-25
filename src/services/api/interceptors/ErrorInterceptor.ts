@@ -6,12 +6,10 @@ export class ErrorInterceptor {
     console.error('API Error:', error);
 
     let message = 'An unexpected error occurred';
+    let details = error.message;
 
-    if (error.response) {
-      const status = error.response.status;
-      const data = error.response.data;
-
-      switch (status) {
+    if (error.status) {
+      switch (error.status) {
         case 401:
           message = 'Authentication failed. Please log in again.';
           break;
@@ -22,7 +20,7 @@ export class ErrorInterceptor {
           message = 'The requested resource was not found.';
           break;
         case 422:
-          message = data.message || 'Invalid data provided.';
+          message = 'Invalid data provided.';
           break;
         case 429:
           message = 'Too many requests. Please try again later.';
@@ -31,7 +29,7 @@ export class ErrorInterceptor {
           message = 'Server error. Please try again later.';
           break;
         default:
-          message = data.message || message;
+          message = details || message;
       }
     }
 

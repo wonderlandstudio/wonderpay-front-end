@@ -29,19 +29,15 @@ export class MoniteAPIService {
 
   async callAPI<T>(
     endpoint: string,
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-    data?: any
+    method: string,
+    params?: any
   ): Promise<T> {
     if (!this.sdk) {
       await this.initialize();
     }
 
     try {
-      const response = await this.sdk?.api[endpoint]({
-        method,
-        data,
-      });
-      
+      const response = await this.sdk?.api[endpoint](params);
       await MoniteMonitoringService.logApiCall(`api.${endpoint}`, true);
       return response as T;
     } catch (error) {
@@ -49,5 +45,9 @@ export class MoniteAPIService {
       await MoniteMonitoringService.logApiCall(`api.${endpoint}`, false, { error });
       throw error;
     }
+  }
+
+  getSDK(): MoniteSDK | null {
+    return this.sdk;
   }
 }
