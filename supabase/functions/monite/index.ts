@@ -87,6 +87,7 @@ serve(async (req) => {
 
     // Handle dashboard overview request
     if (path === '/dashboard/overview') {
+      console.log('Fetching payables data...');
       // Fetch payables data
       const payablesResponse = await fetch(`${apiUrl}/payables`, {
         headers: {
@@ -96,6 +97,7 @@ serve(async (req) => {
         },
       });
 
+      console.log('Fetching receivables data...');
       // Fetch receivables data
       const receivablesResponse = await fetch(`${apiUrl}/receivables`, {
         headers: {
@@ -105,10 +107,32 @@ serve(async (req) => {
         },
       });
 
+      if (!payablesResponse.ok || !receivablesResponse.ok) {
+        console.error('Failed to fetch data:', {
+          payablesStatus: payablesResponse.status,
+          receivablesStatus: receivablesResponse.status
+        });
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to fetch dashboard data',
+            details: {
+              payables: await payablesResponse.text(),
+              receivables: await receivablesResponse.text()
+            }
+          }),
+          { 
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
       const [payables, receivables] = await Promise.all([
         payablesResponse.json(),
         receivablesResponse.json(),
       ]);
+
+      console.log('Successfully fetched payables and receivables data');
 
       // Calculate dashboard metrics
       const expenses = payables.data?.reduce((sum: number, item: any) => sum + (item.amount || 0), 0) || 0;
@@ -123,6 +147,7 @@ serve(async (req) => {
           value: item.amount || 0
         }));
 
+      console.log('Returning dashboard overview data');
       return new Response(
         JSON.stringify({
           balance,
