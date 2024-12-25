@@ -14,13 +14,15 @@ serve(async (req) => {
   try {
     const clientId = Deno.env.get('MONITE_CLIENT_ID');
     const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
+    const entityUserId = Deno.env.get('MONITE_ENTITY_USER_ID');
     const apiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1';
 
     // Validate environment variables
-    if (!clientId || !clientSecret) {
+    if (!clientId || !clientSecret || !entityUserId) {
       console.error('Missing required environment variables:', {
         hasClientId: !!clientId,
         hasClientSecret: !!clientSecret,
+        hasEntityUserId: !!entityUserId,
       });
       return new Response(
         JSON.stringify({ 
@@ -45,10 +47,13 @@ serve(async (req) => {
       grant_type: 'entity_user',
       client_id: clientId,
       client_secret: clientSecret,
-      entity_user_id: body?.entity_user_id || Deno.env.get('MONITE_ENTITY_USER_ID'),
+      entity_user_id: entityUserId,
     };
 
-    console.log('Token request body:', tokenBody);
+    console.log('Token request body:', {
+      ...tokenBody,
+      client_secret: '[REDACTED]'
+    });
 
     const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
       method: 'POST',
