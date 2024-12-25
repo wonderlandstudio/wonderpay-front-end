@@ -8,13 +8,23 @@ export class MoniteService {
     if (!this.sdk) {
       console.log('Initializing Monite SDK');
       
+      const apiUrl = import.meta.env.VITE_MONITE_API_URL || 'https://api.sandbox.monite.com/v1';
+      const entityId = import.meta.env.VITE_MONITE_ENTITY_ID;
+      const entityUserId = import.meta.env.VITE_MONITE_ENTITY_USER_ID;
+      const clientId = import.meta.env.VITE_MONITE_CLIENT_ID;
+      const clientSecret = import.meta.env.VITE_MONITE_CLIENT_SECRET;
+
+      if (!entityId || !entityUserId || !clientId || !clientSecret) {
+        throw new Error('Missing required Monite configuration');
+      }
+
       this.sdk = new MoniteSDK({
-        apiUrl: process.env.MONITE_API_URL || 'https://api.sandbox.monite.com/v1',
-        entityId: process.env.MONITE_ENTITY_ID,
+        apiUrl,
+        entityId,
         fetchToken: async () => {
           console.log('Fetching new Monite token');
           
-          const response = await fetch(`${process.env.MONITE_API_URL || 'https://api.sandbox.monite.com/v1'}/auth/token`, {
+          const response = await fetch(`${apiUrl}/auth/token`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -22,9 +32,9 @@ export class MoniteService {
             },
             body: JSON.stringify({
               grant_type: 'entity_user',
-              entity_user_id: process.env.MONITE_ENTITY_USER_ID,
-              client_id: process.env.MONITE_CLIENT_ID,
-              client_secret: process.env.MONITE_CLIENT_SECRET,
+              entity_user_id: entityUserId,
+              client_id: clientId,
+              client_secret: clientSecret,
             }),
           });
 
@@ -53,24 +63,29 @@ export class MoniteService {
       
       // Make the request using the appropriate SDK method based on the path
       if (path === '/dashboard/overview') {
-        return sdk.api.dashboard.getOverview();
-      }
+        const response = await sdk.api.payables.getList();
+        const payables = response.data || [];
+        
+        const receivablesResponse = await sdk.api.receivables.getList();
+        const receivables = receivablesResponse.data || [];
 
-      if (path.startsWith('/entities')) {
-        if (method === 'GET') {
-          if (path === '/entities') {
-            return sdk.api.entities.getList();
-          }
-          const entityId = path.split('/')[2];
-          return sdk.api.entities.getById({ id: entityId });
-        }
-        if (method === 'POST') {
-          return sdk.api.entities.create({ data: body });
-        }
-        if (method === 'PUT') {
-          const entityId = path.split('/')[2];
-          return sdk.api.entities.update({ id: entityId, data: body });
-        }
+        const expenses = payables.reduce((sum, item) => sum + (item.amount || 0), 0);
+        const income = receivables.reduce((sum, item) => sum + (item.amount || 0), 0);
+        const balance = income - expenses;
+
+        const transactions = [...payables, ...receivables]
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          .map(item => ({
+            date: item.created_at.split('T')[0],
+            value: item.amount || 0
+          }));
+
+        return {
+          balance,
+          income,
+          expenses,
+          transactions
+        };
       }
 
       throw new Error(`Unsupported path: ${path}`);
@@ -78,34 +93,6 @@ export class MoniteService {
       console.error('Error in MoniteService:', error);
       throw error;
     }
-  }
-
-  static async getEntities() {
-    return this.makeRequest({
-      path: '/entities',
-    });
-  }
-
-  static async createEntity(data: any) {
-    return this.makeRequest({
-      path: '/entities',
-      method: 'POST',
-      body: data,
-    });
-  }
-
-  static async getEntity(id: string) {
-    return this.makeRequest({
-      path: `/entities/${id}`,
-    });
-  }
-
-  static async updateEntity(id: string, data: any) {
-    return this.makeRequest({
-      path: `/entities/${id}`,
-      method: 'PUT',
-      body: data,
-    });
   }
 
   static async getDashboardData() {
