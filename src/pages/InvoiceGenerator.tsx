@@ -9,7 +9,7 @@ import InvoiceTermsForm from '@/components/invoice/InvoiceTermsForm';
 import PaymentDetailsForm from '@/components/invoice/PaymentDetailsForm';
 import { InvoiceData } from '@/types/invoice';
 import { toast } from '@/hooks/use-toast';
-import { MoniteService } from '@/services/monite';
+import { MoniteAuthService } from '@/services/auth/moniteAuth';
 
 const InvoiceGenerator = () => {
   const navigate = useNavigate();
@@ -69,26 +69,23 @@ const InvoiceGenerator = () => {
       console.log('Creating invoice with data:', invoiceData);
       
       // Create invoice using Monite SDK
-      const response = await MoniteService.makeRequest({
-        path: '/receivables',
-        method: 'POST',
-        body: {
-          type: 'invoice',
-          currency: invoiceData.currency,
-          amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
-          counterpart_name: invoiceData.clientName,
-          counterpart_email: invoiceData.clientEmail,
-          counterpart_address: {
-            line1: invoiceData.clientAddress,
-          },
-          items: invoiceData.items.map(item => ({
-            name: item.description,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-          payment_terms: {
-            due_date: invoiceData.dueDate,
-          },
+      const sdk = await MoniteAuthService.initializeSDK();
+      const response = await sdk.receivables.create({
+        type: 'invoice',
+        currency: invoiceData.currency,
+        amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
+        counterpart_name: invoiceData.clientName,
+        counterpart_email: invoiceData.clientEmail,
+        counterpart_address: {
+          line1: invoiceData.clientAddress,
+        },
+        items: invoiceData.items.map(item => ({
+          name: item.description,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        payment_terms: {
+          due_date: invoiceData.dueDate,
         },
       });
 
