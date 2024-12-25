@@ -16,10 +16,7 @@ const OrganizationSettings = () => {
     const setupMoniteEntity = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          console.log('No session found');
-          return;
-        }
+        if (!session) return;
 
         const { data: entity, error } = await supabase
           .from('entities')
@@ -28,26 +25,18 @@ const OrganizationSettings = () => {
           .maybeSingle();
 
         if (error) {
-          console.error('Error fetching entity:', error);
           throw error;
         }
 
         // If no Monite entity exists, create one
         if (!entity?.monite_entity_id) {
           console.log('No Monite entity found, creating one...');
-          const { data, error: fnError } = await supabase.functions.invoke('create-monite-entity', {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            }
-          });
+          const response = await supabase.functions.invoke('create-monite-entity');
           
-          if (fnError) {
-            console.error('Error creating Monite entity:', fnError);
-            throw new Error(fnError.message || 'Failed to create Monite entity');
+          if (response.error) {
+            throw new Error(response.error.message || 'Failed to create Monite entity');
           }
 
-          console.log('Monite entity created:', data);
-          
           toast({
             title: "Success",
             description: "Your organization has been set up with Monite.",

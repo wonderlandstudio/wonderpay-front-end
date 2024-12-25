@@ -1,11 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'npm:@supabase/supabase-js'
+import { corsHeaders } from '../_shared/cors.ts'
 import { MoniteSDK } from 'npm:@monite/sdk-api'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -15,46 +11,22 @@ serve(async (req) => {
   try {
     console.log('Starting create-monite-entity function');
     
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      console.error('No authorization header provided');
-      throw new Error('No authorization header provided')
-    }
-
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
-
-    const { data: { user }, error: getUserError } = await supabase.auth.getUser(
+    const authHeader = req.headers.get('Authorization')!
+    const { user, error: getUserError } = await supabaseClient.auth.getUser(
       authHeader.replace('Bearer ', '')
     )
 
     if (getUserError || !user) {
-      console.error('Failed to get user:', getUserError);
+      console.error('Unauthorized:', getUserError);
       throw new Error('Unauthorized')
     }
 
-    console.log('Got authenticated user:', user.id);
-
-    const { data: entity, error: getEntityError } = await supabaseAdmin
+    const { data: entity, error: getEntityError } = await supabaseClient
       .from('entities')
       .select('*')
       .eq('user_id', user.id)
@@ -70,7 +42,7 @@ serve(async (req) => {
       throw new Error('Entity not found')
     }
 
-    console.log('Found entity:', entity);
+    console.log('Initializing Monite SDK');
 
     const moniteApiUrl = Deno.env.get('MONITE_API_URL');
     const moniteClientId = Deno.env.get('MONITE_CLIENT_ID');
@@ -81,35 +53,33 @@ serve(async (req) => {
       throw new Error('Missing required Monite configuration');
     }
 
-    // First get a token
-    console.log('Fetching initial Monite token');
-    const tokenResponse = await fetch(`${moniteApiUrl}/auth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-monite-version': '2024-01-31',
-      },
-      body: JSON.stringify({
-        grant_type: 'client_credentials',
-        client_id: moniteClientId,
-        client_secret: moniteClientSecret,
-      }),
-    });
-
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text();
-      console.error('Failed to fetch initial Monite token:', errorText);
-      throw new Error('Failed to fetch initial Monite token')
-    }
-
-    const tokenData = await tokenResponse.json();
-
-    // Initialize SDK with the token we just got
     const sdk = new MoniteSDK({
       apiUrl: moniteApiUrl,
-      entityId: '', // Empty for entity creation
-      token: tokenData.access_token,
-    });
+      entityId: '',
+      fetchToken: async () => {
+        console.log('Fetching Monite token');
+        const response = await fetch(`${moniteApiUrl}/auth/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-monite-version': '2024-01-31',
+          },
+          body: JSON.stringify({
+            grant_type: 'client_credentials',
+            client_id: moniteClientId,
+            client_secret: moniteClientSecret,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to fetch Monite token:', errorText);
+          throw new Error('Failed to fetch Monite token')
+        }
+
+        return response.json()
+      },
+    })
 
     console.log('Creating Monite entity');
 
@@ -125,7 +95,7 @@ serve(async (req) => {
 
       console.log('Monite entity created:', response);
 
-      const { error: updateError } = await supabaseAdmin
+      const { error: updateError } = await supabaseClient
         .from('entities')
         .update({ monite_entity_id: response.id })
         .eq('user_id', user.id)
