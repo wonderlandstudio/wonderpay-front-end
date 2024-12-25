@@ -1,5 +1,10 @@
 import { MoniteSDK } from "@monite/sdk-api";
-import type { PayableResponse, ReceivableResponse } from "@monite/sdk-api";
+import type { 
+  PayableSchema, 
+  ReceivableSchema,
+  PayableResponse,
+  ReceivableResponse
+} from "@monite/sdk-api";
 
 export class MoniteAuthService {
   private static sdk: MoniteSDK | null = null;
@@ -28,7 +33,7 @@ export class MoniteAuthService {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-monite-version': '2023-06-04',
+              'x-monite-version': '2024-01-31',
             },
             body: JSON.stringify({
               grant_type: 'entity_user',
