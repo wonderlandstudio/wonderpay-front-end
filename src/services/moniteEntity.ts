@@ -11,6 +11,12 @@ export class MoniteEntityService {
     console.log('Creating new Monite entity:', data);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       // 1. Create entity in Monite
       const moniteResponse = await MoniteService.makeRequest({
         path: '/entities',
@@ -35,7 +41,8 @@ export class MoniteEntityService {
         .insert({
           name: data.name,
           monite_entity_id: moniteResponse.id,
-          status: 'active'
+          status: 'active',
+          user_id: user.id
         })
         .select()
         .single();
@@ -50,8 +57,9 @@ export class MoniteEntityService {
         .from('monite_settings')
         .insert({
           entity_id: moniteResponse.id,
-          api_key: moniteResponse.api_key, // Monite should return this
-          environment: 'sandbox'
+          api_key: moniteResponse.api_key,
+          environment: 'sandbox',
+          user_id: user.id
         });
 
       if (settingsError) {

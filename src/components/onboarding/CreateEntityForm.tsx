@@ -21,11 +21,13 @@ const formSchema = z.object({
   email: z.string().email('Invalid email address'),
 });
 
+type FormData = z.infer<typeof formSchema>;
+
 export function CreateEntityForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
@@ -33,7 +35,7 @@ export function CreateEntityForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormData) => {
     setIsLoading(true);
     try {
       await MoniteEntityService.createEntity(values);
