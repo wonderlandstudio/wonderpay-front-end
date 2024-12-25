@@ -1,31 +1,25 @@
-import { MoniteAuthService } from '../auth/moniteAuth';
-
-interface Transaction {
-  date: string;
-  value: number;
-}
+import { PayableService } from '../payables/payableService';
+import { ReceivableService } from '../receivables/receivableService';
 
 interface DashboardData {
   balance: number;
   income: number;
   expenses: number;
-  transactions: Transaction[];
+  transactions: Array<{
+    date: string;
+    value: number;
+  }>;
 }
 
 export class DashboardService {
   static async getDashboardOverview(): Promise<DashboardData> {
     console.log('Fetching dashboard overview data');
     
-    const sdk = await MoniteAuthService.initializeSDK();
-    
-    const [payablesResponse, receivablesResponse] = await Promise.all([
-      sdk.payables.getAll(),
-      sdk.receivables.getAll()
+    const [payables, receivables] = await Promise.all([
+      PayableService.getPayables(),
+      ReceivableService.getReceivables()
     ]);
     
-    const payables = payablesResponse.data || [];
-    const receivables = receivablesResponse.data || [];
-
     const expenses = payables.reduce((sum, item) => {
       const amount = typeof item.total_amount === 'object' ? 
         Number(item.total_amount?.value) : 
