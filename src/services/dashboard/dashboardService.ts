@@ -21,16 +21,16 @@ export class DashboardService {
     ]);
     
     const expenses = payables.reduce((sum, item) => {
-      const amount = typeof item.amount === 'number' ? 
-        item.amount : 
-        (item.amount?.value ?? 0);
+      const amount = typeof item.total_amount === 'number' ? 
+        item.total_amount : 
+        (item.total_amount?.amount ?? 0);
       return sum + amount;
     }, 0);
 
     const income = receivables.reduce((sum, item) => {
-      const amount = typeof item.amount === 'number' ? 
-        item.amount : 
-        (item.amount?.value ?? 0);
+      const amount = typeof item.total_amount === 'number' ? 
+        item.total_amount : 
+        (item.total_amount?.amount ?? 0);
       return sum + amount;
     }, 0);
 
@@ -40,9 +40,9 @@ export class DashboardService {
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
       .map(item => ({
         date: item.created_at.split('T')[0],
-        value: typeof item.amount === 'number' ? 
-          item.amount : 
-          (item.amount?.value ?? 0)
+        value: typeof item.total_amount === 'number' ? 
+          item.total_amount : 
+          (item.total_amount?.amount ?? 0)
       }));
 
     return {

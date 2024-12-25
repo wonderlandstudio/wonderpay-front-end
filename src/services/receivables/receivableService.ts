@@ -1,17 +1,17 @@
-import { MoniteAuthService, type ReceivableResponse } from '../auth/moniteAuth';
-import type { CreateReceivablePayload } from '@monite/sdk-api';
+import { MoniteAuthService } from '../auth/moniteAuth';
+import type { CreateReceivableRequest } from '@monite/sdk-api';
 
 export class ReceivableService {
-  static async getReceivables(): Promise<ReceivableResponse[]> {
+  static async getReceivables() {
     console.log('Fetching receivables from Monite');
     const sdk = await MoniteAuthService.initializeSDK();
-    const response = await sdk.receivable.getAll();
+    const response = await sdk.receivables.getList();
     return response.data || [];
   }
 
-  static async createInvoice(data: CreateReceivablePayload) {
+  static async createInvoice(data: CreateReceivableRequest) {
     console.log('Creating invoice with data:', data);
     const sdk = await MoniteAuthService.initializeSDK();
-    return sdk.receivable.create(data);
+    return sdk.receivables.create(data);
   }
 }

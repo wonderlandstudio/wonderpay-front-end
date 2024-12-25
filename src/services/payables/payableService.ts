@@ -1,10 +1,10 @@
-import { MoniteAuthService, type PayableResponse } from '../auth/moniteAuth';
+import { MoniteAuthService } from '../auth/moniteAuth';
 
 export class PayableService {
-  static async getPayables(): Promise<PayableResponse[]> {
+  static async getPayables() {
     console.log('Fetching payables from Monite');
     const sdk = await MoniteAuthService.initializeSDK();
-    const response = await sdk.payable.getAll();
+    const response = await sdk.payables.getList();
     return response.data || [];
   }
 }
