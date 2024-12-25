@@ -37,25 +37,45 @@ Deno.serve(async (req) => {
     const sdk = new MoniteSDK({
       apiUrl: Deno.env.get('MONITE_API_URL')!,
       entityId: Deno.env.get('MONITE_ENTITY_ID')!,
-      fetchToken: async () => Deno.env.get('MONITE_TOKEN')!,
+      fetchToken: async () => {
+        const response = await fetch(`${Deno.env.get('MONITE_API_URL')}/auth/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-monite-version': '2024-01-31',
+          },
+          body: JSON.stringify({
+            grant_type: 'client_credentials',
+            client_id: Deno.env.get('MONITE_CLIENT_ID')!,
+            client_secret: Deno.env.get('MONITE_CLIENT_SECRET')!,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Monite token');
+        }
+
+        return response.json();
+      },
     })
 
     // Get user's entity from our database
-    const { data: entities, error: entityError } = await supabaseClient
+    const { data: entity, error: entityError } = await supabaseClient
       .from('entities')
       .select('*')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (entityError || !entities) {
-      throw new Error('Entity not found')
+    if (entityError) {
+      throw new Error('Failed to fetch entity')
     }
 
     // Create Monite entity if it doesn't exist
-    if (!entities.monite_entity_id) {
+    if (!entity?.monite_entity_id) {
+      console.log('Creating new Monite entity for user:', user.id)
       const response = await sdk.entities.create({
         organization: {
-          name: entities.name,
+          name: entity?.name || 'My Business',
           is_individual: false,
         },
       })
@@ -64,7 +84,7 @@ Deno.serve(async (req) => {
       const { error: updateError } = await supabaseClient
         .from('entities')
         .update({ monite_entity_id: response.id })
-        .eq('id', entities.id)
+        .eq('id', entity?.id)
 
       if (updateError) {
         throw new Error('Failed to update entity')

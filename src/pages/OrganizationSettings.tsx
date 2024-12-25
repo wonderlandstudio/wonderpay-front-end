@@ -18,22 +18,23 @@ const OrganizationSettings = () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
 
-        const { data: entity } = await supabase
+        const { data: entity, error } = await supabase
           .from('entities')
           .select('monite_entity_id')
-          .single();
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (error) {
+          throw error;
+        }
 
         // If no Monite entity exists, create one
         if (!entity?.monite_entity_id) {
-          const response = await fetch('/functions/v1/create-monite-entity', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to create Monite entity');
+          console.log('No Monite entity found, creating one...');
+          const response = await supabase.functions.invoke('create-monite-entity');
+          
+          if (response.error) {
+            throw new Error(response.error.message || 'Failed to create Monite entity');
           }
 
           toast({
