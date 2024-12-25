@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { ApplicationForm } from '@/components/capital/ApplicationForm';
 import { ApplicationsList } from '@/components/capital/ApplicationsList';
 import { CapitalProductCard } from '@/components/capital/CapitalProductCard';
-import { ApplicationFormData, CapitalProduct } from '@/types/capital';
+import { CapitalProduct, ApplicationFormData } from '@/types/capital';
 
 const Capital = () => {
   const { toast } = useToast();
@@ -34,7 +34,8 @@ const Capital = () => {
           product: applicationData.product,
           requested_amount: applicationData.requestedAmount,
           terms: applicationData.terms,
-          status: 'pending'
+          status: 'pending',
+          user_id: (await supabase.auth.getUser()).data.user?.id
         })
         .select()
         .single();

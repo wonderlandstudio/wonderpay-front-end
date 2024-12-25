@@ -3,15 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { useToast } from '@/hooks/use-toast';
+import { PaymentMethod } from '@/types/payments';
+import { supabase } from '@/integrations/supabase/client';
+import { useMutation } from '@tanstack/react-query';
 
 const QuickPay = () => {
   const { toast } = useToast();
@@ -19,32 +15,72 @@ const QuickPay = () => {
   const [recipientName, setRecipientName] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [recipientPhone, setRecipientPhone] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<string>();
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      // This will be implemented later with Supabase
-      console.log('Processing quick payment:', {
-        amount,
-        recipientName,
-        recipientEmail,
-        recipientPhone,
-        paymentMethod
-      });
+  const quickPayMutation = useMutation({
+    mutationFn: async (formData: {
+      amount: number;
+      recipientName: string;
+      recipientEmail?: string;
+      recipientPhone?: string;
+      paymentMethod: PaymentMethod;
+    }) => {
+      const { data, error } = await supabase
+        .from('quick_pay_transactions')
+        .insert({
+          amount: formData.amount,
+          recipient_name: formData.recipientName,
+          recipient_email: formData.recipientEmail,
+          recipient_phone: formData.recipientPhone,
+          payment_method: formData.paymentMethod,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select()
+        .single();
 
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
       toast({
         title: "Payment initiated",
         description: "Your payment is being processed.",
       });
-    } catch (error) {
+      // Reset form
+      setAmount('');
+      setRecipientName('');
+      setRecipientEmail('');
+      setRecipientPhone('');
+      setPaymentMethod(undefined);
+    },
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to process payment. Please try again.",
         variant: "destructive",
       });
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!paymentMethod) {
+      toast({
+        title: "Error",
+        description: "Please select a payment method.",
+        variant: "destructive",
+      });
+      return;
     }
+
+    quickPayMutation.mutate({
+      amount: Number(amount),
+      recipientName,
+      recipientEmail,
+      recipientPhone,
+      paymentMethod,
+    });
   };
 
   return (
@@ -104,12 +140,16 @@ const QuickPay = () => {
 
           <PaymentMethodSelector
             amount={Number(amount)}
-            onMethodSelect={(method) => setPaymentMethod(method)}
+            onMethodSelect={(method) => setPaymentMethod(method as PaymentMethod)}
             selectedMethod={paymentMethod}
           />
 
-          <Button type="submit" className="w-full" disabled={!amount || !recipientName || !paymentMethod}>
-            Send Payment
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={!amount || !recipientName || !paymentMethod || quickPayMutation.isPending}
+          >
+            {quickPayMutation.isPending ? 'Processing...' : 'Send Payment'}
           </Button>
         </form>
       </Card>

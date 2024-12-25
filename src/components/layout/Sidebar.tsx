@@ -17,13 +17,13 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 const navigation = [
-  { name: 'Home', href: '/', icon: Home },
+  { name: 'Home', href: '/dashboard', icon: Home },
   { name: 'Bill Pay', href: '/dashboard/bill-pay', icon: ArrowUpRight },
   { name: 'Receivables', href: '/dashboard/receivables', icon: ArrowDownRight },
   { name: 'Create Invoice', href: '/dashboard/bill-pay/generate', icon: FilePlus },
   { name: 'QuickPay', href: '/dashboard/quick-pay', icon: Banknote },
-  { name: 'WonderPay Capital', href: '/capital', icon: Sparkles },
-  { name: 'Clients & Vendors', href: '/clients', icon: Users },
+  { name: 'WonderPay Capital', href: '/dashboard/capital', icon: Sparkles },
+  { name: 'Clients & Vendors', href: '/dashboard/clients', icon: Users },
   { name: 'Settings', href: '/dashboard/organization-settings', icon: Settings },
 ];
 
