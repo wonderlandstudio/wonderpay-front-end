@@ -4,7 +4,7 @@ export class PayableService {
   static async getPayables() {
     console.log('Fetching payables from Monite');
     const sdk = await MoniteAuthService.initializeSDK();
-    const response = await sdk.payables.list();
+    const response = await sdk.api.payables.list();
     return response.data || [];
   }
 }

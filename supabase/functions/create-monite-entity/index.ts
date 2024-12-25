@@ -15,14 +15,12 @@ serve(async (req) => {
   try {
     console.log('Starting create-monite-entity function');
     
-    // Get the authorization header
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       console.error('No authorization header provided');
       throw new Error('No authorization header provided')
     }
 
-    // Create Supabase client with service role key for admin access
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -34,7 +32,6 @@ serve(async (req) => {
       }
     )
 
-    // Create regular Supabase client for auth
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -46,7 +43,6 @@ serve(async (req) => {
       }
     )
 
-    // Get the user from the JWT
     const { data: { user }, error: getUserError } = await supabase.auth.getUser(
       authHeader.replace('Bearer ', '')
     )
@@ -58,7 +54,6 @@ serve(async (req) => {
 
     console.log('Got authenticated user:', user.id);
 
-    // Get the entity for this user using admin client
     const { data: entity, error: getEntityError } = await supabaseAdmin
       .from('entities')
       .select('*')
@@ -77,7 +72,6 @@ serve(async (req) => {
 
     console.log('Found entity:', entity);
 
-    // Initialize Monite SDK
     const moniteApiUrl = Deno.env.get('MONITE_API_URL');
     const moniteClientId = Deno.env.get('MONITE_CLIENT_ID');
     const moniteClientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
@@ -87,9 +81,10 @@ serve(async (req) => {
       throw new Error('Missing required Monite configuration');
     }
 
+    // Initialize Monite SDK with proper token fetching
     const sdk = new MoniteSDK({
       apiUrl: moniteApiUrl,
-      entityId: '',
+      entityId: '', // This will be obtained after entity creation
       fetchToken: async () => {
         console.log('Fetching Monite token');
         const response = await fetch(`${moniteApiUrl}/auth/token`, {
@@ -103,7 +98,7 @@ serve(async (req) => {
             client_id: moniteClientId,
             client_secret: moniteClientSecret,
           }),
-        })
+        });
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -118,7 +113,7 @@ serve(async (req) => {
     console.log('Creating Monite entity');
 
     try {
-      const response = await sdk.api.entities.create({
+      const response = await sdk.entities.create({
         type: 'organization',
         organization: {
           legal_name: entity.name,
@@ -129,7 +124,6 @@ serve(async (req) => {
 
       console.log('Monite entity created:', response);
 
-      // Update entity with Monite ID using admin client
       const { error: updateError } = await supabaseAdmin
         .from('entities')
         .update({ monite_entity_id: response.id })
