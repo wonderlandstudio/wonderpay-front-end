@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import SettingsSidebar from './SettingsSidebar';
+import StatusDisplay from '../debug/StatusDisplay';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -16,7 +17,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   // If we're on the invoice generator page, render without sidebars
   if (isInvoiceGenerator) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+        <StatusDisplay />
+      </>
+    );
   }
 
   return (
@@ -40,6 +46,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </>
           )}
         </div>
+        <StatusDisplay />
       </div>
     </div>
   );
