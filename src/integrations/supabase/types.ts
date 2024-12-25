@@ -177,6 +177,77 @@ export type Database = {
         }
         Relationships: []
       }
+      monite_audit_logs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          event_type: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          event_type: string
+          id?: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          event_type?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monite_audit_logs_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "monite_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monite_entities: {
+        Row: {
+          created_at: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          monite_id: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          monite_id: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          monite_id?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       monite_settings: {
         Row: {
           api_key: string
@@ -206,6 +277,85 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      monite_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          entity_id: string
+          expires_at: string
+          id: string
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          entity_id: string
+          expires_at: string
+          id?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          entity_id?: string
+          expires_at?: string
+          id?: string
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monite_tokens_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "monite_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monite_webhooks: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monite_webhooks_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "monite_entities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
