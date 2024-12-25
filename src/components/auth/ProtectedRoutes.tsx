@@ -6,9 +6,10 @@ import DashboardLayout from '../layout/DashboardLayout';
 interface ProtectedRoutesProps {
   session: Session | null;
   requiresMonite?: boolean;
+  children?: React.ReactNode;
 }
 
-export const ProtectedRoutes = ({ session, requiresMonite }: ProtectedRoutesProps) => {
+export const ProtectedRoutes = ({ session, requiresMonite, children }: ProtectedRoutesProps) => {
   if (!session) {
     return <Navigate to="/login" replace />;
   }
@@ -17,10 +18,10 @@ export const ProtectedRoutes = ({ session, requiresMonite }: ProtectedRoutesProp
     <DashboardLayout>
       {requiresMonite ? (
         <MoniteAuthGuard>
-          <Outlet />
+          {children || <Outlet />}
         </MoniteAuthGuard>
       ) : (
-        <Outlet />
+        children || <Outlet />
       )}
     </DashboardLayout>
   );

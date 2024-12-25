@@ -37,13 +37,13 @@ export class MoniteAPIService {
     }
 
     try {
-      const response = await this.sdk?.api.makeRequest(endpoint, {
+      const response = await this.sdk?.api[endpoint]({
         method,
         data,
       });
       
       await MoniteMonitoringService.logApiCall(`api.${endpoint}`, true);
-      return response.data as T;
+      return response as T;
     } catch (error) {
       console.error(`API call failed for ${endpoint}:`, error);
       await MoniteMonitoringService.logApiCall(`api.${endpoint}`, false, { error });

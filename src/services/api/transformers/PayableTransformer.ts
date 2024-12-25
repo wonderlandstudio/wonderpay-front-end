@@ -1,21 +1,21 @@
-import type { PayableObject } from '@monite/sdk-api';
+import type { Payable } from '@monite/sdk-api';
 import { Bill } from '@/types/payments';
 
 export class PayableTransformer {
-  static toMonite(bill: Bill): Partial<PayableObject> {
+  static toMonite(bill: Bill): Partial<Payable> {
     return {
       amount: bill.amount,
       currency: bill.currency,
       due_date: bill.dueDate,
       status: bill.status,
-      vendor_id: bill.vendorId,
+      counterpart_id: bill.vendorId,
     };
   }
 
-  static fromMonite(payable: PayableObject): Bill {
+  static fromMonite(payable: Payable): Bill {
     return {
       id: payable.id,
-      vendorName: payable.vendor?.name || 'Unknown Vendor',
+      vendorName: payable.counterpart?.name || 'Unknown Vendor',
       invoiceNumber: payable.document_id || '',
       amount: payable.amount,
       currency: payable.currency,
