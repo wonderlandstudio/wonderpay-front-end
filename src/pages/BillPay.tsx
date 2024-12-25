@@ -18,7 +18,10 @@ const BillPay = () => {
       invoiceNumber: '240-23',
       status: 'overdue',
       dueDate: '2024-10-11',
-      amount: 10500.00
+      amount: 10500.00,
+      currency: 'USD',
+      date: '2024-01-11',
+      recipient: '24/7 Productions Inc.'
     },
     {
       id: '2',
@@ -26,7 +29,10 @@ const BillPay = () => {
       invoiceNumber: '241-23',
       status: 'draft',
       dueDate: '2024-12-15',
-      amount: 5000.00
+      amount: 5000.00,
+      currency: 'USD',
+      date: '2024-01-15',
+      recipient: 'ABC Services LLC'
     },
     {
       id: '3',
@@ -34,7 +40,10 @@ const BillPay = () => {
       invoiceNumber: '242-23',
       status: 'scheduled',
       dueDate: '2024-11-20',
-      amount: 7500.00
+      amount: 7500.00,
+      currency: 'USD',
+      date: '2024-01-20',
+      recipient: 'XYZ Corporation'
     },
     {
       id: '4',
@@ -42,7 +51,10 @@ const BillPay = () => {
       invoiceNumber: '243-23',
       status: 'paid',
       dueDate: '2024-10-01',
-      amount: 3000.00
+      amount: 3000.00,
+      currency: 'USD',
+      date: '2024-01-01',
+      recipient: 'Tech Solutions Inc.'
     },
   ];
 

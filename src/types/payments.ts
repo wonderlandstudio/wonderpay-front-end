@@ -4,6 +4,8 @@ export type PaymentTerm = '30' | '60' | '90';
 
 export interface Transaction {
   id: string;
+  vendorName: string;
+  invoiceNumber: string;
   amount: number;
   currency: string;
   status: string;
@@ -11,8 +13,6 @@ export interface Transaction {
   dueDate: string;
   recipient: string;
   description?: string;
-  vendorName: string;
-  invoiceNumber: string;
 }
 
 export interface WonderPayCapitalTerms {
