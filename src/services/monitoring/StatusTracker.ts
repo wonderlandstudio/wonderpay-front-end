@@ -1,18 +1,10 @@
 import { MoniteMonitoringService } from './moniteMonitoring';
-
-export type StatusLevel = 'info' | 'warning' | 'error' | 'success';
-
-interface StatusEntry {
-  component: string;
-  message: string;
-  level: StatusLevel;
-  timestamp: Date;
-  details?: Record<string, any>;
-}
+import type { StatusLevel, StatusEntry } from '@/types/monitoring';
 
 class StatusTracker {
   private static instance: StatusTracker;
   private logs: StatusEntry[] = [];
+  private maxLogs: number = 100;
 
   private constructor() {}
 
@@ -29,7 +21,7 @@ class StatusTracker {
     level: StatusLevel,
     details?: Record<string, any>
   ) {
-    const entry = {
+    const entry: StatusEntry = {
       component,
       message,
       level,
@@ -37,10 +29,21 @@ class StatusTracker {
       details
     };
     
-    this.logs.push(entry);
-    console.log(`[${level.toUpperCase()}] ${component}: ${message}`, details || '');
+    // Add to in-memory logs with size limit
+    this.logs.unshift(entry);
+    if (this.logs.length > this.maxLogs) {
+      this.logs.pop();
+    }
     
-    // Also log to Monite audit logs for persistence
+    // Log to console with appropriate styling
+    const styles = this.getLogStyles(level);
+    console.log(
+      `%c[${level.toUpperCase()}] ${component}: ${message}`,
+      styles,
+      details || ''
+    );
+    
+    // Persist to Monite audit logs
     await MoniteMonitoringService.logApiCall(
       'status_tracker',
       level !== 'error',
@@ -48,12 +51,25 @@ class StatusTracker {
     );
   }
 
+  private getLogStyles(level: StatusLevel): string {
+    switch (level) {
+      case 'error':
+        return 'color: #ef4444; font-weight: bold';
+      case 'warning':
+        return 'color: #f59e0b; font-weight: bold';
+      case 'success':
+        return 'color: #10b981; font-weight: bold';
+      default:
+        return 'color: #3b82f6; font-weight: bold';
+    }
+  }
+
   getLogs(): StatusEntry[] {
     return [...this.logs];
   }
 
   getLastLog(): StatusEntry | undefined {
-    return this.logs[this.logs.length - 1];
+    return this.logs[0];
   }
 
   clear() {

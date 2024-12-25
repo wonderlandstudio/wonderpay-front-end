@@ -2,11 +2,12 @@ import { useStatusTracker } from '@/hooks/use-status-tracker';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
+import { StatusLevel, mapStatusLevelToVariant } from '@/types/monitoring';
 
 const StatusDisplay = () => {
   const { data: logs } = useStatusTracker();
 
-  const getIcon = (level: string) => {
+  const getIcon = (level: StatusLevel) => {
     switch (level) {
       case 'error':
         return <AlertCircle className="h-4 w-4 text-destructive" />;
@@ -16,19 +17,6 @@ const StatusDisplay = () => {
         return <CheckCircle className="h-4 w-4 text-success" />;
       default:
         return <Info className="h-4 w-4 text-info" />;
-    }
-  };
-
-  const getAlertVariant = (level: string) => {
-    switch (level) {
-      case 'error':
-        return 'destructive';
-      case 'warning':
-        return 'warning';
-      case 'success':
-        return 'success';
-      default:
-        return 'info';
     }
   };
 
@@ -45,7 +33,7 @@ const StatusDisplay = () => {
             {logs.map((log, index) => (
               <Alert 
                 key={index} 
-                variant={getAlertVariant(log.level)}
+                variant={mapStatusLevelToVariant(log.level)}
                 className="text-xs"
               >
                 <div className="flex gap-2 items-start">
