@@ -19,6 +19,8 @@ import InvoiceGenerator from './pages/InvoiceGenerator';
 import Receivables from './pages/Receivables';
 import Login from './pages/Login';
 import Capital from './pages/Capital';
+import Clients from './pages/Clients';
+import QuickPay from './pages/QuickPay';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
@@ -76,6 +78,8 @@ function App() {
               <Route path=":invoiceId" element={<InvoiceDetail />} />
             </Route>
             <Route path="capital" element={<Capital />} />
+            <Route path="quick-pay" element={<QuickPay />} />
+            <Route path="clients" element={<Clients />} />
             <Route path="settings">
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="address" element={<AddressSettings />} />
