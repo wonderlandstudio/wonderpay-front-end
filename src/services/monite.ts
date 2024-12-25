@@ -63,21 +63,35 @@ export class MoniteService {
       
       // Make the request using the appropriate SDK method based on the path
       if (path === '/dashboard/overview') {
-        const response = await sdk.api.payable.getAllPayables();
+        const response = await sdk.api.payable.getAll();
         const payables = response.data || [];
         
-        const receivablesResponse = await sdk.api.receivable.getAllReceivables();
+        const receivablesResponse = await sdk.api.receivable.getAll();
         const receivables = receivablesResponse.data || [];
 
-        const expenses = payables.reduce((sum, item) => sum + (Number(item.total_amount?.value) || 0), 0);
-        const income = receivables.reduce((sum, item) => sum + (Number(item.total_amount?.value) || 0), 0);
+        const expenses = payables.reduce((sum, item) => {
+          const amount = typeof item.total_amount === 'object' ? 
+            Number(item.total_amount?.value) : 
+            Number(item.total_amount);
+          return sum + (amount || 0);
+        }, 0);
+
+        const income = receivables.reduce((sum, item) => {
+          const amount = typeof item.total_amount === 'object' ? 
+            Number(item.total_amount?.value) : 
+            Number(item.total_amount);
+          return sum + (amount || 0);
+        }, 0);
+
         const balance = income - expenses;
 
         const transactions = [...payables, ...receivables]
           .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
           .map(item => ({
             date: item.created_at.split('T')[0],
-            value: Number(item.total_amount?.value) || 0
+            value: typeof item.total_amount === 'object' ? 
+              Number(item.total_amount?.value) : 
+              Number(item.total_amount)
           }));
 
         return {
