@@ -40,20 +40,21 @@ serve(async (req) => {
 
     // If this is a token request, handle it differently
     if (path === '/auth/token') {
-      // Create form data for token request
-      const formData = new URLSearchParams();
-      formData.append('grant_type', 'client_credentials');
-      formData.append('client_id', clientId);
-      formData.append('client_secret', clientSecret);
-
       console.log('Making token request to Monite API');
+      
+      const tokenBody = {
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      };
 
       const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
+          'x-monite-version': '2023-06-04',
         },
-        body: formData.toString()
+        body: JSON.stringify(tokenBody)
       });
 
       if (!tokenResponse.ok) {
@@ -75,6 +76,7 @@ serve(async (req) => {
       }
 
       const tokenData = await tokenResponse.json();
+      console.log('Successfully obtained Monite access token');
       return new Response(
         JSON.stringify(tokenData),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -91,6 +93,7 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${body?.token}`,
         'Content-Type': 'application/json',
+        'x-monite-version': '2023-06-04',
       },
       ...(body && { body: JSON.stringify(body) })
     });
