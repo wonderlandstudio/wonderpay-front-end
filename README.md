@@ -1,69 +1,199 @@
-# Welcome to your Lovable project
+# WonderPay Frontend Documentation
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/c3a65314-1011-4cd6-9995-8b7a1ab55a1c
+WonderPay is a private bill pay and payments automation platform designed for clients, partners, and colleagues in music, entertainment, and luxury hospitality. The platform streamlines Accounts Payable (AP) & Accounts Receivable (AR) operations while offering working capital solutions.
 
-## How can I edit this code?
+## Core Features
 
-There are several ways of editing your application.
+- **Bill Pay Management**: Create, track, and process bills with automated payment scheduling
+- **Receivables Management**: Generate and manage invoices with real-time status tracking
+- **Working Capital Solutions**: Access to WonderPay Capital for extended payment terms
+- **Dashboard Analytics**: Overview of financial metrics and transaction history
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c3a65314-1011-4cd6-9995-8b7a1ab55a1c) and start prompting.
+### Core Technologies
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Routing**: React Router v6
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **State Management**: React Query (@tanstack/react-query)
+- **Authentication**: Supabase Auth
+- **Form Handling**: React Hook Form with Zod validation
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Key Dependencies
+```json
+{
+  "react": "^18.3.1",
+  "react-router-dom": "^6.26.2",
+  "@tanstack/react-query": "^5.56.2",
+  "tailwindcss": "^3.4.11",
+  "lucide-react": "^0.462.0",
+  "date-fns": "^3.6.0",
+  "zod": "^3.23.8"
+}
 ```
 
-**Edit a file directly in GitHub**
+## Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── components/
+│   ├── bill-pay/          # Bill payment related components
+│   ├── invoice/           # Invoice generation components
+│   ├── layout/            # Layout components (Header, Sidebar)
+│   ├── payments/          # Payment processing components
+│   ├── receivables/       # Receivables management components
+│   └── ui/               # Reusable UI components
+├── contexts/             # React contexts
+├── hooks/               # Custom React hooks
+├── pages/              # Route components
+├── services/           # API service layers
+└── types/             # TypeScript type definitions
+```
 
-**Use GitHub Codespaces**
+## Key Components
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Layout
+- `DashboardLayout`: Main application layout with sidebar navigation
+- `Header`: Top navigation bar with notifications
+- `Sidebar`: Main navigation menu with user settings
 
-## What technologies are used for this project?
+### Bill Pay
+- `BillPayHeader`: Header for bill pay section with action buttons
+- `TransactionsList`: List of bill transactions
+- `StatusCard`: Display card for bill payment status
+- `PaymentDialog`: Modal for processing payments
 
-This project is built with .
+### Invoices
+- `InvoiceGenerator`: Multi-step form for creating invoices
+- `InvoiceDetailsForm`: Form for invoice line items and details
+- `CompanyDetailsForm`: Form for company information
+- `PaymentDetailsForm`: Form for payment method details
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Routing Structure
 
-## How can I deploy this project?
+```typescript
+/                     # Landing page
+/login                # Authentication
+/dashboard            # Main dashboard
+/dashboard/bill-pay   # Bill management
+  ├── /new           # Create new bill
+  ├── /:invoiceId    # Bill details
+  └── /generate      # Generate invoice
+/dashboard/receivables # Receivables management
+/dashboard/settings    # User settings
+  ├── /profile       # Profile settings
+  ├── /address       # Address settings
+  ├── /members       # Team members
+  ├── /cards         # Payment methods
+  ├── /bank-accounts # Bank accounts
+  └── /accounting    # Accounting settings
+```
 
-Simply open [Lovable](https://lovable.dev/projects/c3a65314-1011-4cd6-9995-8b7a1ab55a1c) and click on Share -> Publish.
+## State Management
 
-## I want to use a custom domain - is that possible?
+- **Authentication State**: Managed through Supabase Auth context
+- **Settings**: Global settings context for user preferences
+- **Data Fetching**: React Query for server state management
+- **Forms**: React Hook Form for form state and validation
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## UI/UX Guidelines
+
+### Colors
+- Primary brand colors are managed through CSS variables
+- Consistent use of Tailwind's color palette
+- Light/dark mode support through CSS classes
+
+### Typography
+- Font: Inter (Primary)
+- Headings: Times New Roman (Brand elements)
+
+### Components
+All UI components are built on shadcn/ui, providing:
+- Consistent styling
+- Accessibility
+- Dark mode support
+- Responsive design
+
+## Development Setup
+
+1. **Prerequisites**
+   - Node.js (Latest LTS version)
+   - npm or yarn
+
+2. **Installation**
+   ```bash
+   npm install
+   ```
+
+3. **Development Server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build**
+   ```bash
+   npm run build
+   ```
+
+## Best Practices
+
+1. **Component Structure**
+   - Keep components small and focused
+   - Use TypeScript interfaces for props
+   - Implement error boundaries where necessary
+
+2. **State Management**
+   - Use React Query for server state
+   - Implement optimistic updates for better UX
+   - Cache invalidation strategies for real-time updates
+
+3. **Performance**
+   - Lazy load routes and heavy components
+   - Implement proper memoization
+   - Use proper key props in lists
+
+4. **Error Handling**
+   - Implement proper error boundaries
+   - Use toast notifications for user feedback
+   - Proper form validation with error messages
+
+## Contributing
+
+1. Follow the existing code style and structure
+2. Use TypeScript for all new components
+3. Ensure responsive design for all new features
+4. Write meaningful commit messages
+5. Test across different browsers and devices
+
+## Design System
+
+The application uses a combination of shadcn/ui components and custom-styled elements. Key principles:
+
+- Use Tailwind CSS for styling
+- Follow mobile-first responsive design
+- Maintain consistent spacing using Tailwind's spacing scale
+- Use shadcn/ui components when possible
+- Implement proper dark mode support
+
+## Icons
+
+The application uses Lucide React icons. Available icons include:
+- Navigation: arrow-right, arrow-left, arrow-up, arrow-down
+- Actions: check, x, plus, minus
+- Currency: dollar-sign, euro, pound-sterling
+- Finance: credit-card, wallet
+- Users: user, users
+
+## Forms
+
+Forms are built using React Hook Form with Zod validation. Key principles:
+- Implement proper error handling
+- Use controlled components
+- Implement proper validation
+- Show loading states during submission
+
+This documentation provides the essential information needed to rebuild the WonderPay frontend. For specific implementation details, refer to the individual component files and the existing codebase.
