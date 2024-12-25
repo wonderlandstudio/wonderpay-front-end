@@ -63,21 +63,21 @@ export class MoniteService {
       
       // Make the request using the appropriate SDK method based on the path
       if (path === '/dashboard/overview') {
-        const response = await sdk.api.payable.getList();
+        const response = await sdk.api.payable.getAllPayables();
         const payables = response.data || [];
         
-        const receivablesResponse = await sdk.api.receivable.getList();
+        const receivablesResponse = await sdk.api.receivable.getAllReceivables();
         const receivables = receivablesResponse.data || [];
 
-        const expenses = payables.reduce((sum, item) => sum + (item.amount || 0), 0);
-        const income = receivables.reduce((sum, item) => sum + (item.amount || 0), 0);
+        const expenses = payables.reduce((sum, item) => sum + (Number(item.total_amount?.value) || 0), 0);
+        const income = receivables.reduce((sum, item) => sum + (Number(item.total_amount?.value) || 0), 0);
         const balance = income - expenses;
 
         const transactions = [...payables, ...receivables]
           .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
           .map(item => ({
             date: item.created_at.split('T')[0],
-            value: item.amount || 0
+            value: Number(item.total_amount?.value) || 0
           }));
 
         return {
