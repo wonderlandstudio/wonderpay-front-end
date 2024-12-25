@@ -8,12 +8,16 @@ export interface Transaction {
   currency: string;
   status: string;
   date: string;
+  dueDate: string;
   recipient: string;
   description?: string;
+  vendorName: string;
+  invoiceNumber: string;
 }
 
 export interface WonderPayCapitalTerms {
   status: 'approved' | 'pending' | 'rejected';
   availableTerms: PaymentTerm[];
   interestRates: Record<PaymentTerm, number>;
+  creditLimit?: number;
 }
