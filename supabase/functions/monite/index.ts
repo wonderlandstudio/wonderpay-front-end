@@ -43,10 +43,13 @@ serve(async (req) => {
       console.log('Making token request to Monite API');
       
       const tokenBody = {
-        grant_type: 'client_credentials',
+        grant_type: 'entity_user',
         client_id: clientId,
         client_secret: clientSecret,
+        entity_user_id: body?.entity_user_id || Deno.env.get('MONITE_ENTITY_USER_ID'),
       };
+
+      console.log('Token request body:', tokenBody);
 
       const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
         method: 'POST',
@@ -85,7 +88,7 @@ serve(async (req) => {
 
     // For all other requests, ensure path starts with a forward slash
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    console.log('Making API request to:', normalizedPath);
+    console.log('Making API request to:', `${apiUrl}${normalizedPath}`);
 
     // Make the actual API request
     const apiResponse = await fetch(`${apiUrl}${normalizedPath}`, {
