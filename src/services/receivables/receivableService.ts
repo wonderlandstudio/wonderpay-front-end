@@ -5,13 +5,13 @@ export class ReceivableService {
   static async getReceivables() {
     console.log('Fetching receivables from Monite');
     const sdk = await MoniteAuthService.initializeSDK();
-    const response = await sdk.api.receivable.list();
+    const response = await sdk.api.receivable.get();
     return response.data || [];
   }
 
   static async createInvoice(data: CreatePaymentLinkRequest) {
     console.log('Creating invoice with data:', data);
     const sdk = await MoniteAuthService.initializeSDK();
-    return sdk.api.receivable.create(data);
+    return sdk.api.receivable.createInvoice(data);
   }
 }

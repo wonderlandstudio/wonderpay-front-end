@@ -47,7 +47,7 @@ export function InvoiceForm() {
       
       const response = await ReceivableService.createInvoice({
         type: 'invoice',
-        currency: invoiceData.currency,
+        currency: invoiceData.currency as CurrencyEnum,
         amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
         counterpart_name: invoiceData.clientName,
         counterpart_email: invoiceData.clientEmail,
