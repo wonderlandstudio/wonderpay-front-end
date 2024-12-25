@@ -1,17 +1,18 @@
 import { MoniteAuthService } from '../auth/moniteAuth';
-import type { CreatePayableRequest } from '@monite/sdk-api';
+import type { CreatePaymentLinkRequest } from '@monite/sdk-api';
+import { CurrencyEnum } from '@monite/sdk-api';
 
 export class ReceivableService {
   static async getReceivables() {
     console.log('Fetching receivables from Monite');
     const sdk = await MoniteAuthService.initializeSDK();
-    const response = await sdk.receivables.getAll();
+    const response = await sdk.api.receivable.get();
     return response.data || [];
   }
 
-  static async createInvoice(data: CreatePayableRequest) {
+  static async createInvoice(data: CreatePaymentLinkRequest) {
     console.log('Creating invoice with data:', data);
     const sdk = await MoniteAuthService.initializeSDK();
-    return sdk.receivables.create(data);
+    return sdk.api.receivable.create(data);
   }
 }
