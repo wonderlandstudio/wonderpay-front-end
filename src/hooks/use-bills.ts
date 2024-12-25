@@ -1,18 +1,23 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { PayableService } from '@/services/payables/payableService';
 import { toast } from '@/hooks/use-toast';
+import { queryClient } from '@/config/queryClient';
 import type { MonitePayable } from '@/types/payments';
 
 export function useBills() {
-  const queryClient = useQueryClient();
-
   const { data: bills, isLoading, error } = useQuery({
     queryKey: ['bills'],
-    queryFn: PayableService.getPayables,
+    queryFn: async () => {
+      console.log('Fetching bills data');
+      return PayableService.getPayables();
+    },
   });
 
   const createBillMutation = useMutation({
-    mutationFn: (data: Partial<MonitePayable>) => PayableService.createPayable(data),
+    mutationFn: (data: Partial<MonitePayable>) => {
+      console.log('Creating new bill:', data);
+      return PayableService.createPayable(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bills'] });
       toast({

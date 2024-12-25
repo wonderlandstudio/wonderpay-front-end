@@ -1,18 +1,23 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { ReceivableService } from '@/services/receivables/receivableService';
 import { toast } from '@/hooks/use-toast';
+import { queryClient } from '@/config/queryClient';
 import type { CreatePaymentLinkRequest } from '@monite/sdk-api';
 
 export function useInvoices() {
-  const queryClient = useQueryClient();
-
   const { data: invoices, isLoading, error } = useQuery({
     queryKey: ['invoices'],
-    queryFn: ReceivableService.getReceivables,
+    queryFn: async () => {
+      console.log('Fetching invoices data');
+      return ReceivableService.getReceivables();
+    },
   });
 
   const createInvoiceMutation = useMutation({
-    mutationFn: (data: CreatePaymentLinkRequest) => ReceivableService.createInvoice(data),
+    mutationFn: (data: CreatePaymentLinkRequest) => {
+      console.log('Creating new invoice:', data);
+      return ReceivableService.createInvoice(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       toast({
