@@ -61,12 +61,13 @@ export class MoniteService {
     try {
       const sdk = await this.initializeSDK();
       
-      // Make the request using the appropriate SDK method based on the path
       if (path === '/dashboard/overview') {
-        const response = await sdk.api.payable.getAll();
-        const payables = response.data || [];
+        const [payablesResponse, receivablesResponse] = await Promise.all([
+          sdk.api.payable.list(),
+          sdk.api.receivable.list()
+        ]);
         
-        const receivablesResponse = await sdk.api.receivable.getAll();
+        const payables = payablesResponse.data || [];
         const receivables = receivablesResponse.data || [];
 
         const expenses = payables.reduce((sum, item) => {
