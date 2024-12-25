@@ -2,6 +2,7 @@ import type { MoniteSDK, CreatePaymentLinkRequest } from '@monite/sdk-api';
 import { MoniteAPIService } from '../api/MoniteAPIService';
 import { MoniteMonitoringService } from '../monitoring/moniteMonitoring';
 import type { MoniteReceivable } from '@/types/payments';
+import { ReceivableTransformer } from '../api/transformers/ReceivableTransformer';
 
 export class ReceivableService {
   static async getReceivables() {
@@ -10,9 +11,9 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.getAll();
+      const response = await sdk.api.receivable.getAllReceivables();
       await MoniteMonitoringService.logApiCall('receivables.getAll', true);
-      return response.data as unknown as MoniteReceivable[];
+      return response.data.map(receivable => ReceivableTransformer.fromMonite(receivable));
     } catch (error) {
       await MoniteMonitoringService.logApiCall('receivables.getAll', false, { error });
       throw error;
@@ -25,7 +26,8 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.createNewReceivable(data);
+      const payload = ReceivableTransformer.toMonite(data);
+      const response = await sdk.api.receivable.createNewReceivable(payload);
       await MoniteMonitoringService.logApiCall('receivables.create', true);
       return response;
     } catch (error) {

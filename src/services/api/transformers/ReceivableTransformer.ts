@@ -1,38 +1,28 @@
-import type { ReceivableResponseSchema } from '@monite/sdk-api';
-import { Invoice } from '@/types/payments';
+import type { ReceivableResponse, CreatePaymentLinkRequest, ReceivableFacadeCreatePayload } from '@monite/sdk-api';
+import type { MoniteReceivable } from '@/types/payments';
 
 export class ReceivableTransformer {
-  static toMonite(invoice: Invoice): Partial<ReceivableResponseSchema> {
+  static toMonite(receivable: CreatePaymentLinkRequest): ReceivableFacadeCreatePayload {
     return {
-      amount: invoice.amount,
-      currency: invoice.currency,
-      due_date: invoice.dueDate,
-      status: invoice.status,
-      counterpart_id: invoice.clientId,
-      line_items: invoice.items.map(item => ({
-        name: item.description,
-        quantity: item.quantity,
-        amount: item.price,
-      })),
+      type: 'invoice',
+      counterpart_id: receivable.recipient?.name || '',
+      currency: receivable.currency,
+      line_items: receivable.line_items?.map(item => ({
+        name: item.name || '',
+        quantity: item.quantity || 1,
+        amount: item.amount || 0,
+      })) || [],
     };
   }
 
-  static fromMonite(receivable: ReceivableResponseSchema): Invoice {
+  static fromMonite(receivable: ReceivableResponse): MoniteReceivable {
     return {
-      id: receivable.id,
-      clientId: receivable.counterpart_id || '',
-      clientName: receivable.counterpart?.name || 'Unknown Client',
-      invoiceNumber: receivable.document_id || '',
-      amount: receivable.amount,
-      currency: receivable.currency,
-      status: receivable.status,
-      dueDate: receivable.due_date,
-      items: receivable.line_items?.map(item => ({
-        description: item.name,
-        quantity: item.quantity,
-        price: item.amount,
-      })) || [],
-      notes: receivable.description || '',
+      ...receivable,
+      total_amount: {
+        amount: typeof receivable.total_amount === 'number' ? receivable.total_amount : 0,
+        currency: receivable.currency,
+      },
+      created_at: new Date().toISOString(), // Fallback for missing created_at
     };
   }
 }

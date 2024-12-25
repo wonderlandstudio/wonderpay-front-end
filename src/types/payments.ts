@@ -1,7 +1,9 @@
 import type { 
-  PayableResponseSchema, 
-  ReceivableResponseSchema,
-  PaymentTermsResponseSchema 
+  PayableResponseSchema,
+  ReceivableResponse,
+  PaymentTermsResponse,
+  CurrencyEnum,
+  CreatePaymentLinkRequest
 } from '@monite/sdk-api';
 
 export interface Transaction {
@@ -23,47 +25,18 @@ export interface PaymentDetails {
   method: PaymentMethod;
   term?: PaymentTerm;
   amount: number;
-  currency: string;
+  currency: CurrencyEnum;
 }
 
 export interface WonderPayCapitalTerms {
   status: 'approved' | 'pending' | 'rejected';
   availableTerms: PaymentTerm[];
   interestRates: Record<PaymentTerm, number>;
-  limit?: number;
-}
-
-export interface Bill {
-  id: string;
-  vendorId: string;
-  vendorName: string;
-  invoiceNumber: string;
-  amount: number;
-  currency: string;
-  status: string;
-  dueDate: string;
-  description?: string;
-}
-
-export interface Invoice {
-  id: string;
-  clientId: string;
-  clientName: string;
-  invoiceNumber: string;
-  amount: number;
-  currency: string;
-  status: string;
-  dueDate: string;
-  items: Array<{
-    description: string;
-    quantity: number;
-    price: number;
-  }>;
-  notes?: string;
+  limit: number;
 }
 
 // Monite SDK type extensions
-export interface MonitePayable extends PayableResponseSchema {
+export interface MonitePayable extends Omit<PayableResponseSchema, 'total_amount'> {
   total_amount: {
     amount: number;
     currency: string;
@@ -71,7 +44,7 @@ export interface MonitePayable extends PayableResponseSchema {
   created_at: string;
 }
 
-export interface MoniteReceivable extends ReceivableResponseSchema {
+export interface MoniteReceivable extends Omit<ReceivableResponse, 'total_amount'> {
   total_amount: {
     amount: number;
     currency: string;
@@ -79,7 +52,7 @@ export interface MoniteReceivable extends ReceivableResponseSchema {
   created_at: string;
 }
 
-export interface MonitePaymentTerms extends PaymentTermsResponseSchema {
+export interface MonitePaymentTerms extends PaymentTermsResponse {
   term_days: number;
   term_type: string;
 }

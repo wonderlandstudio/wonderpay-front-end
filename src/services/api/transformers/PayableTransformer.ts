@@ -1,28 +1,25 @@
-import type { PayableResponseSchema } from '@monite/sdk-api';
-import { Bill } from '@/types/payments';
+import type { PayableResponseSchema, CurrencyEnum, PayableStateEnum } from '@monite/sdk-api';
+import type { MonitePayable } from '@/types/payments';
 
 export class PayableTransformer {
-  static toMonite(bill: Bill): Partial<PayableResponseSchema> {
+  static toMonite(payable: Partial<MonitePayable>): Partial<PayableResponseSchema> {
     return {
-      amount: bill.amount,
-      currency: bill.currency,
-      due_date: bill.dueDate,
-      status: bill.status,
-      counterpart_id: bill.vendorId,
+      amount: payable.total_amount?.amount,
+      currency: payable.currency as CurrencyEnum,
+      due_date: payable.due_date,
+      status: payable.status as PayableStateEnum,
+      counterpart_id: payable.counterpart_id,
     };
   }
 
-  static fromMonite(payable: PayableResponseSchema): Bill {
+  static fromMonite(payable: PayableResponseSchema): MonitePayable {
     return {
-      id: payable.id,
-      vendorId: payable.counterpart_id || '',
-      vendorName: payable.counterpart?.name || 'Unknown Vendor',
-      invoiceNumber: payable.document_id || '',
-      amount: payable.amount,
-      currency: payable.currency,
-      status: payable.status,
-      dueDate: payable.due_date,
-      description: payable.description || '',
+      ...payable,
+      total_amount: {
+        amount: payable.amount,
+        currency: payable.currency,
+      },
+      created_at: new Date().toISOString(), // Fallback for missing created_at
     };
   }
 }

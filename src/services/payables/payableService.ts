@@ -2,6 +2,7 @@ import type { MoniteSDK } from '@monite/sdk-api';
 import { MoniteAPIService } from '../api/MoniteAPIService';
 import { MoniteMonitoringService } from '../monitoring/moniteMonitoring';
 import type { MonitePayable } from '@/types/payments';
+import { PayableTransformer } from '../api/transformers/PayableTransformer';
 
 export class PayableService {
   static async getPayables() {
@@ -10,9 +11,9 @@ export class PayableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.payable.getAll();
+      const response = await sdk.api.payable.getAllPayables();
       await MoniteMonitoringService.logApiCall('payables.getAll', true);
-      return response.data as MonitePayable[];
+      return response.data.map(payable => PayableTransformer.fromMonite(payable));
     } catch (error) {
       await MoniteMonitoringService.logApiCall('payables.getAll', false, { error });
       throw error;
