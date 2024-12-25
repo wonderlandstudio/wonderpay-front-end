@@ -1,4 +1,5 @@
 import { MoniteSDK } from "@monite/sdk-api";
+import type { PayableResponse, ReceivableResponse } from "@monite/sdk-api";
 
 export class MoniteAuthService {
   private static sdk: MoniteSDK | null = null;
@@ -50,3 +51,5 @@ export class MoniteAuthService {
     return this.sdk;
   }
 }
+
+export type { PayableResponse, ReceivableResponse };
