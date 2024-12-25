@@ -51,14 +51,29 @@ export class MoniteService {
     try {
       const sdk = await this.initializeSDK();
       
-      // Use the SDK's API client to make requests
-      const response = await sdk.request({
-        method,
-        url: path,
-        data: body,
-      });
+      // Make the request using the appropriate SDK method based on the path
+      if (path === '/dashboard/overview') {
+        return sdk.api.dashboard.getOverview();
+      }
 
-      return response.data;
+      if (path.startsWith('/entities')) {
+        if (method === 'GET') {
+          if (path === '/entities') {
+            return sdk.api.entities.getList();
+          }
+          const entityId = path.split('/')[2];
+          return sdk.api.entities.getById({ id: entityId });
+        }
+        if (method === 'POST') {
+          return sdk.api.entities.create({ data: body });
+        }
+        if (method === 'PUT') {
+          const entityId = path.split('/')[2];
+          return sdk.api.entities.update({ id: entityId, data: body });
+        }
+      }
+
+      throw new Error(`Unsupported path: ${path}`);
     } catch (error) {
       console.error('Error in MoniteService:', error);
       throw error;
