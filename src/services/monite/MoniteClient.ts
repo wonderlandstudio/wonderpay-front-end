@@ -42,11 +42,7 @@ export class MoniteClient {
             .single();
 
           if (!tokens || new Date(tokens.expires_at) <= new Date()) {
-            const newTokens = await this.refreshToken(settings);
-            if (!newTokens) {
-              throw new Error('Failed to refresh token');
-            }
-            return newTokens;
+            return await this.refreshToken(settings);
           }
 
           return {
@@ -70,52 +66,46 @@ export class MoniteClient {
       return this.refreshPromise;
     }
 
-    this.refreshPromise = (async () => {
-      try {
-        const response = await fetch(`${settings.environment === 'sandbox' ? 'https://api.sandbox.monite.com/v1' : 'https://api.monite.com/v1'}/auth/token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-monite-version': '2024-01-31',
-          },
-          body: JSON.stringify({
-            grant_type: 'client_credentials',
-            client_id: settings.client_id,
-            client_secret: settings.client_secret,
-          }),
+    try {
+      const response = await fetch(`${settings.environment === 'sandbox' ? 'https://api.sandbox.monite.com/v1' : 'https://api.monite.com/v1'}/auth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-monite-version': '2024-01-31',
+        },
+        body: JSON.stringify({
+          grant_type: 'client_credentials',
+          client_id: settings.client_id,
+          client_secret: settings.client_secret,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to refresh token');
+      }
+
+      const tokenData = await response.json();
+
+      const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
+
+      await supabase
+        .from('monite_tokens')
+        .upsert({
+          entity_id: settings.entity_id,
+          access_token: tokenData.access_token,
+          refresh_token: tokenData.refresh_token,
+          expires_at: expiresAt.toISOString(),
+          user_id: (await supabase.auth.getUser()).data.user?.id,
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to refresh token');
-        }
+      await MoniteMonitoringService.logTokenRefresh(true);
 
-        const tokenData = await response.json();
-
-        const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
-
-        await supabase
-          .from('monite_tokens')
-          .upsert({
-            entity_id: settings.entity_id,
-            access_token: tokenData.access_token,
-            refresh_token: tokenData.refresh_token,
-            expires_at: expiresAt.toISOString(),
-            user_id: (await supabase.auth.getUser()).data.user?.id,
-          });
-
-        await MoniteMonitoringService.logTokenRefresh(true);
-
-        return tokenData;
-      } catch (error) {
-        console.error('Error refreshing token:', error);
-        await MoniteMonitoringService.logTokenRefresh(false, { error });
-        throw error;
-      } finally {
-        this.refreshPromise = null;
-      }
-    })();
-
-    return this.refreshPromise;
+      return tokenData;
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+      await MoniteMonitoringService.logTokenRefresh(false, { error });
+      throw error;
+    }
   }
 
   static async resetInstance() {

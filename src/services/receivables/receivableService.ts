@@ -7,7 +7,7 @@ export class ReceivableService {
   static async getReceivables() {
     console.log('Fetching receivables from Monite');
     const sdk = await MoniteAuthService.initializeSDK() as MoniteSDK;
-    const response = await sdk.api.receivables.getAll();
+    const response = await sdk.api.receivable.getAll();
     await MoniteMonitoringService.logApiCall('receivables.getAll', true);
     return response.data || [];
   }
@@ -16,7 +16,7 @@ export class ReceivableService {
     console.log('Creating invoice with data:', data);
     const sdk = await MoniteAuthService.initializeSDK() as MoniteSDK;
     try {
-      const response = await sdk.api.receivables.create(data);
+      const response = await sdk.api.receivable.create(data);
       await MoniteMonitoringService.logApiCall('receivables.create', true);
       return response;
     } catch (error) {

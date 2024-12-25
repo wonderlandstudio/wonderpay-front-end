@@ -48,15 +48,17 @@ export function InvoiceForm() {
       const paymentLinkRequest: CreatePaymentLinkRequest = {
         currency: invoiceData.currency as CurrencyEnum,
         amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
-        counterpart_name: invoiceData.clientName,
-        counterpart_email: invoiceData.clientEmail,
-        counterpart_address: {
-          line1: invoiceData.clientAddress,
+        recipient: {
+          name: invoiceData.clientName,
+          email: invoiceData.clientEmail,
+          address: {
+            line1: invoiceData.clientAddress,
+          }
         },
-        items: invoiceData.items.map(item => ({
+        line_items: invoiceData.items.map(item => ({
           name: item.description,
           quantity: item.quantity,
-          price: item.price,
+          amount: item.price,
         })),
         payment_terms: {
           due_date: invoiceData.dueDate,
