@@ -19,8 +19,8 @@ export class DashboardService {
     const sdk = await MoniteAuthService.initializeSDK();
     
     const [payablesResponse, receivablesResponse] = await Promise.all([
-      sdk.payable.getList(),
-      sdk.receivable.getList()
+      sdk.payables.getAll(),
+      sdk.receivables.getAll()
     ]);
     
     const payables = payablesResponse.data || [];
