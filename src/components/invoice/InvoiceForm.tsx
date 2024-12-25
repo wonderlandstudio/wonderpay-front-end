@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { ReceivableService } from '@/services/receivables/receivableService';
 import type { InvoiceData } from '@/types/invoice';
+import { CurrencyEnum } from '@monite/sdk-api';
 
 export function InvoiceForm() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export function InvoiceForm() {
     zip: '',
     country: '',
     taxId: '',
-    currency: 'USD',
+    currency: CurrencyEnum.USD,
     items: [{ description: '', quantity: 1, price: 0 }],
     note: '',
     notes: '',

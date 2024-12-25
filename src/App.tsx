@@ -18,6 +18,8 @@ import InvoiceDetail from './pages/InvoiceDetail';
 import InvoiceGenerator from './pages/InvoiceGenerator';
 import Receivables from './pages/Receivables';
 import Login from './pages/Login';
+import WonderPayCapital from './pages/WonderPayCapital';
+import TransactionHistory from './pages/TransactionHistory';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
@@ -46,7 +48,7 @@ function App() {
     }
     return <>{children}</>;
   };
-  
+
   return (
     <SettingsProvider>
       <Router>
