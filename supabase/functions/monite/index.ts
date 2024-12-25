@@ -38,63 +38,105 @@ serve(async (req) => {
     const { path, method = 'GET', body } = await req.json();
     console.log('Received request:', { path, method });
 
-    // If this is a token request, handle it differently
-    if (path === '/auth/token') {
-      console.log('Making token request to Monite API');
-      
-      const tokenBody = {
-        grant_type: 'entity_user',
-        client_id: clientId,
-        client_secret: clientSecret,
-        entity_user_id: body?.entity_user_id || Deno.env.get('MONITE_ENTITY_USER_ID'),
-      };
+    // Get access token first
+    console.log('Making token request to Monite API');
+    
+    const tokenBody = {
+      grant_type: 'entity_user',
+      client_id: clientId,
+      client_secret: clientSecret,
+      entity_user_id: body?.entity_user_id || Deno.env.get('MONITE_ENTITY_USER_ID'),
+    };
 
-      console.log('Token request body:', tokenBody);
+    console.log('Token request body:', tokenBody);
 
-      const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
-        method: 'POST',
+    const tokenResponse = await fetch(`${apiUrl}/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-monite-version': '2023-06-04',
+      },
+      body: JSON.stringify(tokenBody)
+    });
+
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.json();
+      console.error('Token request failed:', {
+        status: tokenResponse.status,
+        error: errorData
+      });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to authenticate with Monite API',
+          details: errorData
+        }),
+        { 
+          status: tokenResponse.status, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const tokenData = await tokenResponse.json();
+    console.log('Successfully obtained Monite access token');
+
+    // Handle dashboard overview request
+    if (path === '/dashboard/overview') {
+      // Fetch payables data
+      const payablesResponse = await fetch(`${apiUrl}/payables`, {
         headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
           'Content-Type': 'application/json',
           'x-monite-version': '2023-06-04',
         },
-        body: JSON.stringify(tokenBody)
       });
 
-      if (!tokenResponse.ok) {
-        const errorData = await tokenResponse.json();
-        console.error('Token request failed:', {
-          status: tokenResponse.status,
-          error: errorData
-        });
-        return new Response(
-          JSON.stringify({ 
-            error: 'Failed to authenticate with Monite API',
-            details: errorData
-          }),
-          { 
-            status: tokenResponse.status, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
+      // Fetch receivables data
+      const receivablesResponse = await fetch(`${apiUrl}/receivables`, {
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Content-Type': 'application/json',
+          'x-monite-version': '2023-06-04',
+        },
+      });
 
-      const tokenData = await tokenResponse.json();
-      console.log('Successfully obtained Monite access token');
+      const [payables, receivables] = await Promise.all([
+        payablesResponse.json(),
+        receivablesResponse.json(),
+      ]);
+
+      // Calculate dashboard metrics
+      const expenses = payables.data?.reduce((sum: number, item: any) => sum + (item.amount || 0), 0) || 0;
+      const income = receivables.data?.reduce((sum: number, item: any) => sum + (item.amount || 0), 0) || 0;
+      const balance = income - expenses;
+
+      // Create transactions data for the chart
+      const transactions = [...(payables.data || []), ...(receivables.data || [])]
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        .map((item: any) => ({
+          date: item.created_at.split('T')[0],
+          value: item.amount || 0
+        }));
+
       return new Response(
-        JSON.stringify(tokenData),
+        JSON.stringify({
+          balance,
+          income,
+          expenses,
+          transactions
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // For all other requests, ensure path starts with a forward slash
+    // For all other requests, pass them through to Monite API
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     console.log('Making API request to:', `${apiUrl}${normalizedPath}`);
 
-    // Make the actual API request
     const apiResponse = await fetch(`${apiUrl}${normalizedPath}`, {
       method,
       headers: {
-        'Authorization': `Bearer ${body?.token}`,
+        'Authorization': `Bearer ${tokenData.access_token}`,
         'Content-Type': 'application/json',
         'x-monite-version': '2023-06-04',
       },
