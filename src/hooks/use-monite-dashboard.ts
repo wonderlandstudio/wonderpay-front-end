@@ -1,27 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { MoniteService } from '@/services/monite';
-
-interface DashboardData {
-  balance: number;
-  income: number | null;
-  expenses: number;
-  transactions: Array<{
-    date: string;
-    value: number;
-  }>;
-}
+import { DashboardService } from '@/services/dashboard/dashboardService';
 
 export function useMoniteDashboard() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboard-data'],
-    queryFn: async (): Promise<DashboardData> => {
+    queryFn: async () => {
       console.log('Fetching dashboard data from Monite');
-      const response = await MoniteService.makeRequest({
-        path: '/dashboard/overview',
-      });
-      return response;
+      return DashboardService.getDashboardOverview();
     },
   });
 
