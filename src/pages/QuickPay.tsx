@@ -32,7 +32,7 @@ const QuickPay = () => {
           recipient_name: formData.recipientName,
           recipient_email: formData.recipientEmail,
           recipient_phone: formData.recipientPhone,
-          payment_method: formData.paymentMethod,
+          payment_method: formData.paymentMethod.toString(),
           user_id: (await supabase.auth.getUser()).data.user?.id
         })
         .select()

@@ -19,9 +19,9 @@ export class PayableTransformer {
       updated_at: payable.updated_at,
       status: payable.status,
       currency: payable.currency,
-      total_amount: typeof payable.total_amount === 'number' ? 
-        payable.total_amount : 
-        payable.total_amount?.amount || 0,
+      total_amount: typeof payable.total_amount === 'object' ? 
+        payable.total_amount.amount : 
+        payable.total_amount,
       due_date: payable.due_date,
       counterpart_id: payable.counterpart_id,
       metadata: {},

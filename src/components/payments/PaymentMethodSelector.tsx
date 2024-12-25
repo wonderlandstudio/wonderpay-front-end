@@ -35,6 +35,14 @@ export function PaymentMethodSelector({
 }: PaymentMethodSelectorProps) {
   const formatInterestRate = (rate: number) => `${(rate * 100).toFixed(2)}%`;
 
+  const handleMethodChange = (value: string) => {
+    onMethodSelect(value as PaymentMethod);
+  };
+
+  const handleTermChange = (value: string) => {
+    onTermSelect?.(value as PaymentTerm);
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -47,7 +55,7 @@ export function PaymentMethodSelector({
         <CardContent>
           <Select
             value={selectedMethod}
-            onValueChange={(value: PaymentMethod) => onMethodSelect(value)}
+            onValueChange={handleMethodChange}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select payment method" />
@@ -76,7 +84,7 @@ export function PaymentMethodSelector({
           <CardContent>
             <Select
               value={selectedTerm}
-              onValueChange={(value: PaymentTerm) => onTermSelect?.(value)}
+              onValueChange={handleTermChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select payment term" />

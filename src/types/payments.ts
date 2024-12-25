@@ -1,4 +1,14 @@
-import { PaymentMethod } from '@monite/sdk-api';
+import { CurrencyEnum, PaymentMethod as MonitePaymentMethod } from '@monite/sdk-api';
+
+export type PaymentMethod = MonitePaymentMethod | 'wonderpay';
+export type PaymentTerm = '30' | '60' | '90';
+
+export interface WonderPayCapitalTerms {
+  status: 'approved' | 'pending' | 'rejected';
+  availableTerms: PaymentTerm[];
+  interestRates: Record<PaymentTerm, number>;
+  limit: number;
+}
 
 export interface Transaction {
   id: string;
@@ -14,16 +24,6 @@ export interface Transaction {
   value?: number;
 }
 
-export type { PaymentMethod };
-export type PaymentTerm = '30' | '60' | '90';
-
-export interface WonderPayCapitalTerms {
-  status: 'approved' | 'pending' | 'rejected';
-  availableTerms: PaymentTerm[];
-  interestRates: Record<PaymentTerm, number>;
-  limit: number;
-}
-
 export interface MonitePayable {
   id: string;
   created_at: string;
@@ -36,19 +36,21 @@ export interface MonitePayable {
   metadata?: Record<string, any>;
 }
 
+export interface LineItem {
+  name: string;
+  quantity: number;
+  amount: number;
+}
+
 export interface MoniteReceivable {
   id: string;
   created_at: string;
   updated_at: string;
   status: string;
-  currency: string;
+  currency: CurrencyEnum;
   total_amount: number;
   due_date: string;
   counterpart_id?: string;
   metadata?: Record<string, any>;
-  line_items?: Array<{
-    name: string;
-    quantity: number;
-    amount: number;
-  }>;
+  line_items?: LineItem[];
 }

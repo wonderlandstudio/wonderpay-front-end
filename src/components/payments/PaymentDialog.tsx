@@ -37,6 +37,11 @@ export function PaymentDialog({
     }
   };
 
+  const handleMethodSelect = (method: PaymentMethod) => {
+    setSelectedMethod(method);
+    console.log('Selected payment method:', method);
+  };
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="h-[85vh]">
@@ -48,8 +53,7 @@ export function PaymentDialog({
             selectedMethod={selectedMethod}
             onSelectStandardPayment={() => {
               setShowCapital(false);
-              setSelectedMethod('ach');
-              console.log('Selected payment method: ACH');
+              handleMethodSelect('ach');
             }}
             onSelectCapital={() => {
               setShowCapital(true);
