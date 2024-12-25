@@ -26,11 +26,13 @@ const InvoiceGenerator = () => {
     currency: 'USD',
     items: [{ description: '', quantity: 1, price: 0 }],
     note: '',
+    notes: '', // Added missing field
     discount: 0,
     tax: 0,
     invoiceNumber: '',
     issueDate: new Date().toISOString(),
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    date: new Date().toISOString(), // Added missing field
     clientName: '',
     clientEmail: '',
     clientAddress: '',

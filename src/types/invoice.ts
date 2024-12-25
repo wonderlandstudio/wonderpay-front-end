@@ -35,11 +35,11 @@ export interface InvoiceData {
   invoiceNumber: string;
   issueDate: string;
   dueDate: string;
-
-  // Required by PDFDocument
   clientName: string;
   clientEmail: string;
   clientAddress: string;
+
+  // These were missing and causing the error
   notes: string;
   date: string;
 }
