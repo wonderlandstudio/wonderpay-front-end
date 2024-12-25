@@ -49,13 +49,13 @@ Deno.serve(async (req) => {
             client_id: Deno.env.get('MONITE_CLIENT_ID')!,
             client_secret: Deno.env.get('MONITE_CLIENT_SECRET')!,
           }),
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('Failed to fetch Monite token');
+          throw new Error('Failed to fetch Monite token')
         }
 
-        return response.json();
+        return response.json()
       },
     })
 
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
       const { error: updateError } = await supabaseClient
         .from('entities')
         .update({ monite_entity_id: response.id })
-        .eq('id', entity?.id)
+        .eq('user_id', user.id)
 
       if (updateError) {
         throw new Error('Failed to update entity')
