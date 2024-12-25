@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useToast } from "@/hooks/use-toast";
-import { MoniteEntityService } from '@/services/moniteEntity';
+import { MoniteEntityService, CreateEntityData } from '@/services/moniteEntity';
 import {
   Form,
   FormControl,
@@ -19,7 +19,7 @@ import { Loader2 } from "lucide-react";
 const formSchema = z.object({
   name: z.string().min(1, 'Company name is required'),
   email: z.string().email('Invalid email address'),
-});
+}) satisfies z.ZodType<CreateEntityData>;
 
 type FormData = z.infer<typeof formSchema>;
 

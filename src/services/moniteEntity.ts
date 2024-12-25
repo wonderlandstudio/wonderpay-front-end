@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { MoniteService } from "./monite";
 
-interface CreateEntityData {
+export interface CreateEntityData {
   name: string;
   email: string;
 }
