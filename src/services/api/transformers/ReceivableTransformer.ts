@@ -1,8 +1,8 @@
-import type { Receivable } from '@monite/sdk-api';
+import type { ReceivableResponseSchema } from '@monite/sdk-api';
 import { Invoice } from '@/types/payments';
 
 export class ReceivableTransformer {
-  static toMonite(invoice: Invoice): Partial<Receivable> {
+  static toMonite(invoice: Invoice): Partial<ReceivableResponseSchema> {
     return {
       amount: invoice.amount,
       currency: invoice.currency,
@@ -17,9 +17,10 @@ export class ReceivableTransformer {
     };
   }
 
-  static fromMonite(receivable: Receivable): Invoice {
+  static fromMonite(receivable: ReceivableResponseSchema): Invoice {
     return {
       id: receivable.id,
+      clientId: receivable.counterpart_id || '',
       clientName: receivable.counterpart?.name || 'Unknown Client',
       invoiceNumber: receivable.document_id || '',
       amount: receivable.amount,

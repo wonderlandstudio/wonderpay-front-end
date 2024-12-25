@@ -10,7 +10,7 @@ export class PayableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.payable.getAllPayables();
+      const response = await sdk.api.payable.getAll();
       await MoniteMonitoringService.logApiCall('payables.getAll', true);
       return response.data as MonitePayable[];
     } catch (error) {

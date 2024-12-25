@@ -1,8 +1,8 @@
-import type { Payable } from '@monite/sdk-api';
+import type { PayableResponseSchema } from '@monite/sdk-api';
 import { Bill } from '@/types/payments';
 
 export class PayableTransformer {
-  static toMonite(bill: Bill): Partial<Payable> {
+  static toMonite(bill: Bill): Partial<PayableResponseSchema> {
     return {
       amount: bill.amount,
       currency: bill.currency,
@@ -12,9 +12,10 @@ export class PayableTransformer {
     };
   }
 
-  static fromMonite(payable: Payable): Bill {
+  static fromMonite(payable: PayableResponseSchema): Bill {
     return {
       id: payable.id,
+      vendorId: payable.counterpart_id || '',
       vendorName: payable.counterpart?.name || 'Unknown Vendor',
       invoiceNumber: payable.document_id || '',
       amount: payable.amount,

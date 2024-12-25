@@ -10,9 +10,9 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.getAllReceivables();
+      const response = await sdk.api.receivable.getAll();
       await MoniteMonitoringService.logApiCall('receivables.getAll', true);
-      return response.data as MoniteReceivable[];
+      return response.data as unknown as MoniteReceivable[];
     } catch (error) {
       await MoniteMonitoringService.logApiCall('receivables.getAll', false, { error });
       throw error;
@@ -25,7 +25,7 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.createReceivable(data);
+      const response = await sdk.api.receivable.createNewReceivable(data);
       await MoniteMonitoringService.logApiCall('receivables.create', true);
       return response;
     } catch (error) {

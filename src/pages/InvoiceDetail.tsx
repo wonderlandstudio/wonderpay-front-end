@@ -164,7 +164,7 @@ const InvoiceDetail = () => {
                   '60': 0.02,
                   '90': 0.03
                 },
-                creditLimit: 100000
+                limit: 100000
               }}
             />
             <div className="mt-4 flex justify-end">

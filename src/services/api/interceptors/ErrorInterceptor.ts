@@ -1,8 +1,8 @@
-import { APIError } from '@monite/sdk-api';
+import { ApiError } from '@monite/sdk-api';
 import { toast } from '@/hooks/use-toast';
 
 export class ErrorInterceptor {
-  static handleError(error: APIError): never {
+  static handleError(error: ApiError): never {
     console.error('API Error:', error);
 
     let message = 'An unexpected error occurred';

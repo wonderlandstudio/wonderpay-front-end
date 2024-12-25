@@ -1,7 +1,7 @@
 import type { 
-  PayableResponse, 
-  ReceivableResponse,
-  PaymentTermsResponse 
+  PayableResponseSchema, 
+  ReceivableResponseSchema,
+  PaymentTermsResponseSchema 
 } from '@monite/sdk-api';
 
 export interface Transaction {
@@ -33,22 +33,53 @@ export interface WonderPayCapitalTerms {
   limit?: number;
 }
 
+export interface Bill {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  invoiceNumber: string;
+  amount: number;
+  currency: string;
+  status: string;
+  dueDate: string;
+  description?: string;
+}
+
+export interface Invoice {
+  id: string;
+  clientId: string;
+  clientName: string;
+  invoiceNumber: string;
+  amount: number;
+  currency: string;
+  status: string;
+  dueDate: string;
+  items: Array<{
+    description: string;
+    quantity: number;
+    price: number;
+  }>;
+  notes?: string;
+}
+
 // Monite SDK type extensions
-export interface MonitePayable extends PayableResponse {
+export interface MonitePayable extends PayableResponseSchema {
   total_amount: {
     amount: number;
     currency: string;
   };
+  created_at: string;
 }
 
-export interface MoniteReceivable extends ReceivableResponse {
+export interface MoniteReceivable extends ReceivableResponseSchema {
   total_amount: {
     amount: number;
     currency: string;
   };
+  created_at: string;
 }
 
-export interface MonitePaymentTerms extends PaymentTermsResponse {
+export interface MonitePaymentTerms extends PaymentTermsResponseSchema {
   term_days: number;
   term_type: string;
 }
