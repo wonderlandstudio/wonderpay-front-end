@@ -9,7 +9,8 @@ import {
   Settings,
   FilePlus,
   ArrowDownRight,
-  LogOut
+  LogOut,
+  Banknote
 } from "lucide-react";
 import { useSettings } from '@/contexts/SettingsContext';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ const navigation = [
   { name: 'Bill Pay', href: '/dashboard/bill-pay', icon: ArrowUpRight },
   { name: 'Receivables', href: '/dashboard/receivables', icon: ArrowDownRight },
   { name: 'Create Invoice', href: '/dashboard/bill-pay/generate', icon: FilePlus },
+  { name: 'QuickPay', href: '/dashboard/quick-pay', icon: Banknote },
   { name: 'WonderPay Capital', href: '/capital', icon: Sparkles },
   { name: 'Clients & Vendors', href: '/clients', icon: Users },
   { name: 'Settings', href: '/dashboard/organization-settings', icon: Settings },

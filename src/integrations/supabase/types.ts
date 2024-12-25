@@ -51,6 +51,57 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          address: string | null
+          company_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          payment_terms: number | null
+          phone: string | null
+          status: string | null
+          tax_id: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          payment_terms?: number | null
+          phone?: string | null
+          status?: string | null
+          tax_id?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          payment_terms?: number | null
+          phone?: string | null
+          status?: string | null
+          tax_id?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       entities: {
         Row: {
           created_at: string
@@ -180,6 +231,93 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      quick_pay_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          payment_details: Json | null
+          payment_method: string
+          recipient_email: string | null
+          recipient_name: string
+          recipient_phone: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_details?: Json | null
+          payment_method: string
+          recipient_email?: string | null
+          recipient_name: string
+          recipient_phone?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_details?: Json | null
+          payment_method?: string
+          recipient_email?: string | null
+          recipient_name?: string
+          recipient_phone?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wonderpay_capital_applications: {
+        Row: {
+          application_data: Json | null
+          approved_amount: number | null
+          created_at: string
+          id: string
+          interest_rate: number | null
+          product: string
+          requested_amount: number | null
+          status: string | null
+          terms: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_data?: Json | null
+          approved_amount?: number | null
+          created_at?: string
+          id?: string
+          interest_rate?: number | null
+          product: string
+          requested_amount?: number | null
+          status?: string | null
+          terms?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_data?: Json | null
+          approved_amount?: number | null
+          created_at?: string
+          id?: string
+          interest_rate?: number | null
+          product?: string
+          requested_amount?: number | null
+          status?: string | null
+          terms?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
