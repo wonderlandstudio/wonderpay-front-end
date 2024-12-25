@@ -4,22 +4,25 @@ import type { MonitePayable } from '@/types/payments';
 export class PayableTransformer {
   static toMonite(payable: Partial<MonitePayable>): Partial<PayableResponseSchema> {
     return {
-      amount: payable.total_amount?.amount,
-      currency: payable.currency as CurrencyEnum,
+      currency: payable.currency,
       due_date: payable.due_date,
       status: payable.status as PayableStateEnum,
       counterpart_id: payable.counterpart_id,
+      total_amount: payable.total_amount,
     };
   }
 
   static fromMonite(payable: PayableResponseSchema): MonitePayable {
     return {
-      ...payable,
-      total_amount: {
-        amount: payable.amount,
-        currency: payable.currency,
-      },
-      created_at: new Date().toISOString(), // Fallback for missing created_at
+      id: payable.id,
+      created_at: payable.created_at,
+      updated_at: payable.updated_at,
+      status: payable.status,
+      currency: payable.currency,
+      total_amount: payable.total_amount,
+      due_date: payable.due_date,
+      counterpart_id: payable.counterpart_id,
+      metadata: payable.metadata,
     };
   }
 }

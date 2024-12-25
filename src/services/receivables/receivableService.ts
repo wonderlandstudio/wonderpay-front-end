@@ -11,7 +11,7 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.receivables.getList();
+      const response = await sdk.api.receivable.getList();
       await MoniteMonitoringService.logApiCall('receivables.getAll', true);
       return response.data.map(receivable => ReceivableTransformer.fromMonite(receivable));
     } catch (error) {
@@ -20,16 +20,16 @@ export class ReceivableService {
     }
   }
 
-  static async createInvoice(data: CreatePaymentLinkRequest) {
+  static async createInvoice(data: CreatePaymentLinkRequest): Promise<MoniteReceivable> {
     console.log('Creating invoice with data:', data);
     const api = await MoniteAPIService.getInstance();
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
       const payload = ReceivableTransformer.toMonite(data);
-      const response = await sdk.receivables.create(payload);
+      const response = await sdk.api.receivable.create(payload);
       await MoniteMonitoringService.logApiCall('receivables.create', true);
-      return response;
+      return ReceivableTransformer.fromMonite(response);
     } catch (error) {
       await MoniteMonitoringService.logApiCall('receivables.create', false, { error });
       throw error;

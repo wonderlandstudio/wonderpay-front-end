@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PayableService } from '@/services/payables/payableService';
 import { toast } from '@/hooks/use-toast';
+import type { MonitePayable } from '@/types/payments';
 
 export function useBills() {
   const queryClient = useQueryClient();
@@ -11,7 +12,7 @@ export function useBills() {
   });
 
   const createBillMutation = useMutation({
-    mutationFn: PayableService.createPayable,
+    mutationFn: (data: Partial<MonitePayable>) => PayableService.createPayable(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bills'] });
       toast({
