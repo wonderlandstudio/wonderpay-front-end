@@ -5,13 +5,13 @@ import type { MonitePayable } from '@/types/payments';
 import { PayableTransformer } from '../api/transformers/PayableTransformer';
 
 export class PayableService {
-  static async getPayables() {
+  static async getPayables(): Promise<MonitePayable[]> {
     console.log('Fetching payables from Monite');
     const api = await MoniteAPIService.getInstance();
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.payable.getAllPayables();
+      const response = await sdk.payables.getList();
       await MoniteMonitoringService.logApiCall('payables.getAll', true);
       return response.data.map(payable => PayableTransformer.fromMonite(payable));
     } catch (error) {

@@ -5,13 +5,13 @@ import type { MoniteReceivable } from '@/types/payments';
 import { ReceivableTransformer } from '../api/transformers/ReceivableTransformer';
 
 export class ReceivableService {
-  static async getReceivables() {
+  static async getReceivables(): Promise<MoniteReceivable[]> {
     console.log('Fetching receivables from Monite');
     const api = await MoniteAPIService.getInstance();
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.getAllReceivables();
+      const response = await sdk.receivables.getList();
       await MoniteMonitoringService.logApiCall('receivables.getAll', true);
       return response.data.map(receivable => ReceivableTransformer.fromMonite(receivable));
     } catch (error) {
@@ -27,7 +27,7 @@ export class ReceivableService {
     
     try {
       const payload = ReceivableTransformer.toMonite(data);
-      const response = await sdk.api.receivable.createNewReceivable(payload);
+      const response = await sdk.receivables.create(payload);
       await MoniteMonitoringService.logApiCall('receivables.create', true);
       return response;
     } catch (error) {

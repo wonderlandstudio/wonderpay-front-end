@@ -35,8 +35,7 @@ export interface WonderPayCapitalTerms {
   limit: number;
 }
 
-// Monite SDK type extensions
-export interface MonitePayable extends Omit<PayableResponseSchema, 'total_amount'> {
+export interface MonitePayable extends Omit<PayableResponseSchema, 'amount'> {
   total_amount: {
     amount: number;
     currency: string;
@@ -44,7 +43,7 @@ export interface MonitePayable extends Omit<PayableResponseSchema, 'total_amount
   created_at: string;
 }
 
-export interface MoniteReceivable extends Omit<ReceivableResponse, 'total_amount'> {
+export interface MoniteReceivable extends Omit<ReceivableResponse, 'amount'> {
   total_amount: {
     amount: number;
     currency: string;
