@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { ReceivableService } from '@/services/receivables/receivableService';
 import type { InvoiceData } from '@/types/invoice';
-import { CurrencyEnum } from '@monite/sdk-api';
+import { CurrencyEnum, CreatePaymentLinkRequest } from '@monite/sdk-api';
 
 export function InvoiceForm() {
   const navigate = useNavigate();
@@ -45,8 +45,7 @@ export function InvoiceForm() {
     try {
       console.log('Creating invoice with data:', invoiceData);
       
-      const response = await ReceivableService.createInvoice({
-        type: 'invoice',
+      const paymentLinkRequest: CreatePaymentLinkRequest = {
         currency: invoiceData.currency as CurrencyEnum,
         amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
         counterpart_name: invoiceData.clientName,
@@ -62,7 +61,9 @@ export function InvoiceForm() {
         payment_terms: {
           due_date: invoiceData.dueDate,
         },
-      });
+      };
+
+      const response = await ReceivableService.createInvoice(paymentLinkRequest);
 
       console.log('Invoice created successfully:', response);
       

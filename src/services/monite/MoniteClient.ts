@@ -26,8 +26,12 @@ export class MoniteClient {
       throw new Error('Monite settings not found');
     }
 
+    const apiUrl = settings.environment === 'sandbox' 
+      ? 'https://api.sandbox.monite.com/v1'
+      : 'https://api.monite.com/v1';
+
     this.instance = new MoniteSDK({
-      apiUrl: settings.api_url || 'https://api.sandbox.monite.com/v1',
+      apiUrl,
       entityId: settings.entity_id,
       fetchToken: async () => {
         try {
@@ -38,7 +42,11 @@ export class MoniteClient {
             .single();
 
           if (!tokens || new Date(tokens.expires_at) <= new Date()) {
-            return this.refreshToken(settings);
+            const newTokens = await this.refreshToken(settings);
+            if (!newTokens) {
+              throw new Error('Failed to refresh token');
+            }
+            return newTokens;
           }
 
           return {
@@ -64,7 +72,7 @@ export class MoniteClient {
 
     this.refreshPromise = (async () => {
       try {
-        const response = await fetch(`${settings.api_url}/auth/token`, {
+        const response = await fetch(`${settings.environment === 'sandbox' ? 'https://api.sandbox.monite.com/v1' : 'https://api.monite.com/v1'}/auth/token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
