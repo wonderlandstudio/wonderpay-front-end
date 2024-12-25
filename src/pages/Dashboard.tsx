@@ -6,6 +6,7 @@ import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import type { Transaction } from '@/types/payments';
 
 const Dashboard = () => {
   const { data: dashboardData, isLoading, error } = useDashboardData();
@@ -33,7 +34,7 @@ const Dashboard = () => {
     );
   }
 
-  const recentTransactions = dashboardData?.transactions || [];
+  const recentTransactions = (dashboardData?.transactions || []) as Transaction[];
 
   return (
     <div className="space-y-8">
@@ -49,9 +50,9 @@ const Dashboard = () => {
           <CardContent className="p-0">
             <Table>
               <TableBody>
-                {recentTransactions.map((transaction, index) => (
+                {recentTransactions.map((transaction) => (
                   <TableRow 
-                    key={index} 
+                    key={transaction.id} 
                     className="hover:bg-black/5 cursor-pointer transition-colors duration-200"
                   >
                     <TableCell className="flex items-center gap-3 py-4">
@@ -60,10 +61,10 @@ const Dashboard = () => {
                       </div>
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-900 font-inter">
-                          {transaction.description || 'Transaction'}
+                          {transaction.description || transaction.vendorName}
                         </span>
                         <span className="text-sm text-gray-500 font-inter">
-                          {transaction.id}
+                          {transaction.invoiceNumber}
                         </span>
                       </div>
                     </TableCell>
@@ -80,7 +81,7 @@ const Dashboard = () => {
                           {new Date(transaction.date).toLocaleDateString()}
                         </span>
                         <span className="font-medium text-gray-900 font-inter">
-                          ${transaction.value.toLocaleString()}
+                          ${transaction.amount.toLocaleString()}
                         </span>
                       </div>
                     </TableCell>

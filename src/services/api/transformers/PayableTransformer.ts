@@ -1,5 +1,5 @@
 import type { PayableResponseSchema, CurrencyEnum, PayableStateEnum } from '@monite/sdk-api';
-import type { MonitePayable } from '@/types/payables';
+import type { MonitePayable } from '@/types/payments';
 
 export class PayableTransformer {
   static toMonite(payable: Partial<MonitePayable>): Partial<PayableResponseSchema> {
@@ -21,10 +21,10 @@ export class PayableTransformer {
       currency: payable.currency,
       total_amount: typeof payable.total_amount === 'number' ? 
         payable.total_amount : 
-        payable.total_amount.amount,
+        payable.total_amount?.amount || 0,
       due_date: payable.due_date,
       counterpart_id: payable.counterpart_id,
-      metadata: payable.metadata,
+      metadata: {},
     };
   }
 }
