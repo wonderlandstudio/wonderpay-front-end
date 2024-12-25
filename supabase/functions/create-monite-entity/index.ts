@@ -81,34 +81,35 @@ serve(async (req) => {
       throw new Error('Missing required Monite configuration');
     }
 
-    // Initialize Monite SDK with proper token fetching
+    // First get a token
+    console.log('Fetching initial Monite token');
+    const tokenResponse = await fetch(`${moniteApiUrl}/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-monite-version': '2024-01-31',
+      },
+      body: JSON.stringify({
+        grant_type: 'client_credentials',
+        client_id: moniteClientId,
+        client_secret: moniteClientSecret,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error('Failed to fetch initial Monite token:', errorText);
+      throw new Error('Failed to fetch initial Monite token')
+    }
+
+    const tokenData = await tokenResponse.json();
+
+    // Initialize SDK with the token we just got
     const sdk = new MoniteSDK({
       apiUrl: moniteApiUrl,
-      entityId: '', // This will be obtained after entity creation
-      fetchToken: async () => {
-        console.log('Fetching Monite token');
-        const response = await fetch(`${moniteApiUrl}/auth/token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-monite-version': '2024-01-31',
-          },
-          body: JSON.stringify({
-            grant_type: 'client_credentials',
-            client_id: moniteClientId,
-            client_secret: moniteClientSecret,
-          }),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to fetch Monite token:', errorText);
-          throw new Error('Failed to fetch Monite token')
-        }
-
-        return response.json()
-      },
-    })
+      entityId: '', // Empty for entity creation
+      token: tokenData.access_token,
+    });
 
     console.log('Creating Monite entity');
 
