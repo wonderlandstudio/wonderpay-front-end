@@ -32,14 +32,22 @@ const wrapper = ({ children }: { children: React.ReactNode }) => {
 describe('useMoniteAuth', () => {
   it('should handle authenticated state', async () => {
     vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
-      data: { user: { id: 'test-user' } },
+      data: { 
+        user: { 
+          id: 'test-user',
+          app_metadata: {},
+          user_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString()
+        } 
+      },
       error: null
     });
 
     vi.mocked(supabase.from).mockImplementationOnce(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
-          single: vi.fn(() => ({
+          single: vi.fn(() => Promise.resolve({
             data: {
               entity_id: 'test-entity',
               environment: 'sandbox'
@@ -76,14 +84,22 @@ describe('useMoniteAuth', () => {
 
   it('should handle errors', async () => {
     vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
-      data: { user: { id: 'test-user' } },
+      data: { 
+        user: { 
+          id: 'test-user',
+          app_metadata: {},
+          user_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString()
+        } 
+      },
       error: null
     });
 
     vi.mocked(supabase.from).mockImplementationOnce(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
-          single: vi.fn(() => ({
+          single: vi.fn(() => Promise.resolve({
             data: null,
             error: new Error('Database error')
           }))

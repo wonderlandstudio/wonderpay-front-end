@@ -6,7 +6,7 @@ import { statusTracker } from '@/services/monitoring/StatusTracker';
 // Mock MoniteClient
 vi.mock('@/services/monite/MoniteClient', () => ({
   MoniteClient: {
-    getInstance: vi.fn(() => ({
+    getInstance: vi.fn(() => Promise.resolve({
       api: {
         payable: {
           getAll: vi.fn(),
@@ -48,7 +48,7 @@ describe('MoniteAPIService', () => {
     await service.initialize();
 
     const mockResponse = { data: [] };
-    vi.mocked(MoniteClient.getInstance).mockImplementationOnce(() => ({
+    vi.mocked(MoniteClient.getInstance).mockImplementationOnce(() => Promise.resolve({
       api: {
         payable: {
           getAll: vi.fn().mockResolvedValue(mockResponse)
@@ -73,7 +73,7 @@ describe('MoniteAPIService', () => {
     await service.initialize();
 
     const mockError = new Error('API Error');
-    vi.mocked(MoniteClient.getInstance).mockImplementationOnce(() => ({
+    vi.mocked(MoniteClient.getInstance).mockImplementationOnce(() => Promise.resolve({
       api: {
         payable: {
           getAll: vi.fn().mockRejectedValue(mockError)

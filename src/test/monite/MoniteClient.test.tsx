@@ -8,7 +8,7 @@ vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
-        single: vi.fn(() => ({
+        single: vi.fn(() => Promise.resolve({
           data: {
             environment: 'sandbox',
             entity_id: 'test-entity-id',
@@ -18,8 +18,16 @@ vi.mock('@/integrations/supabase/client', () => ({
       }))
     })),
     auth: {
-      getUser: vi.fn(() => ({
-        data: { user: { id: 'test-user-id' } },
+      getUser: vi.fn(() => Promise.resolve({
+        data: { 
+          user: { 
+            id: 'test-user-id',
+            app_metadata: {},
+            user_metadata: {},
+            aud: 'authenticated',
+            created_at: new Date().toISOString()
+          } 
+        },
         error: null
       }))
     }
@@ -51,10 +59,9 @@ describe('MoniteClient', () => {
   });
 
   it('should handle initialization errors', async () => {
-    // Mock Supabase to return an error
     vi.mocked(supabase.from).mockImplementationOnce(() => ({
       select: vi.fn(() => ({
-        single: vi.fn(() => ({
+        single: vi.fn(() => Promise.resolve({
           data: null,
           error: new Error('Settings not found')
         }))

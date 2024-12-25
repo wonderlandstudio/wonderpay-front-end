@@ -1,6 +1,6 @@
-import { CurrencyEnum, PaymentMethod as MonitePaymentMethod } from '@monite/sdk-api';
+import { CurrencyEnum, PaymentMethod as MonitePaymentMethod, ReceivablesStatusEnum } from '@monite/sdk-api';
 
-export type PaymentMethod = MonitePaymentMethod | 'wonderpay';
+export type PaymentMethod = 'ach' | 'wire' | 'international_wire' | 'card' | 'wonderpay';
 export type PaymentTerm = '30' | '60' | '90';
 
 export interface WonderPayCapitalTerms {
@@ -29,7 +29,7 @@ export interface MonitePayable {
   created_at: string;
   updated_at: string;
   status: string;
-  currency: string;
+  currency: CurrencyEnum;
   total_amount: number;
   due_date: string;
   counterpart_id?: string;
@@ -46,7 +46,7 @@ export interface MoniteReceivable {
   id: string;
   created_at: string;
   updated_at: string;
-  status: string;
+  status: ReceivablesStatusEnum;
   currency: CurrencyEnum;
   total_amount: number;
   due_date: string;
