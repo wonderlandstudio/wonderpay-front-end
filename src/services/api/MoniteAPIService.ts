@@ -1,6 +1,8 @@
 import { MoniteSDK } from '@monite/sdk-api';
 import { MoniteClient } from '../monite/MoniteClient';
 import { MoniteMonitoringService } from '../monitoring/moniteMonitoring';
+import { RequestInterceptor } from './interceptors/RequestInterceptor';
+import { ErrorInterceptor } from './interceptors/ErrorInterceptor';
 
 export class MoniteAPIService {
   private static instance: MoniteAPIService;
@@ -28,7 +30,7 @@ export class MoniteAPIService {
   }
 
   async callAPI<T>(
-    endpoint: string,
+    service: 'payable' | 'receivable',
     method: string,
     params?: any
   ): Promise<T> {
@@ -37,13 +39,21 @@ export class MoniteAPIService {
     }
 
     try {
-      const response = await this.sdk?.api[endpoint](params);
-      await MoniteMonitoringService.logApiCall(`api.${endpoint}`, true);
+      const config = await RequestInterceptor.intercept(this.sdk!, { 
+        service, 
+        method, 
+        params 
+      });
+
+      const serviceInstance = this.sdk!.api[service];
+      const response = await serviceInstance[method](params);
+
+      await MoniteMonitoringService.logApiCall(`api.${service}.${method}`, true);
       return response as T;
     } catch (error) {
-      console.error(`API call failed for ${endpoint}:`, error);
-      await MoniteMonitoringService.logApiCall(`api.${endpoint}`, false, { error });
-      throw error;
+      console.error(`API call failed for ${service}.${method}:`, error);
+      await MoniteMonitoringService.logApiCall(`api.${service}.${method}`, false, { error });
+      return ErrorInterceptor.handleError(error);
     }
   }
 
