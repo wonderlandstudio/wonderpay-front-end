@@ -1,30 +1,17 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
-
-type CapitalProduct = 'wonderflex' | 'wonderadvance';
-
-interface ApplicationFormData {
-  product: CapitalProduct;
-  requestedAmount: number;
-  terms?: number;
-}
+import { ApplicationForm } from '@/components/capital/ApplicationForm';
+import { ApplicationsList } from '@/components/capital/ApplicationsList';
+import { CapitalProductCard } from '@/components/capital/CapitalProductCard';
+import { ApplicationFormData, CapitalProduct } from '@/types/capital';
 
 const Capital = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedProduct, setSelectedProduct] = useState<CapitalProduct | null>(null);
-  const [formData, setFormData] = useState<ApplicationFormData>({
-    product: 'wonderflex',
-    requestedAmount: 0,
-    terms: 30,
-  });
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ['capital-applications'],
@@ -43,7 +30,12 @@ const Capital = () => {
     mutationFn: async (applicationData: ApplicationFormData) => {
       const { data, error } = await supabase
         .from('wonderpay_capital_applications')
-        .insert([applicationData])
+        .insert({
+          product: applicationData.product,
+          requested_amount: applicationData.requestedAmount,
+          terms: applicationData.terms,
+          status: 'pending'
+        })
         .select()
         .single();
 
@@ -68,14 +60,8 @@ const Capital = () => {
     },
   });
 
-  const handleApply = () => {
-    if (!selectedProduct) return;
-    
-    applyMutation.mutate({
-      product: selectedProduct,
-      requestedAmount: formData.requestedAmount,
-      terms: formData.terms,
-    });
+  const handleApply = (data: ApplicationFormData) => {
+    applyMutation.mutate(data);
   };
 
   return (
@@ -83,173 +69,51 @@ const Capital = () => {
       <h1 className="text-3xl font-bold mb-8">WonderPay Capital</h1>
       
       <div className="grid md:grid-cols-2 gap-6">
-        {/* WonderFlex Card */}
-        <Card className="relative overflow-hidden">
-          <CardHeader>
-            <CardTitle>WonderFlex</CardTitle>
-            <CardDescription>
-              Extend your payment terms with vendors up to 90 days
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <ul className="space-y-2">
-              <li>• Flexible payment terms (30/60/90 days)</li>
-              <li>• No impact on vendor relationships</li>
-              <li>• Competitive rates</li>
-              <li>• Quick approval process</li>
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <Button 
-              onClick={() => setSelectedProduct('wonderflex')}
-              className="w-full"
-            >
-              Apply for WonderFlex
-            </Button>
-          </CardFooter>
-        </Card>
+        <CapitalProductCard
+          title="WonderFlex"
+          description="Extend your payment terms with vendors up to 90 days"
+          features={[
+            'Flexible payment terms (30/60/90 days)',
+            'No impact on vendor relationships',
+            'Competitive rates',
+            'Quick approval process'
+          ]}
+          product="wonderflex"
+          onApply={setSelectedProduct}
+        />
 
-        {/* WonderAdvance Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>WonderAdvance</CardTitle>
-            <CardDescription>
-              Get instant access to cash from your outstanding invoices
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <ul className="space-y-2">
-              <li>• Up to 90% advance rate</li>
-              <li>• Same-day funding available</li>
-              <li>• Non-recourse factoring</li>
-              <li>• Simple, transparent pricing</li>
-            </ul>
-          </CardContent>
-          <CardFooter>
-            <Button 
-              onClick={() => setSelectedProduct('wonderadvance')}
-              className="w-full"
-            >
-              Apply for WonderAdvance
-            </Button>
-          </CardFooter>
-        </Card>
+        <CapitalProductCard
+          title="WonderAdvance"
+          description="Get instant access to cash from your outstanding invoices"
+          features={[
+            'Up to 90% advance rate',
+            'Same-day funding available',
+            'Non-recourse factoring',
+            'Simple, transparent pricing'
+          ]}
+          product="wonderadvance"
+          onApply={setSelectedProduct}
+        />
       </div>
 
-      {/* Application Form Dialog */}
       {selectedProduct && (
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>
-              Apply for {selectedProduct === 'wonderflex' ? 'WonderFlex' : 'WonderAdvance'}
-            </CardTitle>
-            <CardDescription>
-              Please provide the following information to process your application
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="amount">Requested Amount</Label>
-              <Input
-                id="amount"
-                type="number"
-                placeholder="Enter amount"
-                value={formData.requestedAmount}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  requestedAmount: parseFloat(e.target.value)
-                })}
-              />
-            </div>
-            {selectedProduct === 'wonderflex' && (
-              <div className="space-y-2">
-                <Label htmlFor="terms">Payment Terms (Days)</Label>
-                <Input
-                  id="terms"
-                  type="number"
-                  placeholder="30, 60, or 90 days"
-                  value={formData.terms}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    terms: parseInt(e.target.value)
-                  })}
-                />
-              </div>
-            )}
-          </CardContent>
-          <CardFooter className="space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => setSelectedProduct(null)}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleApply}
-              disabled={applyMutation.isPending}
-            >
-              {applyMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                'Submit Application'
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
+        <ApplicationForm
+          product={selectedProduct}
+          onSubmit={handleApply}
+          onCancel={() => setSelectedProduct(null)}
+          isSubmitting={applyMutation.isPending}
+        />
       )}
 
-      {/* Applications List */}
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Your Applications</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center p-4">
-              <Loader2 className="h-6 w-6 animate-spin" />
-            </div>
-          ) : applications?.length === 0 ? (
-            <p className="text-center text-gray-500">No applications yet</p>
-          ) : (
-            <div className="space-y-4">
-              {applications?.map((app) => (
-                <Card key={app.id}>
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold">
-                          {app.product === 'wonderflex' ? 'WonderFlex' : 'WonderAdvance'}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          Requested: ${app.requested_amount.toLocaleString()}
-                        </p>
-                        {app.approved_amount && (
-                          <p className="text-sm text-green-600">
-                            Approved: ${app.approved_amount.toLocaleString()}
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          app.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                        </span>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(app.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          <ApplicationsList
+            applications={applications}
+            isLoading={isLoading}
+          />
         </CardContent>
       </Card>
     </div>

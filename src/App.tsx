@@ -18,6 +18,7 @@ import InvoiceDetail from './pages/InvoiceDetail';
 import InvoiceGenerator from './pages/InvoiceGenerator';
 import Receivables from './pages/Receivables';
 import Login from './pages/Login';
+import Capital from './pages/Capital';
 import { SettingsProvider } from './contexts/SettingsContext';
 
 function App() {
@@ -74,6 +75,7 @@ function App() {
               <Route index element={<Receivables />} />
               <Route path=":invoiceId" element={<InvoiceDetail />} />
             </Route>
+            <Route path="capital" element={<Capital />} />
             <Route path="settings">
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="address" element={<AddressSettings />} />
