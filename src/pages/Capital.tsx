@@ -66,10 +66,13 @@ const Capital = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-7xl">
-      <h1 className="text-3xl font-bold mb-8">WonderPay Capital</h1>
+    <div className="container mx-auto px-6 py-12 max-w-7xl">
+      <div className="mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">WonderPay Capital</h1>
+        <p className="text-xl text-gray-600">Flexible financing solutions for your business</p>
+      </div>
       
-      <div className="grid md:grid-cols-2 gap-8 mb-12">
+      <div className="grid md:grid-cols-2 gap-8 mb-16">
         <CapitalProductCard
           title="WonderFlex"
           description="Extend your payment terms with vendors up to 90 days"
@@ -98,17 +101,24 @@ const Capital = () => {
       </div>
 
       {selectedProduct && (
-        <div className="mb-12">
-          <ApplicationForm
-            product={selectedProduct}
-            onSubmit={handleApply}
-            onCancel={() => setSelectedProduct(null)}
-            isSubmitting={applyMutation.isPending}
-          />
+        <div className="mb-16">
+          <Card className="bg-white/80 backdrop-blur-sm border border-gray-100 shadow-xl">
+            <CardHeader>
+              <CardTitle>Apply for {selectedProduct === 'wonderflex' ? 'WonderFlex' : 'WonderAdvance'}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ApplicationForm
+                product={selectedProduct}
+                onSubmit={handleApply}
+                onCancel={() => setSelectedProduct(null)}
+                isSubmitting={applyMutation.isPending}
+              />
+            </CardContent>
+          </Card>
         </div>
       )}
 
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm border border-gray-100 shadow-xl">
         <CardHeader>
           <CardTitle>Your Applications</CardTitle>
         </CardHeader>

@@ -89,18 +89,18 @@ const QuickPay = () => {
         <p className="text-gray-500 mt-2">Send money quickly and securely</p>
       </div>
 
-      <Card className="p-8 shadow-lg bg-white/50 backdrop-blur-sm">
+      <Card className="p-8 shadow-xl bg-white/80 backdrop-blur-sm border border-gray-100">
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-6">
             <div>
               <Label htmlFor="amount" className="text-base font-medium">Amount</Label>
               <div className="relative mt-2">
-                <span className="absolute left-3 top-2.5 text-gray-500 text-lg">$</span>
+                <span className="absolute left-3 top-3.5 text-gray-500 text-lg">$</span>
                 <Input
                   id="amount"
                   type="number"
                   placeholder="0.00"
-                  className="pl-8 h-12 text-lg"
+                  className="pl-8 h-14 text-lg"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   required
@@ -112,7 +112,7 @@ const QuickPay = () => {
               <Label htmlFor="recipientName" className="text-base font-medium">Recipient Name</Label>
               <Input
                 id="recipientName"
-                className="mt-2 h-12"
+                className="mt-2 h-14"
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
                 required
@@ -124,7 +124,7 @@ const QuickPay = () => {
               <Input
                 id="recipientEmail"
                 type="email"
-                className="mt-2 h-12"
+                className="mt-2 h-14"
                 value={recipientEmail}
                 onChange={(e) => setRecipientEmail(e.target.value)}
               />
@@ -135,7 +135,7 @@ const QuickPay = () => {
               <Input
                 id="recipientPhone"
                 type="tel"
-                className="mt-2 h-12"
+                className="mt-2 h-14"
                 value={recipientPhone}
                 onChange={(e) => setRecipientPhone(e.target.value)}
               />
@@ -152,7 +152,7 @@ const QuickPay = () => {
 
           <Button 
             type="submit" 
-            className="w-full h-12 text-lg font-medium mt-8" 
+            className="w-full h-14 text-lg font-medium mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" 
             disabled={!amount || !recipientName || !paymentMethod || quickPayMutation.isPending}
           >
             {quickPayMutation.isPending ? 'Processing...' : 'Send Payment'}

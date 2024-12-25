@@ -1,11 +1,15 @@
-export type PaymentMethod = 'card' | 'ach' | 'wire' | 'international_wire';
+export type PaymentMethod = 'ach' | 'wire' | 'international_wire' | 'card';
 
 export type PaymentTerm = '30' | '60' | '90';
 
-export interface PaymentDetails {
-  method: PaymentMethod;
-  last4?: string;
-  bank_name?: string;
+export interface Transaction {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  date: string;
+  recipient: string;
+  description?: string;
 }
 
 export interface WonderPayCapitalTerms {
