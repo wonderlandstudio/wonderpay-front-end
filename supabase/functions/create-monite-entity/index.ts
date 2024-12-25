@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from 'npm:@supabase/supabase-js'
 import { corsHeaders } from '../_shared/cors.ts'
 import { MoniteSDK } from 'npm:@monite/sdk-api'
 
@@ -26,7 +26,6 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    // Get existing entity
     const { data: entity, error: getEntityError } = await supabaseClient
       .from('entities')
       .select('*')

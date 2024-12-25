@@ -1,5 +1,5 @@
 import { MoniteAuthService } from '../auth/moniteAuth';
-import type { CreateReceivablesRequest } from '@monite/sdk-api';
+import type { CreatePayableRequest } from '@monite/sdk-api';
 
 export class ReceivableService {
   static async getReceivables() {
@@ -9,7 +9,7 @@ export class ReceivableService {
     return response.data || [];
   }
 
-  static async createInvoice(data: CreateReceivablesRequest) {
+  static async createInvoice(data: CreatePayableRequest) {
     console.log('Creating invoice with data:', data);
     const sdk = await MoniteAuthService.initializeSDK();
     return sdk.receivables.create(data);
