@@ -22,18 +22,32 @@ serve(async (req) => {
       throw new Error('No authorization header provided')
     }
 
-    const supabaseClient = createClient(
+    // Create Supabase client with service role key for admin access
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
+    // Create regular Supabase client for auth
+    const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         auth: {
-          persistSession: false,
+          autoRefreshToken: false,
+          persistSession: false
         }
       }
     )
 
     // Get the user from the JWT
-    const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser(
+    const { data: { user }, error: getUserError } = await supabase.auth.getUser(
       authHeader.replace('Bearer ', '')
     )
 
@@ -44,8 +58,8 @@ serve(async (req) => {
 
     console.log('Got authenticated user:', user.id);
 
-    // Get the entity for this user
-    const { data: entity, error: getEntityError } = await supabaseClient
+    // Get the entity for this user using admin client
+    const { data: entity, error: getEntityError } = await supabaseAdmin
       .from('entities')
       .select('*')
       .eq('user_id', user.id)
@@ -115,7 +129,8 @@ serve(async (req) => {
 
       console.log('Monite entity created:', response);
 
-      const { error: updateError } = await supabaseClient
+      // Update entity with Monite ID using admin client
+      const { error: updateError } = await supabaseAdmin
         .from('entities')
         .update({ monite_entity_id: response.id })
         .eq('user_id', user.id)
