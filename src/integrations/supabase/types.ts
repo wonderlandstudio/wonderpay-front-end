@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bills: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          description: string | null
+          due_date: string
+          id: string
+          invoice_number: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          vendor_name: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          due_date: string
+          id?: string
+          invoice_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          vendor_name: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          due_date?: string
+          id?: string
+          invoice_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_name?: string
+        }
+        Relationships: []
+      }
       entities: {
         Row: {
           created_at: string
@@ -33,6 +75,51 @@ export type Database = {
           id?: string
           monite_entity_id?: string | null
           name?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          client_name: string
+          created_at: string
+          currency: string | null
+          due_date: string
+          id: string
+          invoice_number: string
+          items: Json
+          notes: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          client_name: string
+          created_at?: string
+          currency?: string | null
+          due_date: string
+          id?: string
+          invoice_number: string
+          items?: Json
+          notes?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          client_name?: string
+          created_at?: string
+          currency?: string | null
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          items?: Json
+          notes?: string | null
           status?: string | null
           updated_at?: string
           user_id?: string
@@ -73,7 +160,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
-          id: number
+          id: string
           updated_at: string | null
           user_id: string | null
           username: string | null
@@ -81,7 +168,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
-          id?: never
+          id?: string
           updated_at?: string | null
           user_id?: string | null
           username?: string | null
@@ -89,7 +176,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string | null
-          id?: never
+          id?: string
           updated_at?: string | null
           user_id?: string | null
           username?: string | null
