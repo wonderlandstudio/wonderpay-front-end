@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-
 import { useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
+import { MoniteAuthGuard } from '@/components/auth/MoniteAuthGuard';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -27,12 +28,10 @@ function App() {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -42,12 +41,19 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Protected Route wrapper
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (!session) {
       return <Navigate to="/login" replace />;
     }
     return <>{children}</>;
+  };
+
+  const MoniteProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    return (
+      <ProtectedRoute>
+        <MoniteAuthGuard>{children}</MoniteAuthGuard>
+      </ProtectedRoute>
+    );
   };
   
   return (
@@ -68,18 +74,18 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="bill-pay">
-              <Route index element={<BillPay />} />
-              <Route path="new" element={<NewBill />} />
-              <Route path=":invoiceId" element={<InvoiceDetail />} />
-              <Route path="generate" element={<InvoiceGenerator />} />
+              <Route index element={<MoniteProtectedRoute><BillPay /></MoniteProtectedRoute>} />
+              <Route path="new" element={<MoniteProtectedRoute><NewBill /></MoniteProtectedRoute>} />
+              <Route path=":invoiceId" element={<MoniteProtectedRoute><InvoiceDetail /></MoniteProtectedRoute>} />
+              <Route path="generate" element={<MoniteProtectedRoute><InvoiceGenerator /></MoniteProtectedRoute>} />
             </Route>
             <Route path="receivables">
-              <Route index element={<Receivables />} />
-              <Route path=":invoiceId" element={<InvoiceDetail />} />
+              <Route index element={<MoniteProtectedRoute><Receivables /></MoniteProtectedRoute>} />
+              <Route path=":invoiceId" element={<MoniteProtectedRoute><InvoiceDetail /></MoniteProtectedRoute>} />
             </Route>
-            <Route path="capital" element={<Capital />} />
-            <Route path="quick-pay" element={<QuickPay />} />
-            <Route path="clients" element={<Clients />} />
+            <Route path="capital" element={<MoniteProtectedRoute><Capital /></MoniteProtectedRoute>} />
+            <Route path="quick-pay" element={<MoniteProtectedRoute><QuickPay /></MoniteProtectedRoute>} />
+            <Route path="clients" element={<MoniteProtectedRoute><Clients /></MoniteProtectedRoute>} />
             <Route path="settings">
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="address" element={<AddressSettings />} />

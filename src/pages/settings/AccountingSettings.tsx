@@ -1,84 +1,95 @@
-import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, RefreshCcw } from "lucide-react";
-import type { AccountingIntegration } from '@/types/accounting';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { MoniteMonitoringService } from '@/services/monitoring/moniteMonitoring';
 
-const AccountingSettings = () => {
+export default function AccountingSettings() {
+  const [entityId, setEntityId] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const navigate = useNavigate();
 
-  const handleQuickBooksConnect = async () => {
-    setIsConnecting(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
     try {
-      // This will be implemented when integrating with QuickBooks OAuth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No authenticated user');
+
+      const { error } = await supabase
+        .from('monite_settings')
+        .upsert({
+          user_id: user.id,
+          entity_id: entityId,
+          api_key: apiKey,
+          environment: 'sandbox'
+        });
+
+      if (error) throw error;
+
+      await MoniteMonitoringService.logApiCall('settings.update', true);
+
       toast({
-        title: "Coming Soon",
-        description: "QuickBooks integration will be available soon.",
+        title: "Success",
+        description: "Monite settings have been saved successfully.",
       });
+
+      navigate('/dashboard');
     } catch (error) {
+      console.error('Failed to save Monite settings:', error);
+      await MoniteMonitoringService.logApiCall('settings.update', false, { error });
+      
       toast({
         title: "Error",
-        description: "Failed to connect to QuickBooks. Please try again.",
+        description: "Failed to save Monite settings. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsConnecting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900">Accounting Integrations</h1>
-          <p className="text-gray-500 mt-2">Connect your accounting software for automatic reconciliation.</p>
-        </div>
-      </div>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">Monite Integration Settings</h1>
       
-      <Card className="p-6 space-y-8 bg-white/50">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-medium">QuickBooks Online</h2>
-              <p className="text-sm text-gray-500">Automatically sync transactions and reconcile accounts.</p>
-            </div>
-            <Button 
-              onClick={handleQuickBooksConnect}
-              disabled={isConnecting}
-              variant="outline"
-            >
-              {isConnecting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                'Connect QuickBooks'
-              )}
-            </Button>
+      <Card className="p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="entityId">Entity ID</Label>
+            <Input
+              id="entityId"
+              value={entityId}
+              onChange={(e) => setEntityId(e.target.value)}
+              placeholder="Enter your Monite Entity ID"
+              required
+            />
           </div>
-          
-          <div className="text-sm text-gray-500">
-            Features that will be available:
-            <ul className="list-disc list-inside mt-2 space-y-1">
-              <li>Automatic transaction syncing</li>
-              <li>Bank reconciliation</li>
-              <li>Invoice and payment matching</li>
-              <li>Financial reporting integration</li>
-            </ul>
-          </div>
-        </div>
 
-        {/* Placeholder for future accounting integrations */}
-        <div className="border-t pt-6">
-          <p className="text-sm text-gray-500">More accounting integrations coming soon...</p>
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="apiKey">API Key</Label>
+            <Input
+              id="apiKey"
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Enter your Monite API Key"
+              required
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Settings"}
+          </Button>
+        </form>
       </Card>
     </div>
   );
-};
-
-export default AccountingSettings;
+}
