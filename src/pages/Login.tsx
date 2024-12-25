@@ -3,19 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/providers/AuthProvider';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate('/dashboard');
-      }
-    });
-  }, [navigate]);
+    if (session) {
+      navigate('/dashboard');
+    }
+  }, [session, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
