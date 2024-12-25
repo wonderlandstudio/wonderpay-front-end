@@ -1,10 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from '@supabase/supabase-js'
 import { corsHeaders } from '../_shared/cors.ts'
-import { MoniteSDK } from '@monite/sdk-api'
+import { MoniteSDK } from 'npm:@monite/sdk-api'
 
 serve(async (req) => {
-  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -12,7 +11,6 @@ serve(async (req) => {
   try {
     console.log('Starting create-monite-entity function');
     
-    // Get auth user
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -47,7 +45,6 @@ serve(async (req) => {
 
     console.log('Initializing Monite SDK');
 
-    // Initialize Monite SDK with proper error handling
     const moniteApiUrl = Deno.env.get('MONITE_API_URL');
     const moniteClientId = Deno.env.get('MONITE_CLIENT_ID');
     const moniteClientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
@@ -87,7 +84,6 @@ serve(async (req) => {
 
     console.log('Creating Monite entity');
 
-    // Create Monite entity using the entity endpoint with proper error handling
     try {
       const response = await sdk.entities.create({
         type: 'organization',
@@ -100,7 +96,6 @@ serve(async (req) => {
 
       console.log('Monite entity created:', response);
 
-      // Update entity with Monite ID
       const { error: updateError } = await supabaseClient
         .from('entities')
         .update({ monite_entity_id: response.id })
