@@ -1,0 +1,172 @@
+{
+  "name": "Monite API Collection",
+  "description": "Collection for testing Monite API integration",
+  "version": "1.0.0",
+  "variables": {
+    "base_url": "https://api.sandbox.monite.com/v1",
+    "client_id": "{{MONITE_CLIENT_ID}}",
+    "client_secret": "{{MONITE_CLIENT_SECRET}}",
+    "entity_id": "{{MONITE_ENTITY_ID}}"
+  },
+  "auth": {
+    "type": "oauth2",
+    "token_url": "{{base_url}}/auth/token",
+    "client_credentials": {
+      "client_id": "{{client_id}}",
+      "client_secret": "{{client_secret}}"
+    }
+  },
+  "folders": [
+    {
+      "name": "Authentication",
+      "requests": [
+        {
+          "name": "Get Access Token",
+          "method": "POST",
+          "url": "{{base_url}}/auth/token",
+          "headers": {
+            "Content-Type": "application/json",
+            "x-monite-version": "2024-05-25"
+          },
+          "body": {
+            "grant_type": "client_credentials",
+            "client_id": "{{client_id}}",
+            "client_secret": "{{client_secret}}"
+          },
+          "tests": [
+            {
+              "name": "Response has access token",
+              "assertion": "response.body.access_token !== undefined"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Receivables",
+      "requests": [
+        {
+          "name": "List Receivables",
+          "method": "GET",
+          "url": "{{base_url}}/receivables",
+          "headers": {
+            "x-monite-version": "2024-05-25",
+            "x-monite-entity-id": "{{entity_id}}"
+          },
+          "tests": [
+            {
+              "name": "Status is 200",
+              "assertion": "response.status === 200"
+            }
+          ]
+        },
+        {
+          "name": "Create Receivable",
+          "method": "POST",
+          "url": "{{base_url}}/receivables",
+          "headers": {
+            "Content-Type": "application/json",
+            "x-monite-version": "2024-05-25",
+            "x-monite-entity-id": "{{entity_id}}"
+          },
+          "body": {
+            "type": "invoice",
+            "currency": "USD",
+            "line_items": [
+              {
+                "name": "Development Services",
+                "quantity": 1,
+                "amount": 1000
+              }
+            ],
+            "recipient": {
+              "name": "Test Client",
+              "email": "client@example.com",
+              "address": {
+                "line1": "123 Test St"
+              }
+            },
+            "payment_terms": {
+              "due_date": "{{$isoDate(7)}}"
+            }
+          },
+          "tests": [
+            {
+              "name": "Status is 201",
+              "assertion": "response.status === 201"
+            },
+            {
+              "name": "Response has ID",
+              "assertion": "response.body.id !== undefined"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Entity Management",
+      "requests": [
+        {
+          "name": "Get Entity Details",
+          "method": "GET",
+          "url": "{{base_url}}/entities/{{entity_id}}",
+          "headers": {
+            "x-monite-version": "2024-05-25"
+          },
+          "tests": [
+            {
+              "name": "Status is 200",
+              "assertion": "response.status === 200"
+            },
+            {
+              "name": "Entity ID matches",
+              "assertion": "response.body.id === environment.entity_id"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "requests": [
+        {
+          "name": "List Webhook Subscriptions",
+          "method": "GET",
+          "url": "{{base_url}}/webhooks",
+          "headers": {
+            "x-monite-version": "2024-05-25",
+            "x-monite-entity-id": "{{entity_id}}"
+          }
+        },
+        {
+          "name": "Create Webhook Subscription",
+          "method": "POST",
+          "url": "{{base_url}}/webhooks",
+          "headers": {
+            "Content-Type": "application/json",
+            "x-monite-version": "2024-05-25",
+            "x-monite-entity-id": "{{entity_id}}"
+          },
+          "body": {
+            "url": "https://your-webhook-endpoint.com/monite-webhooks",
+            "events": ["receivable.*"]
+          }
+        }
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "name": "Sandbox",
+      "variables": {
+        "base_url": "https://api.sandbox.monite.com/v1"
+      }
+    },
+    {
+      "name": "Production",
+      "variables": {
+        "base_url": "https://api.monite.com/v1"
+      }
+    }
+  ]
+}
