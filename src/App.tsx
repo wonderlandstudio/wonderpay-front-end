@@ -4,6 +4,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { QueryProvider } from './providers/QueryProvider';
 import { AuthProvider } from './providers/AuthProvider';
 import { ProtectedRoutes } from './components/auth/ProtectedRoutes';
+import DashboardLayout from './components/layout/DashboardLayout';
 import { publicRoutes, protectedRoutes } from './config/routes';
 
 function App() {
@@ -31,13 +32,15 @@ function App() {
                               index={child.index}
                               path={child.path}
                               element={
-                                child.requiresMonite ? (
-                                  <ProtectedRoutes requiresMonite>
-                                    {child.element}
-                                  </ProtectedRoutes>
-                                ) : (
-                                  child.element
-                                )
+                                <DashboardLayout>
+                                  {child.requiresMonite ? (
+                                    <ProtectedRoutes requiresMonite>
+                                      {child.element}
+                                    </ProtectedRoutes>
+                                  ) : (
+                                    child.element
+                                  )}
+                                </DashboardLayout>
                               }
                             />
                           ))}
@@ -49,13 +52,15 @@ function App() {
                         key={route.path}
                         path={route.path}
                         element={
-                          route.requiresMonite ? (
-                            <ProtectedRoutes requiresMonite>
-                              {route.element}
-                            </ProtectedRoutes>
-                          ) : (
-                            route.element
-                          )
+                          <DashboardLayout>
+                            {route.requiresMonite ? (
+                              <ProtectedRoutes requiresMonite>
+                                {route.element}
+                              </ProtectedRoutes>
+                            ) : (
+                              route.element
+                            )}
+                          </DashboardLayout>
                         }
                       />
                     );
