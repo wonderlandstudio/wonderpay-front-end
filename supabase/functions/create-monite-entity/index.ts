@@ -8,6 +8,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -15,35 +16,42 @@ serve(async (req) => {
   try {
     console.log('Starting create-monite-entity function');
     
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header');
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    )
+    );
 
-    const authHeader = req.headers.get('Authorization')!
-    const { user, error: getUserError } = await supabaseClient.auth.getUser(
+    // Get the user from the JWT token
+    const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser(
       authHeader.replace('Bearer ', '')
-    )
+    );
 
     if (getUserError || !user) {
       console.error('Unauthorized:', getUserError);
-      throw new Error('Unauthorized')
+      throw new Error('Unauthorized');
     }
 
+    // Get the entity for this user
     const { data: entity, error: getEntityError } = await supabaseClient
       .from('entities')
       .select('*')
       .eq('user_id', user.id)
-      .single()
+      .single();
 
     if (getEntityError) {
       console.error('Failed to get entity:', getEntityError);
-      throw new Error('Failed to get entity')
+      throw new Error('Failed to get entity');
     }
 
     if (!entity) {
       console.error('Entity not found');
-      throw new Error('Entity not found')
+      throw new Error('Entity not found');
     }
 
     console.log('Initializing Monite SDK');
@@ -99,6 +107,7 @@ serve(async (req) => {
 
       console.log('Monite entity created:', response);
 
+      // Update the entity with the Monite entity ID
       const { error: updateError } = await supabaseClient
         .from('entities')
         .update({ monite_entity_id: response.id })

@@ -31,9 +31,21 @@ const OrganizationSettings = () => {
         // If no Monite entity exists, create one
         if (!entity?.monite_entity_id) {
           console.log('No Monite entity found, creating one...');
-          const response = await supabase.functions.invoke('create-monite-entity');
+          
+          // Get fresh session token
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          if (!currentSession?.access_token) {
+            throw new Error('No valid session token');
+          }
+
+          const response = await supabase.functions.invoke('create-monite-entity', {
+            headers: {
+              Authorization: `Bearer ${currentSession.access_token}`
+            }
+          });
           
           if (response.error) {
+            console.error('Edge function error:', response.error);
             throw new Error(response.error.message || 'Failed to create Monite entity');
           }
 
