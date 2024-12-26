@@ -54,6 +54,9 @@ export class MoniteClient {
       this.instance = new MoniteSDK({
         apiUrl,
         entityId: settings.entity_id,
+        headers: {
+          'x-monite-version': '2024-05-25'
+        },
         fetchToken: async () => {
           try {
             await statusTracker.log('MoniteClient', 'Fetching token', 'info');
@@ -112,7 +115,7 @@ export class MoniteClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-monite-version': '2024-01-31',
+          'x-monite-version': '2024-05-25',
         },
         body: JSON.stringify({
           grant_type: 'client_credentials',

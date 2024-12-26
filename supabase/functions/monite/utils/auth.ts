@@ -21,7 +21,7 @@ export async function getMoniteToken(clientId: string, clientSecret: string, ent
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-monite-version': '2023-06-04',
+      'x-monite-version': '2024-05-25',
     },
     body: JSON.stringify(tokenBody)
   });

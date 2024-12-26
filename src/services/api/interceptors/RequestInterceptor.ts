@@ -5,7 +5,7 @@ export class RequestInterceptor {
     // Add common headers
     config.headers = {
       ...config.headers,
-      'x-monite-version': '2024-01-31',
+      'x-monite-version': '2024-05-25',
     };
 
     // Log request
