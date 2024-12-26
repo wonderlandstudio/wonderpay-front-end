@@ -1,23 +1,30 @@
-import type { CreatePaymentLinkRequest, PublicPaymentLinkResponse } from '@monite/sdk-api';
+import type { CreatePaymentLinkRequest, PaymentLinkResponse } from '@monite/sdk-api';
+import type { InvoiceData } from '@/types/invoice';
 
-export function fromMonite(receivable: PublicPaymentLinkResponse) {
+export function fromMonite(receivable: PaymentLinkResponse) {
   return {
     id: receivable.id,
     amount: receivable.amount,
     currency: receivable.currency,
     status: receivable.status,
-    dueDate: new Date().toISOString(), // Default value since it's not in the response
-    createdAt: new Date().toISOString(), // Default value since it's not in the response
-    updatedAt: new Date().toISOString(), // Default value since it's not in the response
-    items: []  // Default empty array since items are not in the response
+    dueDate: new Date().toISOString(),
+    createdAt: receivable.created_at,
+    updatedAt: receivable.updated_at,
+    items: []
   };
 }
 
-export function toMonite(data: any): CreatePaymentLinkRequest {
+export function toMonite(data: InvoiceData): CreatePaymentLinkRequest {
   return {
     currency: data.currency,
-    amount: data.amount,
-    description: data.notes || undefined,
-    expires_at: data.dueDate || undefined
+    amount: Number(data.amount),
+    payment_link_terms: {
+      due_date: data.dueDate,
+      items: data.items.map(item => ({
+        name: item.description,
+        quantity: item.quantity,
+        amount: item.price
+      }))
+    }
   };
 }

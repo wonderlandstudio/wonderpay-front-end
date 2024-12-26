@@ -43,16 +43,6 @@ export class MoniteClient {
         throw settingsError;
       }
 
-      if (!settings) {
-        await statusTracker.log('MoniteClient', 'No Monite settings found', 'error');
-        toast({
-          title: "Monite Setup Required",
-          description: "Please configure your Monite settings in the dashboard.",
-          variant: "destructive",
-        });
-        throw new Error('Monite settings not found');
-      }
-
       const apiUrl = settings.environment === 'sandbox' 
         ? 'https://api.sandbox.monite.com/v1'
         : 'https://api.monite.com/v1';
@@ -99,10 +89,18 @@ export class MoniteClient {
             await statusTracker.log('MoniteClient', 'Token fetched successfully', 'success');
             console.log('Monite token fetched successfully');
 
+            // Store the token in Supabase for future use
+            await supabase.from('monite_tokens').upsert({
+              user_id: (await supabase.auth.getUser()).data.user?.id,
+              entity_id: settings.entity_id,
+              access_token: tokenData.access_token,
+              expires_at: new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString()
+            });
+
             return {
               access_token: tokenData.access_token,
               token_type: 'Bearer',
-              expires_in: tokenData.expires_in || 3600
+              expires_in: tokenData.expires_in
             };
           } catch (error) {
             await statusTracker.log('MoniteClient', 'Error in fetchToken', 'error', { error });
@@ -127,5 +125,34 @@ export class MoniteClient {
     console.log('Resetting Monite client instance');
     this.instance = null;
     this.refreshPromise = null;
+  }
+
+  static async createEntity(userData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    city?: string;
+    country?: string;
+    address?: string;
+    postalCode?: string;
+    state?: string;
+  }) {
+    const instance = await this.getInstance();
+    
+    return instance.api.entities.create({
+      type: "individual",
+      email: userData.email,
+      individual: {
+        first_name: userData.firstName,
+        last_name: userData.lastName
+      },
+      address: {
+        city: userData.city || "los angeles",
+        country: userData.country || "US",
+        line1: userData.address || "California",
+        postal_code: userData.postalCode || "90046",
+        state: userData.state || "CA"
+      }
+    });
   }
 }
