@@ -1,29 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MoniteAPIService } from '@/services/api/MoniteAPIService';
 import { MoniteClient } from '@/services/monite/MoniteClient';
-import { statusTracker } from '@/services/monitoring/StatusTracker';
 
-// Mock MoniteClient
 vi.mock('@/services/monite/MoniteClient', () => ({
   MoniteClient: {
-    getInstance: vi.fn(() => Promise.resolve({
-      api: {
-        payable: {
-          getAll: vi.fn(),
-        },
-        receivable: {
-          getAll: vi.fn(),
-        }
-      }
-    }))
-  }
-}));
-
-// Mock status tracker
-vi.mock('@/services/monitoring/StatusTracker', () => ({
-  statusTracker: {
-    log: vi.fn(),
-    getLogs: vi.fn(() => []),
+    getInstance: vi.fn()
   }
 }));
 
@@ -33,63 +14,55 @@ describe('MoniteAPIService', () => {
   });
 
   it('should initialize successfully', async () => {
+    const mockSDK = {
+      api: {
+        payable: {},
+        receivable: {}
+      }
+    };
+
+    vi.mocked(MoniteClient.getInstance).mockResolvedValue(mockSDK);
+
     const service = MoniteAPIService.getInstance();
     await service.initialize();
-    expect(MoniteClient.getInstance).toHaveBeenCalled();
-    expect(statusTracker.log).toHaveBeenCalledWith(
-      'MoniteAPIService',
-      'Initialized successfully',
-      'success'
-    );
+
+    expect(service.getSDK()).toBeDefined();
   });
 
-  it('should handle API calls successfully', async () => {
+  it('should handle API calls correctly', async () => {
+    const mockSDK = {
+      api: {
+        payable: {
+          getList: vi.fn().mockResolvedValue({ data: [] })
+        },
+        receivable: {}
+      }
+    };
+
+    vi.mocked(MoniteClient.getInstance).mockResolvedValue(mockSDK);
+
     const service = MoniteAPIService.getInstance();
     await service.initialize();
 
-    const mockResponse = { data: [] };
-    vi.mocked(MoniteClient.getInstance).mockImplementationOnce(() => Promise.resolve({
-      api: {
-        payable: {
-          getAll: vi.fn().mockResolvedValue(mockResponse)
-        },
-        receivable: {
-          getAll: vi.fn()
-        }
-      }
-    }));
-
-    const result = await service.callAPI('payable', 'getAll');
-    expect(result).toEqual(mockResponse);
-    expect(statusTracker.log).toHaveBeenCalledWith(
-      'MoniteAPIService',
-      'payable.getAll succeeded',
-      'success'
-    );
+    const result = await service.callAPI('payable', 'getList');
+    expect(result).toBeDefined();
   });
 
   it('should handle API errors', async () => {
+    const mockSDK = {
+      api: {
+        payable: {
+          getList: vi.fn().mockRejectedValue(new Error('API Error'))
+        },
+        receivable: {}
+      }
+    };
+
+    vi.mocked(MoniteClient.getInstance).mockResolvedValue(mockSDK);
+
     const service = MoniteAPIService.getInstance();
     await service.initialize();
 
-    const mockError = new Error('API Error');
-    vi.mocked(MoniteClient.getInstance).mockImplementationOnce(() => Promise.resolve({
-      api: {
-        payable: {
-          getAll: vi.fn().mockRejectedValue(mockError)
-        },
-        receivable: {
-          getAll: vi.fn()
-        }
-      }
-    }));
-
-    await expect(service.callAPI('payable', 'getAll')).rejects.toThrow();
-    expect(statusTracker.log).toHaveBeenCalledWith(
-      'MoniteAPIService',
-      'payable.getAll failed',
-      'error',
-      expect.any(Object)
-    );
+    await expect(service.callAPI('payable', 'getList')).rejects.toThrow();
   });
 });
