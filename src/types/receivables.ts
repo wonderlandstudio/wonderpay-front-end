@@ -1,4 +1,4 @@
-import { ReceivableStateEnum, CurrencyEnum } from '@monite/sdk-api';
+import { ReceivablesStatusEnum, CurrencyEnum } from '@monite/sdk-api';
 
 export interface LineItem {
   name: string;
@@ -10,7 +10,7 @@ export interface MoniteReceivable {
   id: string;
   created_at: string;
   updated_at: string;
-  status: ReceivableStateEnum;
+  status: ReceivablesStatusEnum;
   currency: CurrencyEnum;
   total_amount: number;
   due_date: string;

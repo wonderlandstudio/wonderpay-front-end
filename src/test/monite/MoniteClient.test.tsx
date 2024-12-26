@@ -1,10 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MoniteClient } from '@/services/monite/MoniteClient';
 import { supabase } from '@/integrations/supabase/client';
+import { PostgrestQueryBuilder } from '@supabase/postgrest-js';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(),
+    from: vi.fn(() => ({
+      select: vi.fn(),
+      insert: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      eq: vi.fn(),
+      single: vi.fn(),
+    } as unknown as PostgrestQueryBuilder<any>)),
     auth: {
       getUser: vi.fn()
     }
@@ -29,7 +37,7 @@ describe('MoniteClient', () => {
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockResolvedValue({ data: mockSettings, error: null })
       })
-    }));
+    }) as unknown as PostgrestQueryBuilder<any>);
 
     const client = await MoniteClient.getInstance();
     expect(client).toBeDefined();

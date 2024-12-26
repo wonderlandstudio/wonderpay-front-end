@@ -26,6 +26,6 @@ vi.mock('@/integrations/supabase/client', () => ({
 console.error = vi.fn();
 
 // Cleanup after each test
-afterEach(() => {
+vi.afterEach(() => {
   vi.clearAllMocks();
 });

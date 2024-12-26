@@ -21,17 +21,11 @@ export class DashboardService {
     ]);
     
     const expenses = payables.reduce((sum, item) => {
-      const amount = typeof item.total_amount === 'number' ? 
-        item.total_amount : 
-        (item.total_amount?.amount ?? 0);
-      return sum + amount;
+      return sum + (item.total_amount || 0);
     }, 0);
 
     const income = receivables.reduce((sum, item) => {
-      const amount = typeof item.total_amount === 'number' ? 
-        item.total_amount : 
-        (item.total_amount?.amount ?? 0);
-      return sum + amount;
+      return sum + (item.total_amount || 0);
     }, 0);
 
     const balance = income - expenses;
@@ -40,9 +34,7 @@ export class DashboardService {
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
       .map(item => ({
         date: item.created_at.split('T')[0],
-        value: typeof item.total_amount === 'number' ? 
-          item.total_amount : 
-          (item.total_amount?.amount ?? 0)
+        value: item.total_amount || 0
       }));
 
     return {

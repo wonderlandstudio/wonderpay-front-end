@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MoniteAPIService } from '@/services/api/MoniteAPIService';
 import { MoniteClient } from '@/services/monite/MoniteClient';
+import type { MoniteSDK } from '@monite/sdk-api';
 
 vi.mock('@/services/monite/MoniteClient', () => ({
   MoniteClient: {
@@ -15,11 +16,16 @@ describe('MoniteAPIService', () => {
 
   it('should initialize successfully', async () => {
     const mockSDK = {
+      entityId: 'test-entity',
+      headers: {},
+      environment: 'sandbox',
+      fetchToken: vi.fn(),
+      baseUrl: 'https://api.sandbox.monite.com/v1',
       api: {
         payable: {},
         receivable: {}
       }
-    };
+    } as unknown as MoniteSDK;
 
     vi.mocked(MoniteClient.getInstance).mockResolvedValue(mockSDK);
 
@@ -37,7 +43,7 @@ describe('MoniteAPIService', () => {
         },
         receivable: {}
       }
-    };
+    } as unknown as MoniteSDK;
 
     vi.mocked(MoniteClient.getInstance).mockResolvedValue(mockSDK);
 
@@ -56,7 +62,7 @@ describe('MoniteAPIService', () => {
         },
         receivable: {}
       }
-    };
+    } as unknown as MoniteSDK;
 
     vi.mocked(MoniteClient.getInstance).mockResolvedValue(mockSDK);
 

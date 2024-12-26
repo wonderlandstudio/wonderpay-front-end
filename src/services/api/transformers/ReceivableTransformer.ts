@@ -3,23 +3,24 @@ import type {
   CreatePaymentLinkRequest, 
   ReceivableFacadeCreatePayload,
   CurrencyEnum,
-  ReceivablesStatusEnum
+  ReceivablesStatusEnum,
+  LineItem
 } from '@monite/sdk-api';
 import type { MoniteReceivable } from '@/types/payments';
 
 export class ReceivableTransformer {
   static toMonite(receivable: CreatePaymentLinkRequest): ReceivableFacadeCreatePayload {
     return {
-      type: 'receivable_facade',
+      type: 'invoice' as const,
       counterpart_id: receivable.recipient?.name || '',
       currency: receivable.currency as CurrencyEnum,
-      total_amount: receivable.amount,
+      total_amount: receivable.amount || 0,
       due_date: new Date().toISOString(),
-      line_items: receivable.line_items?.map(item => ({
-        quantity: item.quantity,
-        unit_price: item.amount,
-        name: item.name
-      })) || [],
+      line_items: (receivable.line_items || []).map(item => ({
+        quantity: item.quantity || 1,
+        unit_price: item.amount || 0,
+        name: item.name || ''
+      })),
     };
   }
 
@@ -30,13 +31,11 @@ export class ReceivableTransformer {
       updated_at: receivable.updated_at,
       status: receivable.status as ReceivablesStatusEnum,
       currency: receivable.currency,
-      total_amount: typeof receivable.total_amount === 'object' ? 
-        receivable.total_amount.amount : 
-        receivable.total_amount,
+      total_amount: receivable.total_amount || 0,
       due_date: receivable.due_date,
       counterpart_id: receivable.counterpart_id,
       metadata: {},
-      line_items: receivable.line_items?.map(item => ({
+      line_items: (receivable.line_items || []).map(item => ({
         name: item.name || '',
         quantity: item.quantity || 1,
         amount: item.unit_price || 0

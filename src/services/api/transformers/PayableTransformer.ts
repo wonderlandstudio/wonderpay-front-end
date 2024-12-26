@@ -8,7 +8,7 @@ export class PayableTransformer {
       due_date: payable.due_date,
       status: payable.status as PayableStateEnum,
       counterpart_id: payable.counterpart_id,
-      total_amount: payable.total_amount,
+      total_amount: payable.total_amount || 0,
     };
   }
 
@@ -19,9 +19,7 @@ export class PayableTransformer {
       updated_at: payable.updated_at,
       status: payable.status,
       currency: payable.currency,
-      total_amount: typeof payable.total_amount === 'object' ? 
-        payable.total_amount.amount : 
-        payable.total_amount,
+      total_amount: payable.total_amount || 0,
       due_date: payable.due_date,
       counterpart_id: payable.counterpart_id,
       metadata: {},
