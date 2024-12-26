@@ -8,8 +8,8 @@ export function fromMonite(receivable: PublicPaymentLinkResponse) {
     currency: receivable.currency as CurrencyEnum,
     status: receivable.status,
     dueDate: new Date().toISOString(),
-    createdAt: receivable.created_at,
-    updatedAt: receivable.updated_at,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     items: []
   };
 }
@@ -17,14 +17,12 @@ export function fromMonite(receivable: PublicPaymentLinkResponse) {
 export function toMonite(data: InvoiceData): CreatePaymentLinkRequest {
   return {
     currency: data.currency as CurrencyEnum,
-    amount: Number(data.total_amount), // Changed from amount to total_amount
-    payment_link_terms: {
-      due_date: data.dueDate,
-      items: data.items.map(item => ({
-        name: item.description,
-        quantity: item.quantity,
-        amount: item.price
-      }))
-    }
+    amount: Number(data.amount),
+    description: data.notes || '',
+    line_items: data.items.map(item => ({
+      name: item.description,
+      quantity: item.quantity,
+      price: item.price
+    }))
   };
 }
