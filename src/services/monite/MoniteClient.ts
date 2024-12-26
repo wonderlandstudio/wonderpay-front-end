@@ -139,7 +139,7 @@ export class MoniteClient {
   }) {
     const instance = await this.getInstance();
     
-    return instance.api.entities.create({
+    return instance.api.entity.create({
       type: "individual",
       email: userData.email,
       individual: {
