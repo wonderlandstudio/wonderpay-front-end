@@ -15,10 +15,11 @@ export function fromMonite(receivable: PublicPaymentLinkResponse) {
 }
 
 export function toMonite(data: InvoiceData): CreatePaymentLinkRequest {
+  const total = data.items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+  
   return {
     currency: data.currency as CurrencyEnum,
-    amount: Number(data.amount),
-    description: data.notes || '',
+    amount: total,
     line_items: data.items.map(item => ({
       name: item.description,
       quantity: item.quantity,
