@@ -1,17 +1,16 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { corsHeaders } from '../monite/utils/cors.ts'
 
-const MONITE_API_URL = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1'
-
 async function getMoniteToken() {
   const clientId = Deno.env.get('MONITE_CLIENT_ID')
   const clientSecret = Deno.env.get('MONITE_CLIENT_SECRET')
+  const apiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1'
   
-  const response = await fetch(`${MONITE_API_URL}/auth/token`, {
+  const response = await fetch(`${apiUrl}/auth/token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Monite-Version': '2024-05-25'
+      'X-Monite-Version': Deno.env.get('MONITE_VERSION') || '2024-05-25'
     },
     body: JSON.stringify({
       grant_type: 'client_credentials',
@@ -36,13 +35,14 @@ serve(async (req) => {
   try {
     const token = await getMoniteToken()
     const entityId = Deno.env.get('MONITE_ENTITY_ID')
+    const apiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1'
 
-    const response = await fetch(`${MONITE_API_URL}/entity_users`, {
+    const response = await fetch(`${apiUrl}/entity_users`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'X-Monite-Version': '2024-05-25'
+        'X-Monite-Version': Deno.env.get('MONITE_VERSION') || '2024-05-25'
       },
       body: JSON.stringify({
         entity_id: entityId,
