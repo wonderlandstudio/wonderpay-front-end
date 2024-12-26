@@ -1,7 +1,8 @@
+import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useMoniteAuth } from '@/hooks/use-monite-auth';
 import { supabase } from '@/integrations/supabase/client';
-import type { User, Session, AuthError } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
@@ -41,30 +42,26 @@ describe('useMoniteAuth', () => {
 
     const { result } = renderHook(() => useMoniteAuth());
 
-    expect(result.current.user).toBe(null);
+    expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.isLoading).toBe(true);
   });
 
   it('should handle authentication error', async () => {
-    class MockAuthError extends Error implements AuthError {
-      name = 'AuthError';
-      status = 401;
-      code = 'invalid_credentials' as const;
-      protected __isAuthError = true;
-
-      constructor() {
-        super('Authentication failed');
-      }
-    }
+    const mockError = {
+      name: 'AuthError',
+      message: 'Authentication failed',
+      status: 401,
+      code: 'invalid_credentials'
+    };
 
     vi.mocked(supabase.auth.getSession).mockResolvedValue({
       data: { session: null },
-      error: new MockAuthError()
+      error: mockError
     });
 
     const { result } = renderHook(() => useMoniteAuth());
 
-    expect(result.current.user).toBe(null);
+    expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.isLoading).toBe(true);
   });
 });
