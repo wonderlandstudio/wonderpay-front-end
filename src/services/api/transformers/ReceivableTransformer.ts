@@ -1,27 +1,10 @@
 import type { 
-  CreatePaymentLinkRequest, 
-  PaymentAccountObject,
+  CreatePaymentLinkRequest,
   ReceivableResponse,
-  ReceivableFacadeCreateQuotePayload,
-  ReceivableFacadeCreateInvoicePayload
+  LineItem
 } from '@monite/sdk-api';
 
-export const transformToReceivable = (data: any) => {
-  const receivable: ReceivableFacadeCreateInvoicePayload = {
-    type: 'invoice',
-    counterpart_id: data.counterpart_id,
-    currency: data.currency,
-    line_items: data.items.map((item: any) => ({
-      product_id: item.id,
-      quantity: item.quantity,
-      unit_price: item.price
-    }))
-  };
-
-  return receivable;
-};
-
-export const transformFromReceivable = (receivable: ReceivableResponse) => {
+export const fromMonite = (receivable: ReceivableResponse) => {
   return {
     id: receivable.id,
     amount: receivable.total_amount || 0,
@@ -29,11 +12,33 @@ export const transformFromReceivable = (receivable: ReceivableResponse) => {
     status: receivable.status,
     created_at: receivable.created_at,
     updated_at: receivable.updated_at,
-    line_items: ('line_items' in receivable ? receivable.line_items : []).map(item => ({
+    line_items: receivable.line_items?.map(item => ({
       id: item.id,
-      description: item.description,
+      description: item.name,
       quantity: item.quantity,
-      price: item.unit_price
-    }))
+      price: item.amount
+    })) || []
+  };
+};
+
+export const toMonite = (data: any): CreatePaymentLinkRequest => {
+  return {
+    currency: data.currency,
+    amount: data.items.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0),
+    recipient: {
+      name: data.clientName,
+      email: data.clientEmail,
+      address: {
+        line1: data.clientAddress || '',
+      }
+    },
+    line_items: data.items.map((item: any) => ({
+      name: item.description,
+      quantity: item.quantity,
+      amount: item.price,
+    })),
+    payment_terms: {
+      due_date: data.dueDate,
+    },
   };
 };

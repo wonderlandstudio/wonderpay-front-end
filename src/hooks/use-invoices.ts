@@ -16,7 +16,7 @@ export function useInvoices() {
   const createInvoiceMutation = useMutation({
     mutationFn: (data: CreatePaymentLinkRequest) => {
       console.log('Creating new invoice:', data);
-      return ReceivableService.createInvoice(data);
+      return ReceivableService.createReceivable(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });

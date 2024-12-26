@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { ReceivableService } from '@/services/receivables/receivableService';
 import type { InvoiceData } from '@/types/invoice';
-import { CurrencyEnum, CreatePaymentLinkRequest } from '@monite/sdk-api';
+import { CurrencyEnum } from '@monite/sdk-api';
+import * as ReceivableTransformer from '@/services/api/transformers/ReceivableTransformer';
 
 export function InvoiceForm() {
   const navigate = useNavigate();
@@ -45,27 +46,8 @@ export function InvoiceForm() {
     try {
       console.log('Creating invoice with data:', invoiceData);
       
-      const paymentLinkRequest: CreatePaymentLinkRequest = {
-        currency: invoiceData.currency as CurrencyEnum,
-        amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
-        recipient: {
-          name: invoiceData.clientName,
-          email: invoiceData.clientEmail,
-          address: {
-            line1: invoiceData.clientAddress,
-          }
-        },
-        line_items: invoiceData.items.map(item => ({
-          name: item.description,
-          quantity: item.quantity,
-          amount: item.price,
-        })),
-        payment_terms: {
-          due_date: invoiceData.dueDate,
-        },
-      };
-
-      const response = await ReceivableService.createInvoice(paymentLinkRequest);
+      const paymentLinkRequest = ReceivableTransformer.toMonite(invoiceData);
+      const response = await ReceivableService.createReceivable(paymentLinkRequest);
 
       console.log('Invoice created successfully:', response);
       
