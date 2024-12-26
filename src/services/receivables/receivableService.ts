@@ -11,7 +11,7 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.list();
+      const response = await sdk.api.receivables.getAll();
       await MoniteMonitoringService.logApiCall('receivables.getAll', true);
       return response.data.map(receivable => ReceivableTransformer.fromMonite(receivable));
     } catch (error) {
@@ -26,7 +26,7 @@ export class ReceivableService {
     
     try {
       const payload = ReceivableTransformer.toMonite(data);
-      const response = await sdk.api.receivable.createInvoice(payload);
+      const response = await sdk.api.receivables.create(payload);
       await MoniteMonitoringService.logApiCall('receivables.create', true);
       return ReceivableTransformer.fromMonite(response);
     } catch (error) {

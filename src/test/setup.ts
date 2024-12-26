@@ -1,31 +1,34 @@
-import '@testing-library/jest-dom';
-import { vi } from 'vitest';
-import { TextEncoder, TextDecoder } from 'util';
+import { expect, vi, beforeAll, afterAll, afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
+import { supabase } from '@/integrations/supabase/client';
 
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
-
-// Mock fetch
-global.fetch = vi.fn();
-
-// Mock Supabase
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      getUser: vi.fn(),
-      signOut: vi.fn(),
-      onAuthStateChange: vi.fn(() => ({
-        data: { subscription: { unsubscribe: vi.fn() } },
-      })),
+beforeAll(() => {
+  // Mock fetch
+  global.fetch = vi.fn();
+  
+  // Mock Supabase client
+  vi.mock('@/integrations/supabase/client', () => ({
+    supabase: {
+      auth: {
+        getUser: vi.fn(),
+        signOut: vi.fn(),
+      },
+      from: vi.fn(),
     },
-    from: vi.fn(),
-  },
-}));
+  }));
+});
 
-// Mock console.error to keep test output clean
-console.error = vi.fn();
-
-// Cleanup after each test
-vi.afterEach(() => {
+afterAll(() => {
   vi.clearAllMocks();
+});
+
+vi.afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
+// Add custom matchers if needed
+expect.extend({
+  // Add custom matchers here
 });
