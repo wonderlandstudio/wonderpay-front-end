@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowDown, ArrowUp, Wallet, Loader2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Wallet, Loader2, LayoutDashboard } from "lucide-react";
 import { useMoniteDashboard } from '@/hooks/use-monite-dashboard';
 import { toast } from '@/hooks/use-toast';
 import OverviewCard from './overview/OverviewCard';
@@ -30,7 +30,10 @@ const OverviewSection = () => {
   return (
     <div className="space-y-8 pt-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Overview</h1>
+        <div className="flex items-center gap-2">
+          <LayoutDashboard className="h-6 w-6 text-gray-500" />
+          <h1 className="text-2xl font-semibold text-gray-900">Overview</h1>
+        </div>
         <div className="flex items-center gap-4">
           <PeriodSelector 
             selectedPeriod={selectedPeriod}
@@ -40,8 +43,9 @@ const OverviewSection = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+          <p className="text-sm text-gray-500">Loading dashboard data...</p>
         </div>
       ) : (
         <>
@@ -50,20 +54,26 @@ const OverviewSection = () => {
               title="Balance"
               value={dashboardData.balance}
               Icon={Wallet}
+              trend="neutral"
             />
             <OverviewCard
               title="Income"
               value={dashboardData.income}
               Icon={ArrowDown}
+              trend="positive"
             />
             <OverviewCard
               title="Expenses"
               value={dashboardData.expenses}
               Icon={ArrowUp}
+              trend="negative"
             />
           </div>
 
-          <TransactionsChart transactions={dashboardData.transactions} />
+          <TransactionsChart 
+            transactions={dashboardData.transactions} 
+            isLoading={isLoading}
+          />
         </>
       )}
     </div>

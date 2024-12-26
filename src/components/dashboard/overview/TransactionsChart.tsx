@@ -2,12 +2,14 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import { Loader2 } from "lucide-react";
 
 interface TransactionsChartProps {
   transactions: Array<{
     date: string;
     value: number;
   }>;
+  isLoading?: boolean;
 }
 
 const chartConfig = {
@@ -20,9 +22,20 @@ const chartConfig = {
   }
 };
 
-const TransactionsChart = ({ transactions }: TransactionsChartProps) => {
+const TransactionsChart = ({ transactions, isLoading }: TransactionsChartProps) => {
+  if (isLoading) {
+    return (
+      <Card className="p-6 bg-white/50 backdrop-blur-sm h-[300px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+          <span className="text-sm text-gray-500">Loading chart data...</span>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="p-6 bg-white mt-8">
+    <Card className="p-6 bg-white/50 backdrop-blur-sm">
       <ChartContainer config={chartConfig} className="h-[300px]">
         <AreaChart 
           data={transactions} 
