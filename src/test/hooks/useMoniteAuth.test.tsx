@@ -1,79 +1,45 @@
-import { renderHook, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
 import { useMoniteAuth } from '@/hooks/use-monite-auth';
-import { supabase } from '@/integrations/supabase/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <QueryClientProvider client={queryClient}>
-    {children}
-  </QueryClientProvider>
-);
+import { vi, describe, it, expect } from 'vitest';
+import { User, AuthError } from '@supabase/supabase-js';
 
 describe('useMoniteAuth', () => {
-  it('returns authenticated state when user has Monite settings', async () => {
-    const mockUser = { id: 'test-user-id' };
-    const mockSettings = {
-      entity_id: 'test-entity-id',
-      environment: 'sandbox'
+  it('should handle successful authentication', async () => {
+    const mockUser: User = {
+      id: '123',
+      app_metadata: {},
+      user_metadata: {},
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      email: 'test@example.com',
+      phone: '',
+      role: '',
+      confirmation_sent_at: null,
+      confirmed_at: null,
+      last_sign_in_at: null,
+      email_confirmed_at: null,
+      phone_confirmed_at: null,
+      banned_until: null,
+      reauthentication_sent_at: null,
+      recovery_sent_at: null
     };
 
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({ 
-      data: { user: mockUser }, 
-      error: null 
+    const mockAuthError: AuthError = {
+      name: 'AuthError',
+      message: 'Auth error message',
+      status: 400,
+      code: 'invalid_request',
+      __isAuthError: true
+    };
+
+    const { result } = renderHook(() => useMoniteAuth());
+
+    await act(async () => {
+      await result.current.login('test@example.com', 'password');
     });
 
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: mockSettings,
-            error: null
-          })
-        })
-      })
-    } as any);
-
-    const { result } = renderHook(() => useMoniteAuth(), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.isAuthenticated).toBe(true);
-      expect(result.current.entityId).toBe(mockSettings.entity_id);
-      expect(result.current.environment).toBe(mockSettings.environment);
-    });
-  });
-
-  it('returns unauthenticated state when there is an error', async () => {
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({ 
-      data: { user: null }, 
-      error: new Error('Not authenticated') 
-    });
-
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: null,
-            error: new Error('Settings not found')
-          })
-        })
-      })
-    } as any);
-
-    const { result } = renderHook(() => useMoniteAuth(), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.isAuthenticated).toBe(false);
-      expect(result.current.entityId).toBeNull();
-      expect(result.current.environment).toBe('sandbox');
-    });
+    expect(result.current.user).toBe(mockUser);
+    expect(result.current.error).toBeNull();
   });
 });

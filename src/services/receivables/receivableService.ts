@@ -1,36 +1,24 @@
-import type { MoniteSDK, CreatePaymentLinkRequest } from '@monite/sdk-api';
 import { MoniteAPIService } from '../api/MoniteAPIService';
-import { MoniteMonitoringService } from '../monitoring/moniteMonitoring';
-import type { MoniteReceivable } from '@/types/payments';
-import { ReceivableTransformer } from '../api/transformers/ReceivableTransformer';
 
 export class ReceivableService {
-  static async getReceivables(): Promise<MoniteReceivable[]> {
-    console.log('Fetching receivables from Monite');
-    const api = await MoniteAPIService.getInstance();
-    const sdk = api.getSDK() as MoniteSDK;
-    
+  static async getReceivables() {
     try {
-      const response = await sdk.api.receivables.getAll();
-      await MoniteMonitoringService.logApiCall('receivables.getAll', true);
-      return response.data.map(receivable => ReceivableTransformer.fromMonite(receivable));
+      const moniteAPI = MoniteAPIService.getInstance();
+      const response = await moniteAPI.callAPI('receivable', 'getAll');
+      return response.data || [];
     } catch (error) {
-      await MoniteMonitoringService.logApiCall('receivables.getAll', false, { error });
+      console.error('Error fetching receivables:', error);
       throw error;
     }
   }
 
-  static async createInvoice(data: CreatePaymentLinkRequest): Promise<MoniteReceivable> {
-    const api = await MoniteAPIService.getInstance();
-    const sdk = api.getSDK() as MoniteSDK;
-    
+  static async createReceivable(data: any) {
     try {
-      const payload = ReceivableTransformer.toMonite(data);
-      const response = await sdk.api.receivables.create(payload);
-      await MoniteMonitoringService.logApiCall('receivables.create', true);
-      return ReceivableTransformer.fromMonite(response);
+      const moniteAPI = MoniteAPIService.getInstance();
+      const response = await moniteAPI.callAPI('receivable', 'create', data);
+      return response;
     } catch (error) {
-      await MoniteMonitoringService.logApiCall('receivables.create', false, { error });
+      console.error('Error creating receivable:', error);
       throw error;
     }
   }

@@ -1,14 +1,23 @@
-import { VariantProps } from 'class-variance-authority';
-import { alert } from '@/components/ui/alert';
+import { type VariantProps } from "class-variance-authority";
+import { Alert } from "@/components/ui/alert";
 
-export type AlertVariant = VariantProps<typeof alert>['variant'];
+export type AlertVariant = VariantProps<typeof Alert>['variant'];
 
-export interface MoniteAuditLog {
-  id: string;
-  user_id: string;
-  entity_id?: string;
-  event_type: string;
-  status: string;
+export type StatusLevel = 'error' | 'warning' | 'success' | 'info';
+
+export interface StatusEntry {
+  component: string;
+  message: string;
+  level: StatusLevel;
+  timestamp: Date;
   details?: Record<string, any>;
-  created_at: string;
 }
+
+export const mapStatusLevelToVariant = (level: StatusLevel): AlertVariant => {
+  switch (level) {
+    case 'error':
+      return 'destructive';
+    default:
+      return 'default';
+  }
+};
