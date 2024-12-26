@@ -2,6 +2,7 @@ import { MoniteSDK } from "@monite/sdk-api";
 import { supabase } from "@/integrations/supabase/client";
 import { MoniteMonitoringService } from "../monitoring/moniteMonitoring";
 import { statusTracker } from "../monitoring/StatusTracker";
+import { toast } from "@/hooks/use-toast";
 
 export class MoniteClient {
   private static instance: MoniteSDK | null = null;
@@ -34,11 +35,21 @@ export class MoniteClient {
 
       if (settingsError) {
         await statusTracker.log('MoniteClient', 'Failed to fetch Monite settings', 'error', { error: settingsError });
+        toast({
+          title: "Monite Setup Required",
+          description: "Please configure your Monite settings in the dashboard.",
+          variant: "destructive",
+        });
         throw settingsError;
       }
 
       if (!settings) {
         await statusTracker.log('MoniteClient', 'No Monite settings found', 'error');
+        toast({
+          title: "Monite Setup Required",
+          description: "Please configure your Monite settings in the dashboard.",
+          variant: "destructive",
+        });
         throw new Error('Monite settings not found');
       }
 
@@ -60,6 +71,7 @@ export class MoniteClient {
         fetchToken: async () => {
           try {
             await statusTracker.log('MoniteClient', 'Fetching token', 'info');
+            console.log('Fetching Monite token...');
 
             const { data: tokens, error: tokensError } = await supabase
               .from('monite_tokens')
@@ -69,15 +81,18 @@ export class MoniteClient {
 
             if (tokensError) {
               await statusTracker.log('MoniteClient', 'Error fetching tokens', 'error', { error: tokensError });
+              console.error('Error fetching tokens:', tokensError);
               throw tokensError;
             }
 
             if (!tokens || new Date(tokens.expires_at) <= new Date()) {
               await statusTracker.log('MoniteClient', 'Token expired or not found, refreshing', 'warning');
+              console.log('Token expired or not found, refreshing...');
               return await this.refreshToken(settings);
             }
 
             await statusTracker.log('MoniteClient', 'Using existing token', 'success');
+            console.log('Using existing Monite token');
             return {
               access_token: tokens.access_token,
               token_type: 'Bearer',
@@ -85,15 +100,18 @@ export class MoniteClient {
             };
           } catch (error) {
             await statusTracker.log('MoniteClient', 'Error in fetchToken', 'error', { error });
+            console.error('Error in fetchToken:', error);
             throw error;
           }
         },
       });
 
       await statusTracker.log('MoniteClient', 'Successfully initialized client', 'success');
+      console.log('Successfully initialized Monite client');
       return this.instance;
     } catch (error) {
       await statusTracker.log('MoniteClient', 'Failed to initialize client', 'error', { error });
+      console.error('Failed to initialize Monite client:', error);
       throw error;
     }
   }
@@ -101,6 +119,7 @@ export class MoniteClient {
   private static async refreshToken(settings: any) {
     try {
       await statusTracker.log('MoniteClient', 'Starting token refresh', 'info');
+      console.log('Starting Monite token refresh...');
 
       if (this.refreshPromise) {
         await statusTracker.log('MoniteClient', 'Using existing refresh promise', 'info');
@@ -130,6 +149,7 @@ export class MoniteClient {
           status: response.status,
           error: errorData 
         });
+        console.error('Token refresh failed:', errorData);
         throw new Error('Failed to refresh token');
       }
 
@@ -148,15 +168,18 @@ export class MoniteClient {
 
       if (upsertError) {
         await statusTracker.log('MoniteClient', 'Failed to save new token', 'error', { error: upsertError });
+        console.error('Failed to save new token:', upsertError);
         throw upsertError;
       }
 
       await statusTracker.log('MoniteClient', 'Token refreshed successfully', 'success');
+      console.log('Monite token refreshed successfully');
       await MoniteMonitoringService.logTokenRefresh(true);
 
       return tokenData;
     } catch (error) {
       await statusTracker.log('MoniteClient', 'Token refresh failed', 'error', { error });
+      console.error('Token refresh failed:', error);
       await MoniteMonitoringService.logTokenRefresh(false, { error });
       throw error;
     }
@@ -164,6 +187,7 @@ export class MoniteClient {
 
   static async resetInstance() {
     await statusTracker.log('MoniteClient', 'Resetting client instance', 'info');
+    console.log('Resetting Monite client instance');
     this.instance = null;
     this.refreshPromise = null;
   }
