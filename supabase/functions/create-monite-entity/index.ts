@@ -42,16 +42,36 @@ serve(async (req) => {
       .from('entities')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (getEntityError) {
       console.error('Failed to get entity:', getEntityError);
       throw new Error('Failed to get entity');
     }
 
+    // If no entity exists, create one
     if (!entity) {
-      console.error('Entity not found');
-      throw new Error('Entity not found');
+      console.log('No entity found, creating one...');
+      const { data: newEntity, error: createError } = await supabaseClient
+        .from('entities')
+        .insert([{ 
+          user_id: user.id,
+          name: 'My Business',
+          status: 'active'
+        }])
+        .select()
+        .single();
+      
+      if (createError || !newEntity) {
+        console.error('Failed to create entity:', createError);
+        throw new Error('Failed to create entity');
+      }
+      
+      console.log('Entity created:', newEntity);
+      return new Response(
+        JSON.stringify({ success: true, entity: newEntity }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Initializing Monite SDK');
