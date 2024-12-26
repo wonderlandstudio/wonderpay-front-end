@@ -49,33 +49,6 @@ serve(async (req) => {
       throw new Error('Failed to get entity');
     }
 
-    // If no entity exists, create one
-    if (!entity) {
-      console.log('No entity found, creating one...');
-      const { data: newEntity, error: createError } = await supabaseClient
-        .from('entities')
-        .insert([{ 
-          user_id: user.id,
-          name: 'My Business',
-          status: 'active'
-        }])
-        .select()
-        .single();
-      
-      if (createError || !newEntity) {
-        console.error('Failed to create entity:', createError);
-        throw new Error('Failed to create entity');
-      }
-      
-      console.log('Entity created:', newEntity);
-      return new Response(
-        JSON.stringify({ success: true, entity: newEntity }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('Initializing Monite SDK');
-
     const moniteApiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1';
     const moniteClientId = Deno.env.get('MONITE_CLIENT_ID');
     const moniteClientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
@@ -107,10 +80,15 @@ serve(async (req) => {
 
     const { access_token } = await tokenResponse.json();
 
+    // Initialize SDK with empty entityId for entity creation
     const sdk = new MoniteSDK({
       apiUrl: moniteApiUrl,
       entityId: '', // Empty for entity creation
-      fetchToken: async () => ({ access_token }),
+      fetchToken: async () => ({
+        access_token,
+        token_type: 'Bearer',
+        expires_in: 3600
+      }),
     });
 
     console.log('Creating Monite entity');
@@ -119,7 +97,7 @@ serve(async (req) => {
       const response = await sdk.entities.create({
         type: 'organization',
         organization: {
-          legal_name: entity.name,
+          legal_name: entity?.name || 'My Business',
           is_supplier: true,
           tax_id: '123456789',
         },
