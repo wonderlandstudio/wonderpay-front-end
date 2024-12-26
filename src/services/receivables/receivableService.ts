@@ -10,12 +10,12 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.getAll();
-      await MoniteMonitoringService.logApiCall('receivable.getAll', true);
+      const response = await sdk.api.paymentLink.list();
+      await MoniteMonitoringService.logApiCall('receivable.list', true);
       return response.data.map(receivable => ReceivableTransformer.fromMonite(receivable));
     } catch (error) {
       console.error('Error fetching receivables:', error);
-      await MoniteMonitoringService.logApiCall('receivable.getAll', false, { error });
+      await MoniteMonitoringService.logApiCall('receivable.list', false, { error });
       throw error;
     }
   }
@@ -26,7 +26,7 @@ export class ReceivableService {
     const sdk = api.getSDK() as MoniteSDK;
     
     try {
-      const response = await sdk.api.receivable.create(data);
+      const response = await sdk.api.paymentLink.create(data);
       await MoniteMonitoringService.logApiCall('receivable.create', true);
       return ReceivableTransformer.fromMonite(response);
     } catch (error) {
