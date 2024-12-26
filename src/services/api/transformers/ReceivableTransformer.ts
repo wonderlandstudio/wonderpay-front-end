@@ -1,6 +1,6 @@
-import type { Receivable } from '@monite/sdk-api';
+import type { CreatePaymentLinkRequest, PaymentLinkResponse } from '@monite/sdk-api';
 
-export function fromMonite(receivable: Receivable) {
+export function fromMonite(receivable: PaymentLinkResponse) {
   return {
     id: receivable.id,
     amount: receivable.amount,
@@ -17,5 +17,20 @@ export function fromMonite(receivable: Receivable) {
       unitPrice: item.unit_price,
       amount: item.amount
     })) || []
+  };
+}
+
+export function toMonite(data: any): CreatePaymentLinkRequest {
+  return {
+    currency: data.currency,
+    amount: data.amount,
+    payment_terms: {
+      due_date: data.dueDate
+    },
+    line_items: data.items.map((item: any) => ({
+      name: item.description,
+      quantity: item.quantity,
+      unit_price: item.price
+    }))
   };
 }

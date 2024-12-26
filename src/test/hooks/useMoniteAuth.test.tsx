@@ -1,45 +1,53 @@
-import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { useMoniteAuth } from '@/hooks/use-monite-auth';
-import { vi, describe, it, expect } from 'vitest';
-import { User, AuthError } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn(),
+      signInWithPassword: vi.fn(),
+      signOut: vi.fn()
+    }
+  }
+}));
 
 describe('useMoniteAuth', () => {
   it('should handle successful authentication', async () => {
-    const mockUser: User = {
-      id: '123',
-      app_metadata: {},
-      user_metadata: {},
-      aud: 'authenticated',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+    const mockUser = {
+      id: 'test-id',
       email: 'test@example.com',
-      phone: '',
-      role: '',
-      confirmation_sent_at: null,
-      confirmed_at: null,
-      last_sign_in_at: null,
-      email_confirmed_at: null,
-      phone_confirmed_at: null,
-      banned_until: null,
-      reauthentication_sent_at: null,
-      recovery_sent_at: null
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
-    const mockAuthError: AuthError = {
-      name: 'AuthError',
-      message: 'Auth error message',
-      status: 400,
-      code: 'invalid_request',
-      __isAuthError: true
-    };
-
-    const { result } = renderHook(() => useMoniteAuth());
-
-    await act(async () => {
-      await result.current.login('test@example.com', 'password');
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: {
+        session: {
+          user: mockUser,
+          access_token: 'test-token',
+          refresh_token: 'test-refresh-token',
+          expires_at: Date.now() + 3600
+        }
+      },
+      error: null
     });
 
-    expect(result.current.user).toBe(mockUser);
+    const { result } = renderHook(() => useMoniteAuth());
+    expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
+  });
+
+  it('should handle authentication error', async () => {
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: new Error('Authentication failed')
+    });
+
+    const { result } = renderHook(() => useMoniteAuth());
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.error).toBeTruthy();
   });
 });

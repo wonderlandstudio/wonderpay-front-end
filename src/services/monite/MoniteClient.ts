@@ -82,7 +82,7 @@ export class MoniteClient {
               body: JSON.stringify({
                 grant_type: 'client_credentials',
                 client_id: settings.api_key,
-                client_secret: settings.client_secret,
+                client_secret: process.env.MONITE_CLIENT_SECRET || '',
               })
             });
 
