@@ -6,6 +6,8 @@ import { AuthProvider } from './providers/AuthProvider';
 import { ProtectedRoutes } from './components/auth/ProtectedRoutes';
 import DashboardLayout from './components/layout/DashboardLayout';
 import { publicRoutes, protectedRoutes } from './config/routes';
+import { PlasmicRootProvider } from "@plasmicapp/loader-react";
+import { PLASMIC } from "./plasmic-init";
 
 // Create a TempoRoutes component to handle Tempo routing
 const TempoRoutes = () => {
@@ -20,71 +22,73 @@ const TempoRoutes = () => {
 
 function App() {
   return (
-    <QueryProvider>
-      <AuthProvider>
-        <SettingsProvider>
-          <Router>
-            <Suspense fallback={<div>Loading...</div>}>
-              <TempoRoutes />
-              <Routes>
-                {/* Public routes */}
-                {publicRoutes.map((route) => (
-                  <Route key={route.path} path={route.path} element={route.element} />
-                ))}
+    <PlasmicRootProvider loader={PLASMIC}>
+      <QueryProvider>
+        <AuthProvider>
+          <SettingsProvider>
+            <Router>
+              <Suspense fallback={<div>Loading...</div>}>
+                <TempoRoutes />
+                <Routes>
+                  {/* Public routes */}
+                  {publicRoutes.map((route) => (
+                    <Route key={route.path} path={route.path} element={route.element} />
+                  ))}
 
-                {/* Protected dashboard routes */}
-                <Route element={<ProtectedRoutes />}>
-                  <Route element={<DashboardLayout />}>
-                    {protectedRoutes.map((route) => {
-                      if (route.children) {
+                  {/* Protected dashboard routes */}
+                  <Route element={<ProtectedRoutes />}>
+                    <Route element={<DashboardLayout />}>
+                      {protectedRoutes.map((route) => {
+                        if (route.children) {
+                          return (
+                            <Route key={route.path} path={route.path}>
+                              {route.children.map((child) => (
+                                <Route
+                                  key={child.path || 'index'}
+                                  index={child.index}
+                                  path={child.path}
+                                  element={
+                                    child.requiresMonite ? (
+                                      <ProtectedRoutes requiresMonite>
+                                        {child.element}
+                                      </ProtectedRoutes>
+                                    ) : (
+                                      child.element
+                                    )
+                                  }
+                                />
+                              ))}
+                            </Route>
+                          );
+                        }
                         return (
-                          <Route key={route.path} path={route.path}>
-                            {route.children.map((child) => (
-                              <Route
-                                key={child.path || 'index'}
-                                index={child.index}
-                                path={child.path}
-                                element={
-                                  child.requiresMonite ? (
-                                    <ProtectedRoutes requiresMonite>
-                                      {child.element}
-                                    </ProtectedRoutes>
-                                  ) : (
-                                    child.element
-                                  )
-                                }
-                              />
-                            ))}
-                          </Route>
+                          <Route
+                            key={route.path}
+                            path={route.path}
+                            element={
+                              route.requiresMonite ? (
+                                <ProtectedRoutes requiresMonite>
+                                  {route.element}
+                                </ProtectedRoutes>
+                              ) : (
+                                route.element
+                              )
+                            }
+                          />
                         );
-                      }
-                      return (
-                        <Route
-                          key={route.path}
-                          path={route.path}
-                          element={
-                            route.requiresMonite ? (
-                              <ProtectedRoutes requiresMonite>
-                                {route.element}
-                              </ProtectedRoutes>
-                            ) : (
-                              route.element
-                            )
-                          }
-                        />
-                      );
-                    })}
+                      })}
+                    </Route>
                   </Route>
-                </Route>
 
-                {/* Catch all route */}
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
-            </Suspense>
-          </Router>
-        </SettingsProvider>
-      </AuthProvider>
-    </QueryProvider>
+                  {/* Catch all route */}
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+              </Suspense>
+            </Router>
+          </SettingsProvider>
+        </AuthProvider>
+      </QueryProvider>
+    </PlasmicRootProvider>
   );
 }
 
