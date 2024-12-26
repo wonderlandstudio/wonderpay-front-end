@@ -6,6 +6,7 @@ import { AuthProvider } from './providers/AuthProvider';
 import { ProtectedRoutes } from './components/auth/ProtectedRoutes';
 import DashboardLayout from './components/layout/DashboardLayout';
 import { publicRoutes, protectedRoutes } from './config/routes';
+import routes from "tempo-routes";
 
 function App() {
   return (
@@ -14,6 +15,9 @@ function App() {
         <SettingsProvider>
           <Router>
             <Suspense fallback={<div>Loading...</div>}>
+              {/* Tempo routes */}
+              {import.meta.env.VITE_TEMPO && useRoutes(routes)}
+              
               <Routes>
                 {/* Public routes */}
                 {publicRoutes.map((route) => (
@@ -64,6 +68,9 @@ function App() {
                     })}
                   </Route>
                 </Route>
+
+                {/* Tempo routes before catch-all */}
+                {import.meta.env.VITE_TEMPO && <Route path="/tempobook/*" />}
 
                 {/* Catch all route */}
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
