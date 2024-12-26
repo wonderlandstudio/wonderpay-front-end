@@ -22,49 +22,47 @@ function App() {
 
                 {/* Protected dashboard routes */}
                 <Route element={<ProtectedRoutes />}>
-                  {protectedRoutes.map((route) => {
-                    if (route.children) {
-                      return (
-                        <Route key={route.path} path={route.path}>
-                          {route.children.map((child) => (
-                            <Route
-                              key={child.path || 'index'}
-                              index={child.index}
-                              path={child.path}
-                              element={
-                                <DashboardLayout>
-                                  {child.requiresMonite ? (
+                  <Route element={<DashboardLayout />}>
+                    {protectedRoutes.map((route) => {
+                      if (route.children) {
+                        return (
+                          <Route key={route.path} path={route.path}>
+                            {route.children.map((child) => (
+                              <Route
+                                key={child.path || 'index'}
+                                index={child.index}
+                                path={child.path}
+                                element={
+                                  child.requiresMonite ? (
                                     <ProtectedRoutes requiresMonite>
                                       {child.element}
                                     </ProtectedRoutes>
                                   ) : (
                                     child.element
-                                  )}
-                                </DashboardLayout>
-                              }
-                            />
-                          ))}
-                        </Route>
-                      );
-                    }
-                    return (
-                      <Route
-                        key={route.path}
-                        path={route.path}
-                        element={
-                          <DashboardLayout>
-                            {route.requiresMonite ? (
+                                  )
+                                }
+                              />
+                            ))}
+                          </Route>
+                        );
+                      }
+                      return (
+                        <Route
+                          key={route.path}
+                          path={route.path}
+                          element={
+                            route.requiresMonite ? (
                               <ProtectedRoutes requiresMonite>
                                 {route.element}
                               </ProtectedRoutes>
                             ) : (
                               route.element
-                            )}
-                          </DashboardLayout>
-                        }
-                      />
-                    );
-                  })}
+                            )
+                          }
+                        />
+                      );
+                    })}
+                  </Route>
                 </Route>
 
                 {/* Catch all route */}

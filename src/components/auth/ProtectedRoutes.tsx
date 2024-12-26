@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/providers/AuthProvider';
 import { MoniteAuthGuard } from './MoniteAuthGuard';
-import DashboardLayout from '../layout/DashboardLayout';
 
 interface ProtectedRoutesProps {
   requiresMonite?: boolean;
@@ -19,15 +18,11 @@ export const ProtectedRoutes = ({ requiresMonite, children }: ProtectedRoutesPro
     return <Navigate to="/login" replace />;
   }
 
-  return (
-    <DashboardLayout>
-      {requiresMonite ? (
-        <MoniteAuthGuard>
-          {children || <Outlet />}
-        </MoniteAuthGuard>
-      ) : (
-        children || <Outlet />
-      )}
-    </DashboardLayout>
+  return requiresMonite ? (
+    <MoniteAuthGuard>
+      {children || <Outlet />}
+    </MoniteAuthGuard>
+  ) : (
+    children || <Outlet />
   );
 };

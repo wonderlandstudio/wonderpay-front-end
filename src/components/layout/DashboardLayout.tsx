@@ -1,15 +1,11 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import SettingsSidebar from './SettingsSidebar';
 import StatusDisplay from '../debug/StatusDisplay';
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = () => {
   const location = useLocation();
   const isSettingsPage = location.pathname.includes('/dashboard/organization-settings') || 
                         location.pathname.includes('/dashboard/settings');
@@ -19,7 +15,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   if (isInvoiceGenerator) {
     return (
       <>
-        {children}
+        <Outlet />
         <StatusDisplay />
       </>
     );
@@ -36,7 +32,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <Sidebar />
         )}
         <main className="flex-1 overflow-y-auto px-6 backdrop-blur-md bg-white/50">
-          {children}
+          <Outlet />
         </main>
       </div>
       <StatusDisplay />
