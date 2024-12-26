@@ -17,7 +17,7 @@ export function toMonite(data: any): CreatePaymentLinkRequest {
   return {
     currency: data.currency,
     amount: data.amount,
-    metadata: {
+    payment_link_terms: {
       due_date: data.dueDate,
       items: data.items
     }
