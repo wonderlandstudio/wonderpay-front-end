@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'npm:@supabase/supabase-js'
-import { MoniteSDK } from 'npm:@monite/sdk-api'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { MoniteSDK } from 'https://esm.sh/@monite/sdk-api'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,75 +10,73 @@ const corsHeaders = {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    console.log('Starting create-monite-entity function');
-    
-    // Get the authorization header
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
+    // Get auth user
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    // Get the user from the JWT token
-    const { data: { user }, error: getUserError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-
-    if (getUserError || !user) {
-      console.error('Unauthorized:', getUserError);
-      throw new Error('Unauthorized');
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
     }
 
-    // Get the entity for this user
-    const { data: entity, error: getEntityError } = await supabaseClient
-      .from('entities')
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    )
+
+    if (userError || !user) {
+      console.error('Auth error:', userError)
+      throw new Error('Unauthorized')
+    }
+
+    // Get user profile for additional info
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
       .select('*')
       .eq('user_id', user.id)
-      .maybeSingle();
+      .maybeSingle()
 
-    if (getEntityError) {
-      console.error('Failed to get entity:', getEntityError);
-      throw new Error('Failed to get entity');
+    if (profileError) {
+      console.error('Failed to get profile:', profileError)
+      throw new Error('Failed to get profile')
     }
 
-    const moniteApiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1';
-    const moniteClientId = Deno.env.get('MONITE_CLIENT_ID');
-    const moniteClientSecret = Deno.env.get('MONITE_CLIENT_SECRET');
+    console.log('Initializing Monite SDK')
+
+    const moniteApiUrl = Deno.env.get('MONITE_API_URL') || 'https://api.sandbox.monite.com/v1'
+    const moniteClientId = Deno.env.get('MONITE_CLIENT_ID')
+    const moniteClientSecret = Deno.env.get('MONITE_CLIENT_SECRET')
 
     if (!moniteClientId || !moniteClientSecret) {
-      console.error('Missing Monite configuration');
-      throw new Error('Missing required Monite configuration');
+      throw new Error('Missing Monite credentials')
     }
 
-    // First get an access token
+    // Get Monite access token
+    console.log('Getting Monite access token')
     const tokenResponse = await fetch(`${moniteApiUrl}/auth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-monite-version': '2024-01-31',
+        'x-monite-version': '2024-05-25'
       },
       body: JSON.stringify({
         grant_type: 'client_credentials',
         client_id: moniteClientId,
-        client_secret: moniteClientSecret,
-      }),
-    });
+        client_secret: moniteClientSecret
+      })
+    })
 
     if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text();
-      console.error('Failed to fetch Monite token:', errorText);
-      throw new Error('Failed to fetch Monite token');
+      console.error('Failed to get token:', await tokenResponse.text())
+      throw new Error('Failed to get Monite token')
     }
 
-    const { access_token } = await tokenResponse.json();
+    const { access_token } = await tokenResponse.json()
 
     // Initialize SDK with empty entityId for entity creation
     const sdk = new MoniteSDK({
@@ -89,49 +87,55 @@ serve(async (req) => {
         token_type: 'Bearer',
         expires_in: 3600
       }),
-    });
+    })
 
-    console.log('Creating Monite entity');
-
+    console.log('Creating Monite entity')
     try {
       const response = await sdk.entities.create({
-        type: 'organization',
-        organization: {
-          legal_name: entity?.name || 'My Business',
-          is_supplier: true,
-          tax_id: '123456789',
+        type: 'individual',
+        email: user.email,
+        address: {
+          city: 'los angeles',
+          country: 'US',
+          line1: 'California',
+          postal_code: '90046',
+          state: 'CA'
         },
-      });
+        individual: {
+          first_name: profile?.username?.split(' ')[0] || 'User',
+          last_name: profile?.username?.split(' ')[1] || 'Name'
+        }
+      })
 
-      console.log('Monite entity created:', response);
+      console.log('Monite entity created:', response)
 
-      // Update the entity with the Monite entity ID
+      // Update the entities table with the new Monite entity ID
       const { error: updateError } = await supabaseClient
         .from('entities')
         .update({ monite_entity_id: response.id })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
 
       if (updateError) {
-        console.error('Failed to update entity:', updateError);
-        throw new Error('Failed to update entity');
+        console.error('Failed to update entity:', updateError)
+        throw new Error('Failed to update entity')
       }
 
       return new Response(
-        JSON.stringify({ success: true, entity_id: response.id }),
+        JSON.stringify({ success: true, entity: response }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      )
     } catch (error) {
-      console.error('Error creating Monite entity:', error);
-      throw error;
+      console.error('Error creating Monite entity:', error)
+      throw error
     }
   } catch (error) {
-    console.error('Error in create-monite-entity function:', error);
+    console.error('Error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
-    );
+    )
   }
-});
+})
