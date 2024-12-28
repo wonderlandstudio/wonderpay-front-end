@@ -18,14 +18,12 @@ export class MoniteClient {
       try {
         console.log('Initializing MoniteSDK...');
         
-        // Get the current user's session
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
           throw new Error('No active session found');
         }
 
-        // Fetch Monite settings for the current user
         const { data: settings, error: settingsError } = await supabase
           .from('monite_settings')
           .select('*')
@@ -36,14 +34,36 @@ export class MoniteClient {
           throw new Error('Failed to fetch Monite settings');
         }
 
-        // Initialize the SDK
         const sdk = new MoniteSDK({
+          apiUrl: 'https://api.sandbox.monite.com/v1',
           entityId: settings.entity_id,
-          apiKey: settings.api_key,
-          environment: settings.environment
+          fetchToken: async () => {
+            const response = await fetch('https://api.sandbox.monite.com/v1/auth/token', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-monite-version': '2024-05-25'
+              },
+              body: JSON.stringify({
+                grant_type: 'client_credentials',
+                client_id: settings.api_key,
+                client_secret: process.env.MONITE_CLIENT_SECRET
+              })
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to fetch token');
+            }
+
+            const data = await response.json();
+            return {
+              access_token: data.access_token,
+              token_type: 'Bearer',
+              expires_in: data.expires_in
+            };
+          }
         });
 
-        await sdk.authenticate();
         console.log('MoniteSDK initialized successfully');
         
         this.instance = sdk;

@@ -20,7 +20,7 @@ export function toMonite(data: InvoiceData): CreatePaymentLinkRequest {
   return {
     currency: data.currency as CurrencyEnum,
     amount: total,
-    line_items: data.items.map(item => ({
+    items: data.items.map(item => ({
       name: item.description,
       quantity: item.quantity,
       price: item.price
