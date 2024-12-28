@@ -1,118 +1,65 @@
 import { MoniteSDK } from '@monite/sdk-api';
-import { MoniteMonitoringService } from '../monitoring/moniteMonitoring';
+import { supabase } from '@/integrations/supabase/client';
 
 export class MoniteClient {
-  private sdk: MoniteSDK;
-  private static instance: MoniteClient;
+  private static instance: MoniteSDK | null = null;
+  private static initializationPromise: Promise<MoniteSDK> | null = null;
 
-  private constructor(sdk: MoniteSDK) {
-    this.sdk = sdk;
-  }
+  static async getInstance(): Promise<MoniteSDK> {
+    if (this.instance) {
+      return this.instance;
+    }
 
-  static async initialize(token: string): Promise<MoniteClient> {
-    if (!this.instance) {
+    if (this.initializationPromise) {
+      return this.initializationPromise;
+    }
+
+    this.initializationPromise = new Promise(async (resolve, reject) => {
       try {
+        console.log('Initializing MoniteSDK...');
+        
+        // Get the current user's session
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          throw new Error('No active session found');
+        }
+
+        // Fetch Monite settings for the current user
+        const { data: settings, error: settingsError } = await supabase
+          .from('monite_settings')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (settingsError || !settings) {
+          throw new Error('Failed to fetch Monite settings');
+        }
+
+        // Initialize the SDK
         const sdk = new MoniteSDK({
-          fetchToken: async () => token,
-          apiUrl: process.env.VITE_MONITE_API_URL,
+          entityId: settings.entity_id,
+          apiKey: settings.api_key,
+          environment: settings.environment
         });
+
         await sdk.authenticate();
-        this.instance = new MoniteClient(sdk);
-        await MoniteMonitoringService.logApiCall('initialize', true);
+        console.log('MoniteSDK initialized successfully');
+        
+        this.instance = sdk;
+        resolve(sdk);
       } catch (error) {
-        console.error('Error initializing Monite SDK:', error);
-        await MoniteMonitoringService.logApiCall('initialize', false, { error });
-        throw error;
+        console.error('Failed to initialize MoniteSDK:', error);
+        reject(error);
+        this.initializationPromise = null;
       }
-    }
-    return this.instance;
+    });
+
+    return this.initializationPromise;
   }
 
-  getSDK(): MoniteSDK {
-    return this.sdk;
-  }
-
-  async createEntity(data: any) {
-    try {
-      const response = await this.sdk.api.entity.create(data);
-      await MoniteMonitoringService.logApiCall('entity.create', true);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating Monite entity:', error);
-      await MoniteMonitoringService.logApiCall('entity.create', false, { error });
-      throw error;
-    }
-  }
-
-  async getEntity(entityId: string) {
-    try {
-      const response = await this.sdk.api.entity.getById(entityId);
-      await MoniteMonitoringService.logApiCall('entity.get', true);
-      return response.data;
-    } catch (error) {
-      console.error('Error getting Monite entity:', error);
-      await MoniteMonitoringService.logApiCall('entity.get', false, { error });
-      throw error;
-    }
-  }
-
-  async updateEntity(entityId: string, data: any) {
-    try {
-      const response = await this.sdk.api.entity.update(entityId, data);
-      await MoniteMonitoringService.logApiCall('entity.update', true);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating Monite entity:', error);
-      await MoniteMonitoringService.logApiCall('entity.update', false, { error });
-      throw error;
-    }
-  }
-
-  async deleteEntity(entityId: string) {
-    try {
-      await this.sdk.api.entity.delete(entityId);
-      await MoniteMonitoringService.logApiCall('entity.delete', true);
-      return true;
-    } catch (error) {
-      console.error('Error deleting Monite entity:', error);
-      await MoniteMonitoringService.logApiCall('entity.delete', false, { error });
-      throw error;
-    }
-  }
-
-  async listEntities(params?: any) {
-    try {
-      const response = await this.sdk.api.entity.getAll(params);
-      await MoniteMonitoringService.logApiCall('entity.list', true);
-      return response.data;
-    } catch (error) {
-      console.error('Error listing Monite entities:', error);
-      await MoniteMonitoringService.logApiCall('entity.list', false, { error });
-      throw error;
-    }
-  }
-
-  async createPaymentLink(data: any) {
-    try {
-      const response = await this.sdk.api.paymentLink.create(data);
-      await MoniteMonitoringService.logApiCall('paymentLink.create', true);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating payment link:', error);
-      await MoniteMonitoringService.logApiCall('paymentLink.create', false, { error });
-      throw error;
-    }
-  }
-
-  async getPaymentLink(linkId: string) {
-    try {
-      const response = await this.sdk.api.paymentLink.getById(linkId);
-      await MoniteMonitoringService.logApiCall('paymentLink.get', true);
-      return response.data;
-    } catch (error) {
-      console.error('Error getting payment link:', error);
-      await MoniteMonitoringService.logApiCall('paymentLink.get', false, { error });
-      throw error;
-    }
+  static resetInstance() {
+    this.instance = null;
+    this.initializationPromise = null;
   }
 }
