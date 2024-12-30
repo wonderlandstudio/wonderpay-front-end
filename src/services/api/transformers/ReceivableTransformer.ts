@@ -3,9 +3,8 @@ import { InvoiceData } from '@/types/invoice';
 
 export const toMonite = (data: InvoiceData): CreatePaymentLinkRequest => {
   return {
-    currency: CurrencyEnum.Usd,
+    currency: CurrencyEnum.USD,
     amount: 0,
-    payment_methods: [],
-    metadata: {},
+    payment_methods: []
   };
 };
