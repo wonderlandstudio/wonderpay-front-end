@@ -1,31 +1,16 @@
-import React, { useState } from 'react';
-import { ArrowDown, ArrowUp, Wallet, Loader2, LayoutDashboard } from "lucide-react";
-import { useMoniteDashboard } from '@/hooks/use-monite-dashboard';
-import { toast } from '@/hooks/use-toast';
+import React from 'react';
+import { ArrowDown, ArrowUp, Wallet, LayoutDashboard } from "lucide-react";
 import OverviewCard from './overview/OverviewCard';
 import PeriodSelector from './overview/PeriodSelector';
 import TransactionsChart from './overview/TransactionsChart';
 
+const mockChartData = Array.from({ length: 30 }, (_, i) => ({
+  date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  value: Math.floor(Math.random() * 10000)
+}));
+
 const OverviewSection = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('30');
-  const { data, isLoading, error } = useMoniteDashboard();
-
-  if (error) {
-    console.error('Error fetching dashboard data:', error);
-    toast({
-      title: "Error",
-      description: "Failed to load dashboard data. Please try again.",
-      variant: "destructive",
-    });
-  }
-
-  // Default values for when data is not available
-  const dashboardData = {
-    balance: data?.balance ?? 0,
-    income: data?.income ?? 0,
-    expenses: data?.expenses ?? 0,
-    transactions: data?.transactions ?? []
-  };
+  const [selectedPeriod, setSelectedPeriod] = React.useState('30');
 
   return (
     <div className="space-y-8 pt-8">
@@ -42,40 +27,31 @@ const OverviewSection = () => {
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-          <p className="text-sm text-gray-500">Loading dashboard data...</p>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <OverviewCard
-              title="Balance"
-              value={dashboardData.balance}
-              Icon={Wallet}
-              trend="neutral"
-            />
-            <OverviewCard
-              title="Income"
-              value={dashboardData.income}
-              Icon={ArrowDown}
-              trend="positive"
-            />
-            <OverviewCard
-              title="Expenses"
-              value={dashboardData.expenses}
-              Icon={ArrowUp}
-              trend="negative"
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <OverviewCard
+          title="Balance"
+          value={25000}
+          Icon={Wallet}
+          trend="neutral"
+        />
+        <OverviewCard
+          title="Income"
+          value={12500}
+          Icon={ArrowDown}
+          trend="positive"
+        />
+        <OverviewCard
+          title="Expenses"
+          value={8750}
+          Icon={ArrowUp}
+          trend="negative"
+        />
+      </div>
 
-          <TransactionsChart 
-            transactions={dashboardData.transactions} 
-            isLoading={isLoading}
-          />
-        </>
-      )}
+      <TransactionsChart 
+        transactions={mockChartData}
+        isLoading={false}
+      />
     </div>
   );
 };
