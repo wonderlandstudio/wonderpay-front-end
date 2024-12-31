@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { ReceivableService } from '@/services/receivables/receivableService';
 import type { InvoiceData } from '@/types/invoice';
 import { CurrencyEnum } from '@monite/sdk-api';
-import * as ReceivableTransformer from '@/services/api/transformers/ReceivableTransformer';
+import { supabase } from '@/integrations/supabase/client';
 
 export function InvoiceForm() {
   const navigate = useNavigate();
@@ -44,12 +43,31 @@ export function InvoiceForm() {
 
   const handleSubmit = async () => {
     try {
-      console.log('Creating invoice with data:', invoiceData);
+      const { data: { user } } = await supabase.auth.getUser();
       
-      const paymentLinkRequest = ReceivableTransformer.toMonite(invoiceData);
-      const response = await ReceivableService.createReceivable(paymentLinkRequest);
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
 
-      console.log('Invoice created successfully:', response);
+      const { data, error } = await supabase
+        .from('invoices')
+        .insert({
+          user_id: user.id,
+          client_name: invoiceData.clientName,
+          invoice_number: invoiceData.invoiceNumber,
+          amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
+          currency: invoiceData.currency,
+          status: 'draft',
+          due_date: new Date(invoiceData.dueDate),
+          items: invoiceData.items,
+          notes: invoiceData.notes
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log('Invoice created successfully:', data);
       
       toast({
         title: "Success",
