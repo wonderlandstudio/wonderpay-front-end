@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function StatusDisplay() {
+const StatusDisplay = () => {
   const status = 'Connected';
   
   return (
@@ -8,4 +8,6 @@ export function StatusDisplay() {
       Status: {status}
     </div>
   );
-}
+};
+
+export default StatusDisplay;
