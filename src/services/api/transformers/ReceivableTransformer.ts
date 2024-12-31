@@ -7,8 +7,11 @@ export const toMonite = (data: InvoiceData): CreatePaymentLinkRequest => {
     amount: 0,
     payment_methods: [],
     recipient: {
-      email: data.clientEmail,
-      name: data.clientName
+      type: 'individual',
+      individual: {
+        first_name: data.clientName,
+        email: data.clientEmail
+      }
     }
   };
 };
