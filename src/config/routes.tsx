@@ -30,22 +30,22 @@ export const protectedRoutes = [
   {
     path: '/dashboard/bill-pay',
     children: [
-      { index: true, element: <BillPay />, requiresMonite: true },
-      { path: 'new', element: <NewBill />, requiresMonite: true },
-      { path: ':invoiceId', element: <InvoiceDetail />, requiresMonite: true },
-      { path: 'generate', element: <InvoiceGenerator />, requiresMonite: true },
+      { index: true, element: <BillPay /> },
+      { path: 'new', element: <NewBill /> },
+      { path: ':invoiceId', element: <InvoiceDetail /> },
+      { path: 'generate', element: <InvoiceGenerator /> },
     ],
   },
   {
     path: '/dashboard/receivables',
     children: [
-      { index: true, element: <Receivables />, requiresMonite: true },
-      { path: ':invoiceId', element: <InvoiceDetail />, requiresMonite: true },
+      { index: true, element: <Receivables /> },
+      { path: ':invoiceId', element: <InvoiceDetail /> },
     ],
   },
-  { path: '/dashboard/capital', element: <Capital />, requiresMonite: true },
-  { path: '/dashboard/quick-pay', element: <QuickPay />, requiresMonite: true },
-  { path: '/dashboard/clients', element: <Clients />, requiresMonite: true },
+  { path: '/dashboard/capital', element: <Capital /> },
+  { path: '/dashboard/quick-pay', element: <QuickPay /> },
+  { path: '/dashboard/clients', element: <Clients /> },
   {
     path: '/dashboard/settings',
     children: [

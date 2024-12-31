@@ -9,7 +9,6 @@ import { publicRoutes, protectedRoutes } from './config/routes';
 import { PlasmicRootProvider } from "@plasmicapp/loader-react";
 import { PLASMIC } from "./plasmic-init";
 
-// Create a TempoRoutes component to handle Tempo routing
 const TempoRoutes = () => {
   if (import.meta.env.VITE_TEMPO) {
     const element = useRoutes([
@@ -47,15 +46,7 @@ function App() {
                                   key={child.path || 'index'}
                                   index={child.index}
                                   path={child.path}
-                                  element={
-                                    child.requiresMonite ? (
-                                      <ProtectedRoutes requiresMonite>
-                                        {child.element}
-                                      </ProtectedRoutes>
-                                    ) : (
-                                      child.element
-                                    )
-                                  }
+                                  element={child.element}
                                 />
                               ))}
                             </Route>
@@ -65,15 +56,7 @@ function App() {
                           <Route
                             key={route.path}
                             path={route.path}
-                            element={
-                              route.requiresMonite ? (
-                                <ProtectedRoutes requiresMonite>
-                                  {route.element}
-                                </ProtectedRoutes>
-                              ) : (
-                                route.element
-                              )
-                            }
+                            element={route.element}
                           />
                         );
                       })}
