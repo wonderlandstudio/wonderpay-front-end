@@ -1,22 +1,40 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { ReceivableService } from '@/services/receivables/receivableService';
 import { toast } from '@/hooks/use-toast';
 import { queryClient } from '@/config/queryClient';
-import type { CreatePaymentLinkRequest } from '@monite/sdk-api';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useInvoices() {
   const { data: invoices, isLoading, error } = useQuery({
     queryKey: ['invoices'],
     queryFn: async () => {
       console.log('Fetching invoices data');
-      return ReceivableService.getReceivables();
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
     },
   });
 
   const createInvoiceMutation = useMutation({
-    mutationFn: (data: CreatePaymentLinkRequest) => {
-      console.log('Creating new invoice:', data);
-      return ReceivableService.createReceivable(data);
+    mutationFn: async (invoiceData: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('invoices')
+        .insert({
+          ...invoiceData,
+          user_id: user.id,
+          status: 'draft'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });

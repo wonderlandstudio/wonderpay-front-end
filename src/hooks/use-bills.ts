@@ -1,22 +1,40 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { PayableService } from '@/services/payables/payableService';
 import { toast } from '@/hooks/use-toast';
 import { queryClient } from '@/config/queryClient';
-import type { MonitePayable } from '@/types/payments';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useBills() {
   const { data: bills, isLoading, error } = useQuery({
     queryKey: ['bills'],
     queryFn: async () => {
       console.log('Fetching bills data');
-      return PayableService.getPayables();
+      const { data, error } = await supabase
+        .from('bills')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
     },
   });
 
   const createBillMutation = useMutation({
-    mutationFn: (data: Partial<MonitePayable>) => {
-      console.log('Creating new bill:', data);
-      return PayableService.createPayable(data);
+    mutationFn: async (billData: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('bills')
+        .insert({
+          ...billData,
+          user_id: user.id,
+          status: 'draft'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bills'] });

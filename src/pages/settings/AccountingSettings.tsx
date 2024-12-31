@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { MoniteMonitoringService } from '@/services/monitoring/moniteMonitoring';
 
 export default function AccountingSettings() {
   const [entityId, setEntityId] = useState('');
@@ -34,21 +33,18 @@ export default function AccountingSettings() {
 
       if (error) throw error;
 
-      await MoniteMonitoringService.logApiCall('settings.update', true);
-
       toast({
         title: "Success",
-        description: "Monite settings have been saved successfully.",
+        description: "Settings have been saved successfully.",
       });
 
       navigate('/dashboard');
     } catch (error) {
-      console.error('Failed to save Monite settings:', error);
-      await MoniteMonitoringService.logApiCall('settings.update', false, { error });
+      console.error('Failed to save settings:', error);
       
       toast({
         title: "Error",
-        description: "Failed to save Monite settings. Please try again.",
+        description: "Failed to save settings. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -58,7 +54,7 @@ export default function AccountingSettings() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Monite Integration Settings</h1>
+      <h1 className="text-2xl font-bold mb-6">Integration Settings</h1>
       
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -68,7 +64,7 @@ export default function AccountingSettings() {
               id="entityId"
               value={entityId}
               onChange={(e) => setEntityId(e.target.value)}
-              placeholder="Enter your Monite Entity ID"
+              placeholder="Enter your Entity ID"
               required
             />
           </div>
@@ -80,7 +76,7 @@ export default function AccountingSettings() {
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter your Monite API Key"
+              placeholder="Enter your API Key"
               required
             />
           </div>

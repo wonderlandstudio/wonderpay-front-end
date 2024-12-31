@@ -49,19 +49,21 @@ export function InvoiceForm() {
         throw new Error('User not authenticated');
       }
 
+      const insertData = {
+        client_name: invoiceData.clientName,
+        invoice_number: invoiceData.invoiceNumber,
+        amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
+        currency: invoiceData.currency,
+        status: 'draft',
+        due_date: new Date(invoiceData.dueDate).toISOString(),
+        items: invoiceData.items,
+        notes: invoiceData.notes,
+        user_id: user.id
+      };
+
       const { data, error } = await supabase
         .from('invoices')
-        .insert({
-          user_id: user.id,
-          client_name: invoiceData.clientName,
-          invoice_number: invoiceData.invoiceNumber,
-          amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
-          currency: invoiceData.currency,
-          status: 'draft',
-          due_date: new Date(invoiceData.dueDate),
-          items: invoiceData.items,
-          notes: invoiceData.notes
-        })
+        .insert(insertData)
         .select()
         .single();
 
