@@ -1,16 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
-import { MoniteMonitoringService } from '@/services/monitoring/moniteMonitoring';
+import { useState, useEffect } from 'react';
 
 export function useMoniteMonitoring() {
-  const { data: logs, isLoading, error, refetch } = useQuery({
-    queryKey: ['monite-logs'],
-    queryFn: MoniteMonitoringService.getRecentLogs,
-  });
+  const [status, setStatus] = useState('active');
 
-  return {
-    logs,
-    isLoading,
-    error,
-    refetch,
-  };
+  useEffect(() => {
+    // Simple monitoring status
+    setStatus('active');
+  }, []);
+
+  return { status };
 }

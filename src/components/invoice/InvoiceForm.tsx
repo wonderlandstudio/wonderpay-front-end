@@ -56,7 +56,7 @@ export function InvoiceForm() {
         currency: invoiceData.currency,
         status: 'draft',
         due_date: new Date(invoiceData.dueDate).toISOString(),
-        items: invoiceData.items,
+        items: JSON.stringify(invoiceData.items), // Convert items array to JSON string
         notes: invoiceData.notes,
         user_id: user.id
       };

@@ -1,11 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
-import { statusTracker } from '@/services/monitoring/StatusTracker';
-import type { StatusEntry } from '@/types/monitoring';
+import { useState, useEffect } from 'react';
 
 export function useStatusTracker() {
-  return useQuery<StatusEntry[]>({
-    queryKey: ['status-tracker'],
-    queryFn: () => statusTracker.getLogs(),
-    refetchInterval: 1000, // Update every second
-  });
+  const [status, setStatus] = useState('active');
+
+  useEffect(() => {
+    // Simple status tracking
+    setStatus('active');
+  }, []);
+
+  return { status };
 }

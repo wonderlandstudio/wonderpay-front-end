@@ -1,15 +1,24 @@
-import { useQuery } from '@tanstack/react-query';
-import { MoniteClient } from '@/services/monite/MoniteClient';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useMoniteClient() {
-  const { data: client, isLoading, error } = useQuery({
-    queryKey: ['monite-client'],
-    queryFn: () => MoniteClient.getInstance(),
-  });
+  const [isReady, setIsReady] = useState(false);
 
-  return {
-    client,
-    isLoading,
-    error,
+  useEffect(() => {
+    checkClientStatus();
+  }, []);
+
+  const checkClientStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsReady(true);
+      }
+    } catch (error) {
+      console.error('Client check failed:', error);
+      setIsReady(false);
+    }
   };
+
+  return { isReady };
 }
