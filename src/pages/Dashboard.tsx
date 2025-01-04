@@ -2,8 +2,9 @@ import React from 'react';
 import OverviewSection from '@/components/dashboard/OverviewSection';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import type { Transaction } from '@/types/common';
 
-const mockTransactions = [
+const mockTransactions: Transaction[] = [
   {
     id: '1',
     description: 'Website Development',
@@ -11,7 +12,9 @@ const mockTransactions = [
     invoiceNumber: 'INV-2024-001',
     status: 'paid',
     date: '2024-03-01',
-    amount: 2500.00
+    amount: 2500.00,
+    currency: 'USD',
+    recipient: 'Tech Solutions Inc'
   },
   {
     id: '2',
@@ -20,7 +23,9 @@ const mockTransactions = [
     invoiceNumber: 'INV-2024-002',
     status: 'pending',
     date: '2024-03-05',
-    amount: 1500.00
+    amount: 1500.00,
+    currency: 'USD',
+    recipient: 'Digital Marketing Pro'
   },
   {
     id: '3',
@@ -29,11 +34,13 @@ const mockTransactions = [
     invoiceNumber: 'INV-2024-003',
     status: 'overdue',
     date: '2024-02-28',
-    amount: 750.00
+    amount: 750.00,
+    currency: 'USD',
+    recipient: 'Office Depot'
   }
 ];
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       <OverviewSection />

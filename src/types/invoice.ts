@@ -5,41 +5,46 @@ export interface InvoiceItem {
 }
 
 export interface InvoiceData {
-  // Company Details
   email: string;
   companyName: string;
-  logo?: File;
   address: string;
   city: string;
   state: string;
   zip: string;
   country: string;
   taxId: string;
-
-  // Invoice Details
   currency: string;
   items: InvoiceItem[];
   note: string;
+  notes: string;
   discount: number;
   tax: number;
-
-  // Payment Details
-  bankName: string;
-  accountNumber: string;
-  accountName: string;
-  ifscCode: string;
-  routingNumber: string;
-  swiftCode: string;
-
-  // Invoice Terms
   invoiceNumber: string;
   issueDate: string;
   dueDate: string;
+  date: string;
   clientName: string;
   clientEmail: string;
   clientAddress: string;
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  routingNumber: string;
+  swiftCode: string;
+  ifscCode: string;
+}
 
-  // These were missing and causing the error
+export interface Invoice {
+  id: string;
+  client_name: string;
+  invoice_number: string;
+  amount: number;
+  currency: string;
+  status: 'draft' | 'pending' | 'paid' | 'overdue';
+  due_date: string;
+  items: InvoiceItem[];
   notes: string;
-  date: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
 }

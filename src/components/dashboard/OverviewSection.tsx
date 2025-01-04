@@ -4,13 +4,18 @@ import OverviewCard from './overview/OverviewCard';
 import PeriodSelector from './overview/PeriodSelector';
 import TransactionsChart from './overview/TransactionsChart';
 
-const mockChartData = Array.from({ length: 30 }, (_, i) => ({
+interface ChartDataPoint {
+  date: string;
+  value: number;
+}
+
+const mockChartData: ChartDataPoint[] = Array.from({ length: 30 }, (_, i) => ({
   date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   value: Math.floor(Math.random() * 10000)
 }));
 
-const OverviewSection = () => {
-  const [selectedPeriod, setSelectedPeriod] = React.useState('30');
+const OverviewSection: React.FC = () => {
+  const [selectedPeriod, setSelectedPeriod] = React.useState<string>('30');
 
   return (
     <div className="space-y-8 pt-8">

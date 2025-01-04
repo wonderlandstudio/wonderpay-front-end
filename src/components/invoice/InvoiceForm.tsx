@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import type { InvoiceData } from '@/types/invoice';
-import { CurrencyEnum } from '@monite/sdk-api';
-import { supabase } from '@/integrations/supabase/client';
 
 export function InvoiceForm() {
   const navigate = useNavigate();
@@ -16,7 +14,7 @@ export function InvoiceForm() {
     zip: '',
     country: '',
     taxId: '',
-    currency: CurrencyEnum.USD,
+    currency: 'USD',
     items: [{ description: '', quantity: 1, price: 0 }],
     note: '',
     notes: '',
@@ -37,39 +35,29 @@ export function InvoiceForm() {
     ifscCode: '',
   });
 
-  const handleFieldChange = (field: keyof InvoiceData, value: any) => {
+  const handleFieldChange = <K extends keyof InvoiceData>(field: K, value: InvoiceData[K]) => {
     setInvoiceData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const insertData = {
+      const mockInvoiceData = {
+        id: Math.random().toString(36).substr(2, 9),
         client_name: invoiceData.clientName,
         invoice_number: invoiceData.invoiceNumber,
         amount: invoiceData.items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
         currency: invoiceData.currency,
         status: 'draft',
         due_date: new Date(invoiceData.dueDate).toISOString(),
-        items: JSON.stringify(invoiceData.items), // Convert items array to JSON string
+        items: invoiceData.items,
         notes: invoiceData.notes,
-        user_id: user.id
+        user_id: 'mock-user-id'
       };
 
-      const { data, error } = await supabase
-        .from('invoices')
-        .insert(insertData)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      console.log('Invoice created successfully:', data);
+      console.log('Invoice created successfully:', mockInvoiceData);
       
       toast({
         title: "Success",

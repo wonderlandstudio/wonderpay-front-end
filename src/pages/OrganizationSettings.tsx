@@ -1,100 +1,45 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useSettings } from '@/contexts/SettingsContext';
-import { supabase } from "@/integrations/supabase/client";
 
-const OrganizationSettings = () => {
+interface OrganizationSettings {
+  businessName: string;
+  displayName: string;
+  website: string;
+  description: string;
+  brandColor: string;
+}
+
+const defaultSettings: OrganizationSettings = {
+  businessName: 'Wonderland Studio',
+  displayName: 'Wonderland',
+  website: 'https://wonderlandstudio.com',
+  description: 'A creative studio specializing in music, entertainment, and luxury hospitality.',
+  brandColor: '#1A1F2C'
+};
+
+const OrganizationSettings: React.FC = () => {
   const { toast } = useToast();
-  const { settings, updateSettings, saveSettings } = useSettings();
+  const [settings, setSettings] = useState<OrganizationSettings>(defaultSettings);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const setupMoniteEntity = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
-
-        const { data: entity, error } = await supabase
-          .from('entities')
-          .select('monite_entity_id')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-
-        if (error) {
-          throw error;
-        }
-
-        // If no Monite entity exists, create one
-        if (!entity?.monite_entity_id) {
-          console.log('No Monite entity found, creating one...');
-          
-          // Get fresh session token
-          const { data: { session: currentSession } } = await supabase.auth.getSession();
-          if (!currentSession?.access_token) {
-            throw new Error('No valid session token');
-          }
-
-          const response = await supabase.functions.invoke('create-monite-entity', {
-            headers: {
-              Authorization: `Bearer ${currentSession.access_token}`
-            }
-          });
-          
-          if (response.error) {
-            console.error('Edge function error:', response.error);
-            throw new Error(response.error.message || 'Failed to create Monite entity');
-          }
-
-          toast({
-            title: "Success",
-            description: "Your organization has been set up with Monite.",
-          });
-        }
-      } catch (error) {
-        console.error('Error setting up Monite entity:', error);
-        toast({
-          title: "Error",
-          description: "Failed to set up your organization with Monite.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    setupMoniteEntity();
-  }, [toast]);
+  const updateSettings = (updates: Partial<OrganizationSettings>) => {
+    setSettings(prev => ({ ...prev, ...updates }));
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
-    try {
-      await saveSettings();
+    // Simulate API call
+    setTimeout(() => {
       toast({
         title: "Success",
         description: "Organization settings have been saved.",
       });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save organization settings.",
-        variant: "destructive",
-      });
-    } finally {
       setIsSaving(false);
-    }
+    }, 1000);
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="p-6">

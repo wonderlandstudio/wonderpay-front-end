@@ -1,20 +1,8 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
-const Home = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/dashboard');
-      }
-    });
-  }, [navigate]);
-
+const Home: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#FFFFFF] px-4 py-16">
       <div className="max-w-4xl mx-auto text-center space-y-8">

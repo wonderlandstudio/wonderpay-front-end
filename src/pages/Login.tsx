@@ -1,67 +1,63 @@
-import { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from '@/providers/AuthProvider';
+import { Button } from "@/components/ui/button";
 
-const Login = () => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { session } = useAuth();
 
-  useEffect(() => {
-    if (session) {
-      navigate('/dashboard');
-    }
-  }, [session, navigate]);
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // For demo purposes, just navigate to dashboard
+    navigate('/dashboard');
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF] px-4">
       <div className="w-full max-w-md space-y-8">
-        <div className="text-center space-y-6">
-          <h1 
-            className="text-5xl font-bold text-[#1A1F2C]"
-            style={{ fontFamily: 'Times New Roman, serif' }}
-          >
-            WonderPay
-          </h1>
-          
-          <div className="w-20 h-20 mx-auto transform hover:scale-105 transition-transform duration-300">
-            <img 
-              src="/lovable-uploads/2cfe764c-e03d-4bd4-9aec-40a3f9d1a7ae.png" 
-              alt="WonderPay Logo" 
-              className="w-full h-full object-contain"
-            />
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+            Sign in to your account
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <div className="space-y-4 rounded-md shadow-sm">
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="relative block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Email address"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="relative block w-full rounded-md border-0 py-1.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Password"
+              />
+            </div>
           </div>
-        </div>
-        
-        <Auth
-          supabaseClient={supabase}
-          appearance={{
-            theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  brand: '#1A1F2C',
-                  brandAccent: '#403E43',
-                }
-              }
-            },
-            className: {
-              container: 'w-full',
-              button: 'w-full px-4 py-2 rounded-full',
-              input: 'rounded-lg bg-white/50 backdrop-blur-sm',
-            }
-          }}
-          providers={[]}
-          redirectTo={window.location.origin}
-        />
 
-        <div className="flex items-center justify-center space-x-2">
-          <p className="text-sm text-gray-600">
-            Powered by Wonderland Studio
-          </p>
-        </div>
+          <div>
+            <Button
+              type="submit"
+              className="w-full bg-[#1A1F2C] hover:bg-[#403E43] text-white rounded-full px-8 py-3 text-base font-normal h-auto transition-all duration-300 hover:shadow-lg"
+            >
+              Sign in
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

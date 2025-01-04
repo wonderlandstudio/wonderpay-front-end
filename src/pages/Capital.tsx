@@ -1,12 +1,34 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { ApplicationForm } from '@/components/capital/ApplicationForm';
 import { ApplicationsList } from '@/components/capital/ApplicationsList';
 import { CapitalProductCard } from '@/components/capital/CapitalProductCard';
 import { CapitalProduct, ApplicationFormData, CapitalApplication } from '@/types/capital';
+
+const mockApplications: CapitalApplication[] = [
+  {
+    id: '1',
+    product: 'wonderflex',
+    requested_amount: 50000,
+    terms: 60,
+    status: 'approved',
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    user_id: 'mock-user-id'
+  },
+  {
+    id: '2',
+    product: 'wonderadvance',
+    requested_amount: 75000,
+    terms: 90,
+    status: 'pending',
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    user_id: 'mock-user-id'
+  }
+];
 
 const Capital = () => {
   const { toast } = useToast();
@@ -16,32 +38,30 @@ const Capital = () => {
   const { data: applications, isLoading } = useQuery({
     queryKey: ['capital-applications'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('wonderpay_capital_applications')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as CapitalApplication[];
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return mockApplications;
     },
   });
 
   const applyMutation = useMutation({
     mutationFn: async (applicationData: ApplicationFormData) => {
-      const { data, error } = await supabase
-        .from('wonderpay_capital_applications')
-        .insert({
-          product: applicationData.product,
-          requested_amount: applicationData.requestedAmount,
-          terms: applicationData.terms,
-          status: 'pending',
-          user_id: (await supabase.auth.getUser()).data.user?.id
-        })
-        .select()
-        .single();
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const now = new Date().toISOString();
+      const newApplication: CapitalApplication = {
+        id: Math.random().toString(36).substr(2, 9),
+        product: applicationData.product,
+        requested_amount: applicationData.requestedAmount,
+        terms: applicationData.terms,
+        status: 'pending',
+        created_at: now,
+        updated_at: now,
+        user_id: 'mock-user-id'
+      };
 
-      if (error) throw error;
-      return data;
+      return newApplication;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['capital-applications'] });

@@ -1,4 +1,0 @@
-project_id = "zwtxebgyiknysfmpeejy"
-
-[functions.monite]
-verify_jwt = true
